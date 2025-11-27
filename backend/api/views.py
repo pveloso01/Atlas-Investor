@@ -1,3 +1,12 @@
-from django.shortcuts import render
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
-# Create your views here.
+
+@api_view(['GET'])
+def health_check(request):
+    """Health check endpoint for testing."""
+    return Response({
+        'status': 'healthy',
+        'message': 'Atlas Investor API is running',
+        'version': '0.1.0'
+    })
