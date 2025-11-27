@@ -32,6 +32,11 @@ class PropertySerializer(serializers.ModelSerializer):
     def get_coordinates(self, obj):
         """Return coordinates as [longitude, latitude]."""
         if obj.coordinates:
-            return [obj.coordinates.x, obj.coordinates.y]
+            # Handle PostGIS PointField (has .x and .y attributes)
+            if hasattr(obj.coordinates, 'x') and hasattr(obj.coordinates, 'y'):
+                return [obj.coordinates.x, obj.coordinates.y]
+            # Handle JSONField (already a list [longitude, latitude])
+            elif isinstance(obj.coordinates, (list, tuple)) and len(obj.coordinates) >= 2:
+                return [obj.coordinates[0], obj.coordinates[1]]
         return None
 
