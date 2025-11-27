@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 # Try to use PostGIS, fallback to regular models if not available
 # Note: This import will fail if GDAL is not installed, but we catch it
@@ -12,6 +13,25 @@ except (ImportError, Exception):
     HAS_POSTGIS = False
     gis_models = models
     Point = None
+
+
+class User(AbstractUser):
+    """Custom user model extending Django's AbstractUser."""
+    email = models.EmailField(unique=True, blank=False, null=False)
+    
+    # Additional fields can be added here in the future
+    # phone_number = models.CharField(max_length=20, blank=True)
+    # profile_picture = models.ImageField(upload_to='profiles/', blank=True)
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+    
+    class Meta:
+        verbose_name = 'user'
+        verbose_name_plural = 'users'
+    
+    def __str__(self):
+        return self.email
 
 
 class Region(models.Model):
@@ -64,7 +84,7 @@ class Property(models.Model):
 
 class SavedProperty(models.Model):
     """User's saved properties with notes."""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saved_properties')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='saved_properties')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='saved_by')
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -74,4 +94,4 @@ class SavedProperty(models.Model):
         unique_together = ['user', 'property']
 
     def __str__(self):
-        return f"{self.user.username} - {self.property.address}"
+        return f"{self.user.email} - {self.property.address}"
