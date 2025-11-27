@@ -30,6 +30,13 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+# Try to import PostGIS, only add if available
+try:
+    from django.contrib.gis import gdal
+    HAS_POSTGIS = True
+except (ImportError, Exception):
+    HAS_POSTGIS = False
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.gis',
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
@@ -45,6 +51,10 @@ INSTALLED_APPS = [
     'djoser',
     'api',
 ]
+
+# Only add PostGIS if GDAL is available
+if HAS_POSTGIS:
+    INSTALLED_APPS.insert(6, 'django.contrib.gis')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -2,12 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # Try to use PostGIS, fallback to regular models if not available
+# Note: This import will fail if GDAL is not installed, but we catch it
 try:
     from django.contrib.gis.db import models as gis_models
+    from django.contrib.gis.geos import Point
     HAS_POSTGIS = True
-except ImportError:
+except (ImportError, Exception):
+    # If PostGIS/GDAL is not available, use regular models
     HAS_POSTGIS = False
     gis_models = models
+    Point = None
 
 
 class Region(models.Model):
