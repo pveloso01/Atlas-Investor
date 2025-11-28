@@ -12,24 +12,24 @@ export default function Home() {
           Real Estate Investment Platform for Portugal
         </Typography>
         <Box className="mt-8 flex gap-4 justify-center">
-          <Button
-            variant="contained"
-            size="large"
-            component={Link}
-            href="/properties"
-            className="px-8"
-          >
-            Browse Properties
-          </Button>
-          <Button
-            variant="outlined"
-            size="large"
-            component={Link}
-            href="/login"
-            className="px-8"
-          >
-            Login
-          </Button>
+          <Link href="/properties" className="no-underline">
+            <Button
+              variant="contained"
+              size="large"
+              className="px-8"
+            >
+              Browse Properties
+            </Button>
+          </Link>
+          <Link href="/login" className="no-underline">
+            <Button
+              variant="outlined"
+              size="large"
+              className="px-8"
+            >
+              Login
+            </Button>
+          </Link>
         </Box>
       </Box>
     </Container>
