@@ -19,6 +19,7 @@ import {
 import { ViewList, ViewModule } from '@mui/icons-material';
 import { useGetPropertiesQuery } from '../store/api/propertyApi';
 import PropertyCard from '../components/PropertyCard';
+import PropertyDetailModal from '../components/PropertyDetailModal';
 import { Property } from '../types/property';
 
 type ViewMode = 'grid' | 'list';
@@ -30,6 +31,8 @@ const PropertiesPage: React.FC = () => {
   const [propertyType, setPropertyType] = useState<string>('');
   const [region, setRegion] = useState<string>('');
   const [search, setSearch] = useState<string>('');
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const { data, error, isLoading } = useGetPropertiesQuery({
     page,
@@ -150,7 +153,13 @@ const PropertiesPage: React.FC = () => {
                 lg={viewMode === 'grid' ? 3 : 12}
                 key={property.id}
               >
-                <PropertyCard property={property} />
+                <PropertyCard
+                  property={property}
+                  onClick={() => {
+                    setSelectedProperty(property);
+                    setModalOpen(true);
+                  }}
+                />
               </Grid>
             ))}
           </Grid>
@@ -185,6 +194,16 @@ const PropertiesPage: React.FC = () => {
           </Typography>
         </Box>
       )}
+
+      {/* Property Detail Modal */}
+      <PropertyDetailModal
+        property={selectedProperty}
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedProperty(null);
+        }}
+      />
     </Container>
   );
 };
