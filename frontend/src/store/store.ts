@@ -1,10 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
+import { propertyApi } from './api/propertyApi';
 
 export const store = configureStore({
   reducer: {
-    // Add reducers here
+    [propertyApi.reducerPath]: propertyApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(propertyApi.middleware),
 });
 
 setupListeners(store.dispatch);
