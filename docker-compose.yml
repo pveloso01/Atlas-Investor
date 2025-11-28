@@ -65,14 +65,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: atlas-frontend
-    command: npm start
+    command: npm run dev
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - /app/.next
     ports:
       - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:8000/api
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
     depends_on:
       - backend
     env_file:
