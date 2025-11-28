@@ -95,9 +95,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database configuration
 # For development: Use SQLite (no GDAL required)
 # For production: Use PostgreSQL with PostGIS (requires GDAL)
-# Railway provides DATABASE_URL automatically
 
-# Check if DATABASE_URL is provided (Railway, Heroku, etc.)
+# Check if DATABASE_URL is provided (Heroku, Render, etc.)
 if 'DATABASE_URL' in os.environ:
     try:
         import dj_database_url  # type: ignore[import-untyped]
