@@ -1,4 +1,3 @@
-from .user_serializers import UserSerializer, UserCreateSerializer
-
-__all__ = ['UserSerializer', 'UserCreateSerializer']
+# Property and Region serializers only
+# User serializers are in the users app
 

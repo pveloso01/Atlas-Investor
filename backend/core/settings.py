@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'djoser',
+    'users',
     'api',
 ]
 
@@ -158,7 +159,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User Model
-AUTH_USER_MODEL = 'api.User'
+AUTH_USER_MODEL = 'users.User'
 
 # REST Framework
 REST_FRAMEWORK = {
@@ -183,9 +184,9 @@ DJOSER = {
     'LOGIN_FIELD': 'email',
     'USER_CREATE_PASSWORD_RETYPE': True,
     'SERIALIZERS': {
-        'user_create': 'api.serializers.UserCreateSerializer',
-        'user': 'api.serializers.UserSerializer',
-        'current_user': 'api.serializers.UserSerializer',
+        'user_create': 'users.serializers.UserCreateSerializer',
+        'user': 'users.serializers.UserSerializer',
+        'current_user': 'users.serializers.UserSerializer',
     },
     'PERMISSIONS': {
         'user': ['rest_framework.permissions.IsAuthenticated'],
