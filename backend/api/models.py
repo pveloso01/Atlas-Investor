@@ -73,5 +73,6 @@ class SavedProperty(models.Model):
         ordering = ['-created_at']
         unique_together = ['user', 'property']
 
-    def __str__(self):
-        return f"{self.user.email} - {self.property.address}"
+    def __str__(self) -> str:
+        # Django ForeignKey access is dynamic - type checker needs help
+        return f"{self.user.email} - {self.property.address}"  # type: ignore[attr-defined]
