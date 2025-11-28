@@ -27,8 +27,8 @@ class Region(models.Model):
     class Meta:
         ordering = ['name']
 
-    def __str__(self):
-        return self.name
+    def __str__(self) -> str:
+        return str(self.name)
 
 
 class Property(models.Model):
@@ -58,7 +58,7 @@ class Property(models.Model):
         ordering = ['-created_at']
         verbose_name_plural = 'Properties'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.address} - €{self.price}"
 
 
