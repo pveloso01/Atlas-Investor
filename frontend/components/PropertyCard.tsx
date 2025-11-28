@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import {
   Card,
@@ -9,7 +11,7 @@ import {
   Stack,
 } from '@mui/material';
 import { Home, Bed, Bath, SquareFoot } from '@mui/icons-material';
-import { Property } from '../types/property';
+import { Property } from '@/types/property';
 
 interface PropertyCardProps {
   property: Property;
@@ -48,39 +50,19 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
 
   return (
     <Card
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': onClick
-          ? {
-              transform: 'translateY(-4px)',
-              boxShadow: 4,
-            }
-          : {},
-      }}
+      className="h-full flex flex-col cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-lg"
       onClick={onClick}
     >
-      {/* Placeholder for property image */}
       <CardMedia
         component="div"
-        sx={{
-          height: 200,
-          backgroundColor: 'grey.300',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+        className="h-48 bg-gray-300 flex items-center justify-center"
       >
         <Home sx={{ fontSize: 60, color: 'grey.500' }} />
       </CardMedia>
 
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Price and Type */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 1 }}>
-          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+      <CardContent className="flex-grow flex flex-col">
+        <Box className="flex justify-between items-start mb-2">
+          <Typography variant="h6" className="font-bold text-blue-600">
             {formatPrice(property.price)}
           </Typography>
           <Chip
@@ -91,40 +73,36 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
           />
         </Box>
 
-        {/* Address */}
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: 40 }}>
+        <Typography variant="body2" className="mb-4 min-h-10 text-gray-600">
           {property.address}
         </Typography>
 
-        {/* Region */}
         {property.region && (
-          <Typography variant="caption" color="text.secondary" sx={{ mb: 2 }}>
+          <Typography variant="caption" className="mb-4 text-gray-500">
             {property.region.name}
           </Typography>
         )}
 
-        {/* Property Details */}
-        <Stack direction="row" spacing={2} sx={{ mt: 'auto', pt: 2 }}>
+        <Stack direction="row" spacing={2} className="mt-auto pt-4">
           {property.bedrooms !== null && property.bedrooms !== undefined && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box className="flex items-center gap-1">
               <Bed fontSize="small" color="action" />
               <Typography variant="body2">{property.bedrooms}</Typography>
             </Box>
           )}
           {property.bathrooms && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box className="flex items-center gap-1">
               <Bath fontSize="small" color="action" />
               <Typography variant="body2">{property.bathrooms}</Typography>
             </Box>
           )}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, ml: 'auto' }}>
+          <Box className="flex items-center gap-1 ml-auto">
             <SquareFoot fontSize="small" color="action" />
             <Typography variant="body2">{property.size_sqm} m²</Typography>
           </Box>
         </Stack>
 
-        {/* Price per m² */}
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, textAlign: 'right' }}>
+        <Typography variant="caption" className="mt-2 text-right text-gray-500">
           {formatPricePerSqm()} / m²
         </Typography>
       </CardContent>

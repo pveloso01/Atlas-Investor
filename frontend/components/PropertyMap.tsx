@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Box, Paper, Typography } from '@mui/material';
-import { Property } from '../types/property';
+'use client';
+
+import { Property } from '@/types/property';
 
 interface PropertyMapProps {
   properties: Property[];
@@ -20,7 +22,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [mapError, setMapError] = useState<string | null>(null);
 
-  const mapboxToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken) {
