@@ -26,6 +26,8 @@ venv/
 env/
 ENV/
 .venv
+backend/venv/
+frontend/node_modules/
 
 # Django
 *.log
@@ -42,7 +44,8 @@ db.sqlite3-journal
 .env.*.local
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo
