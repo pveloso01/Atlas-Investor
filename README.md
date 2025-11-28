@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
-[![React](https://img.shields.io/badge/React-18+-61dafb.svg)](https://reactjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15+-000000.svg)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178c6.svg)](https://www.typescriptlang.org/)
 
 ## 🎯 Overview
@@ -78,7 +78,7 @@ Atlas-Investor/
 - **Backend**: Django 4.2+ (Python 3.11+)
 - **Database**: PostgreSQL 15+ with PostGIS
 - **Cache**: Redis 7+
-- **Frontend**: React 18+ with TypeScript
+- **Frontend**: Next.js 15+ with TypeScript and Tailwind CSS
 - **State Management**: Redux Toolkit + RTK Query
 - **Mapping**: Mapbox GL JS
 - **UI Library**: Material-UI (MUI) v5
@@ -112,7 +112,7 @@ For detailed information about the technology stack and rationale, see [docs/TEC
 cd backend
 python manage.py runserver
 
-# Frontend (React)
+# Frontend (Next.js)
 cd frontend
 npm start
 ```
