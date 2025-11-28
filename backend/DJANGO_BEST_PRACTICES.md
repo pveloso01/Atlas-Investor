@@ -154,3 +154,4 @@ backend/
 - [Two Scoops of Django](https://www.feldroy.com/books/two-scoops-of-django-3-x)
 - [Django Coding Style](https://docs.djangoproject.com/en/stable/internals/contributing/writing-code/coding-style/)
 
+

@@ -24,3 +24,4 @@ export interface Property {
   updated_at: string;
 }
 
+

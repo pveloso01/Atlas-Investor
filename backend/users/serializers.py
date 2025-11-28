@@ -43,3 +43,4 @@ class UserCreateSerializer(serializers.ModelSerializer):
         )
         return user
 
+

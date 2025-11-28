@@ -24,3 +24,4 @@ jobs:
           # Example for SSH deployment:
           # ssh user@production-server "cd /opt/atlas-investor && git pull && docker-compose up -d --build"
 
+
