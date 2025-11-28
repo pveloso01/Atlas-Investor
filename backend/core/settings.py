@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-9^7l!_8u^%-o^ti+za1e=21r!sgbp4ug_y%6dkrvtxz&v5r5(!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
 
 # Application definition
@@ -94,9 +95,28 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database configuration
 # For development: Use SQLite (no GDAL required)
 # For production: Use PostgreSQL with PostGIS (requires GDAL)
-import os
+# Railway provides DATABASE_URL automatically
 
-if os.getenv('USE_POSTGRES', 'False').lower() == 'true':
+# Check if DATABASE_URL is provided (Railway, Heroku, etc.)
+if 'DATABASE_URL' in os.environ:
+    try:
+        import dj_database_url  # type: ignore[import-untyped]
+        db_config = dj_database_url.config(conn_max_age=600, conn_health_checks=True)
+        
+        # If PostGIS is available and DATABASE_URL uses postgres, try PostGIS backend
+        if HAS_POSTGIS and db_config.get('ENGINE') == 'django.db.backends.postgresql':
+            db_config['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
+        
+        DATABASES = {'default': db_config}
+    except ImportError:
+        # Fallback if dj-database-url is not installed
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+elif os.getenv('USE_POSTGRES', 'False').lower() == 'true':
     if HAS_POSTGIS:
         # Use PostGIS backend if available
         DATABASES = {
@@ -166,6 +186,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
