@@ -14,7 +14,7 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
-import { Home, Bed, Bath, SquareFoot, LocationOn, Euro } from '@mui/icons-material';
+import { Home, Bed, Bathtub, SquareFoot, LocationOn, Euro } from '@mui/icons-material';
 import { Property } from '@/types/property';
 
 interface PropertyDetailModalProps {
@@ -126,7 +126,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
               )}
               {property.bathrooms && (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Bath color="action" />
+                  <Bathtub color="action" />
                   <Typography variant="body1">
                     <strong>{property.bathrooms}</strong> Bathroom{parseFloat(property.bathrooms) !== 1 ? 's' : ''}
                   </Typography>
