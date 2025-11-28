@@ -15,8 +15,9 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
+  Button,
 } from '@mui/material';
-import { ViewList, ViewModule } from '@mui/icons-material';
+import { ViewList, ViewModule, Map as MapIcon, List as ListIcon } from '@mui/icons-material';
 import { useGetPropertiesQuery } from '../store/api/propertyApi';
 import PropertyCard from '../components/PropertyCard';
 import PropertyDetailModal from '../components/PropertyDetailModal';
@@ -33,6 +34,7 @@ const PropertiesPage: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   const { data, error, isLoading } = useGetPropertiesQuery({
     page,
@@ -111,19 +113,29 @@ const PropertiesPage: React.FC = () => {
           </Select>
         </FormControl>
         <Box sx={{ flexGrow: 1 }} />
-        <ToggleButtonGroup
-          value={viewMode}
-          exclusive
-          onChange={handleViewModeChange}
+        <Button
+          variant={showMap ? 'contained' : 'outlined'}
+          startIcon={<MapIcon />}
+          onClick={() => setShowMap(!showMap)}
           size="small"
         >
-          <ToggleButton value="grid" aria-label="grid view">
-            <ViewModule />
-          </ToggleButton>
-          <ToggleButton value="list" aria-label="list view">
-            <ViewList />
-          </ToggleButton>
-        </ToggleButtonGroup>
+          {showMap ? 'Hide Map' : 'Show Map'}
+        </Button>
+        {!showMap && (
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={handleViewModeChange}
+            size="small"
+          >
+            <ToggleButton value="grid" aria-label="grid view">
+              <ViewModule />
+            </ToggleButton>
+            <ToggleButton value="list" aria-label="list view">
+              <ViewList />
+            </ToggleButton>
+          </ToggleButtonGroup>
+        )}
       </Box>
 
       {/* Loading State */}
@@ -140,8 +152,22 @@ const PropertiesPage: React.FC = () => {
         </Alert>
       )}
 
+      {/* Map View */}
+      {showMap && data && (
+        <Box sx={{ mb: 4 }}>
+          <PropertyMap
+            properties={data.results}
+            onPropertyClick={(property) => {
+              setSelectedProperty(property);
+              setModalOpen(true);
+            }}
+            height={600}
+          />
+        </Box>
+      )}
+
       {/* Properties Grid/List */}
-      {data && data.results.length > 0 && (
+      {!showMap && data && data.results.length > 0 && (
         <>
           <Grid container spacing={3}>
             {data.results.map((property: Property) => (
@@ -184,7 +210,7 @@ const PropertiesPage: React.FC = () => {
       )}
 
       {/* Empty State */}
-      {data && data.results.length === 0 && (
+      {!showMap && data && data.results.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Typography variant="h6" color="text.secondary">
             No properties found
