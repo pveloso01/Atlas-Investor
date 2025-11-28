@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import {
   Dialog,
@@ -13,8 +15,6 @@ import {
   Divider,
 } from '@mui/material';
 import { Home, Bed, Bath, SquareFoot, LocationOn, Euro } from '@mui/icons-material';
-'use client';
-
 import { Property } from '@/types/property';
 
 interface PropertyDetailModalProps {
