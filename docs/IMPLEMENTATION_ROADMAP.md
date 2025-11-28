@@ -42,7 +42,7 @@ Build a working prototype that demonstrates core value: property search, basic a
      - [x] `User` model (custom User model extending AbstractUser with email as username)
      - [x] `SavedProperty` model (user, property, notes, created_at)
    - [x] Set up database migrations
-   - [ ] Create initial seed data (2-3 sample properties for testing)
+   - [x] Create initial seed data (20 sample properties from Lisbon, Porto, and Cascais)
 
 3. **Backend Foundation**
    - [x] Set up Django REST Framework
