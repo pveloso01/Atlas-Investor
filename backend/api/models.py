@@ -43,8 +43,9 @@ class Property(models.Model):
 
     external_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     address = models.CharField(max_length=255)
-    # PointField is conditionally available from PostGIS - type checker needs help
-    coordinates = gis_models.PointField(srid=4326, null=True, blank=True) if HAS_POSTGIS else models.JSONField(null=True, blank=True, help_text="Coordinates as [longitude, latitude]")  # type: ignore[attr-defined]
+    # Always use JSONField in database for compatibility
+    # PostGIS PointField conversion handled in serializer/application code
+    coordinates = models.JSONField(null=True, blank=True, help_text="Coordinates as [longitude, latitude]")
     price = models.DecimalField(max_digits=12, decimal_places=2)
     size_sqm = models.DecimalField(max_digits=10, decimal_places=2)
     property_type = models.CharField(max_length=20, choices=PROPERTY_TYPES)
