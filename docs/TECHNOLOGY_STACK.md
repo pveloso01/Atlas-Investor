@@ -54,7 +54,7 @@ This document outlines the technology choices for Atlas Investor, including rati
 
 ## Frontend
 
-### Framework: React 18+ with TypeScript
+### Framework: Next.js 15+ with TypeScript
 
 **Rationale:**
 - **Component-Based**: Reusable components speed up development
@@ -72,7 +72,7 @@ This document outlines the technology choices for Atlas Investor, including rati
 - **Next.js**: 
   - **Pros**: Built-in routing, SSR/SSG, image optimization, API routes, excellent DX
   - **Cons**: Adds complexity for features we don't need initially (SSR/SSG), opinionated structure, potential overkill for SPA with separate backend
-  - **Decision**: Chose React for MVP simplicity. Next.js could be considered for Phase 4 if we need SSR for SEO or performance optimization
+  - **Decision**: Migrated to Next.js for better SEO, performance, and developer experience. Next.js App Router provides excellent routing and server-side capabilities.
 - **Vue.js**: Smaller ecosystem, less TypeScript support
 - **Angular**: More opinionated, heavier for our use case
 - **Svelte**: Smaller community, less proven at scale
