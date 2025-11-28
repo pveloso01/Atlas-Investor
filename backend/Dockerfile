@@ -27,7 +27,7 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput || true
 
-# Expose port (Railway uses PORT env variable)
+# Expose port
 EXPOSE $PORT
 
 # Run gunicorn

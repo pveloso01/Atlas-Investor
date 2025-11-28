@@ -6,7 +6,7 @@ This guide explains how to set up CI/CD using GitHub Actions and deploy Atlas In
 
 **Recommended Architecture:**
 - **Frontend**: GitHub Pages (free) or Vercel/Netlify (free tier)
-- **Backend**: Railway, Render, or DigitalOcean (paid, but affordable)
+- **Backend**: Render, DigitalOcean, or AWS (paid, but affordable)
 - **Database**: Managed PostgreSQL (included with hosting or separate)
 - **CI/CD**: GitHub Actions (free for public repos)
 
@@ -22,7 +22,7 @@ This guide explains how to set up CI/CD using GitHub Actions and deploy Atlas In
 
 ---
 
-## Option 1: GitHub Pages (Frontend) + Railway/Render (Backend)
+## Option 1: GitHub Pages (Frontend) + Render/DigitalOcean (Backend)
 
 ### Frontend: GitHub Pages
 
@@ -58,7 +58,7 @@ This guide explains how to set up CI/CD using GitHub Actions and deploy Atlas In
    // frontend/src/services/api.ts
    const API_URL = process.env.REACT_APP_API_URL || 
      (process.env.NODE_ENV === 'production' 
-       ? 'https://your-backend.railway.app/api'  // Production backend
+       ? 'https://your-backend.render.com/api'  // Production backend
        : 'http://localhost:8000/api');            // Development
    ```
 
@@ -86,18 +86,18 @@ This guide explains how to set up CI/CD using GitHub Actions and deploy Atlas In
              publish_dir: ./frontend/build
    ```
 
-### Backend: Railway or Render
+### Backend: Render or DigitalOcean
 
-**Railway** (Recommended for simplicity):
-- Free tier: $5/month credit
+**Render** (Recommended for simplicity):
+- Free tier available (with limitations)
 - Automatic deployments from GitHub
 - Built-in PostgreSQL
 - Easy environment variables
 
-**Render** (Alternative):
-- Free tier available (with limitations)
-- Automatic deployments
-- Managed PostgreSQL
+**DigitalOcean** (Alternative):
+- More control and flexibility
+- $6-12/month for basic droplet
+- Manual setup required
 
 **Setup Steps:**
 
@@ -118,9 +118,9 @@ This guide explains how to set up CI/CD using GitHub Actions and deploy Atlas In
    CMD gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
    ```
 
-2. **Deploy to Railway:**
+2. **Deploy to Render:**
    - Connect GitHub repo
-   - Railway auto-detects Dockerfile
+   - Render auto-detects Dockerfile
    - Add environment variables
    - Deploy!
 
@@ -269,8 +269,7 @@ feature/* → develop → main
 - `PRODUCTION_DATABASE_URL`: PostgreSQL connection string
 - `PRODUCTION_SECRET_KEY`: Django secret key
 
-**For Railway/Render:**
-- `RAILWAY_TOKEN`: Railway API token (if using Railway API)
+**For Render:**
 - `RENDER_API_KEY`: Render API key (if using Render API)
 
 ### Setting Up Secrets
@@ -290,11 +289,11 @@ feature/* → develop → main
 - Custom domain: $10-15/year
 
 **Backend:**
-- Railway (free tier: $5/month credit)
-- Or Render (free tier with limitations)
+- Render (free tier with limitations)
+- Or DigitalOcean Droplet ($6/month)
 
 **Database:**
-- Included with Railway/Render
+- Included with Render
 - Or Supabase (free tier)
 
 **Total Cost: ~$0-10/month**
@@ -306,7 +305,7 @@ feature/* → develop → main
 - Or keep GitHub Pages
 
 **Backend:**
-- Railway ($20/month)
+- Render ($7-25/month)
 - Or DigitalOcean Droplet ($12/month)
 
 **Database:**
@@ -332,27 +331,26 @@ feature/* → develop → main
 
 ---
 
-## Quick Start: Railway Deployment
+## Quick Start: Render Deployment
 
-1. **Sign up at railway.app**
-2. **Create new project**
+1. **Sign up at render.com**
+2. **Create new web service**
 3. **Connect GitHub repo**
-4. **Add service → GitHub Repo**
-5. **Select backend directory**
-6. **Add environment variables:**
+4. **Select backend directory**
+5. **Add environment variables:**
    ```
    USE_POSTGRES=True
    SECRET_KEY=your-secret-key
    DEBUG=False
-   ALLOWED_HOSTS=your-app.railway.app
+   ALLOWED_HOSTS=your-app.onrender.com
    ```
-7. **Railway auto-deploys on push to main!**
+6. **Render auto-deploys on push to main!**
 
 ---
 
 ## Next Steps
 
-1. **Choose hosting option** (Railway recommended for start)
+1. **Choose hosting option** (Render recommended for start)
 2. **Set up GitHub Actions** (workflows already created)
 3. **Configure secrets** in GitHub
 4. **Test deployment** to staging first
@@ -363,8 +361,8 @@ feature/* → develop → main
 ## Resources
 
 - [GitHub Actions Docs](https://docs.github.com/en/actions)
-- [Railway Docs](https://docs.railway.app/)
 - [Render Docs](https://render.com/docs)
+- [DigitalOcean Docs](https://docs.digitalocean.com/)
 - [GitHub Pages Docs](https://docs.github.com/en/pages)
 
 
