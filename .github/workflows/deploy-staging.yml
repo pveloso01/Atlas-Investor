@@ -1,0 +1,27 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.atlasinvestor.com  # Update with your staging URL
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to staging server
+        # This is a placeholder - you'll need to configure based on your hosting
+        # Options: SSH to server, use Railway/Render API, etc.
+        run: |
+          echo "Deploying to staging..."
+          echo "Configure this step based on your hosting provider"
+          # Example for SSH deployment:
+          # ssh user@staging-server "cd /opt/atlas-investor && git pull && docker-compose up -d --build"
+
