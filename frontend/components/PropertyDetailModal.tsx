@@ -13,7 +13,9 @@ import {
   Divider,
 } from '@mui/material';
 import { Home, Bed, Bath, SquareFoot, LocationOn, Euro } from '@mui/icons-material';
-import { Property } from '../types/property';
+'use client';
+
+import { Property } from '@/types/property';
 
 interface PropertyDetailModalProps {
   property: Property | null;

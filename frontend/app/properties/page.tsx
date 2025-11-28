@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
   Typography,
@@ -17,15 +19,16 @@ import {
   ToggleButtonGroup,
   Button,
 } from '@mui/material';
-import { ViewList, ViewModule, Map as MapIcon, List as ListIcon } from '@mui/icons-material';
-import { useGetPropertiesQuery } from '../store/api/propertyApi';
-import PropertyCard from '../components/PropertyCard';
-import PropertyDetailModal from '../components/PropertyDetailModal';
-import { Property } from '../types/property';
+import { ViewList, ViewModule, Map as MapIcon } from '@mui/icons-material';
+import { useGetPropertiesQuery } from '@/lib/store/api/propertyApi';
+import PropertyCard from '@/components/PropertyCard';
+import PropertyDetailModal from '@/components/PropertyDetailModal';
+import PropertyMap from '@/components/PropertyMap';
+import { Property } from '@/types/property';
 
 type ViewMode = 'grid' | 'list';
 
-const PropertiesPage: React.FC = () => {
+export default function PropertiesPage() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(12);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
@@ -60,13 +63,13 @@ const PropertiesPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
+    <Container maxWidth="xl" className="py-8">
+      <Typography variant="h4" component="h1" className="mb-4">
         Properties
       </Typography>
 
       {/* Filters */}
-      <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+      <Box className="mb-8 flex gap-4 flex-wrap items-center">
         <TextField
           label="Search"
           variant="outlined"
@@ -76,9 +79,9 @@ const PropertiesPage: React.FC = () => {
             setSearch(e.target.value);
             setPage(1);
           }}
-          sx={{ minWidth: 200 }}
+          className="min-w-[200px]"
         />
-        <FormControl size="small" sx={{ minWidth: 150 }}>
+        <FormControl size="small" className="min-w-[150px]">
           <InputLabel>Property Type</InputLabel>
           <Select
             value={propertyType}
@@ -96,7 +99,7 @@ const PropertiesPage: React.FC = () => {
             <MenuItem value="mixed">Mixed Use</MenuItem>
           </Select>
         </FormControl>
-        <FormControl size="small" sx={{ minWidth: 150 }}>
+        <FormControl size="small" className="min-w-[150px]">
           <InputLabel>Region</InputLabel>
           <Select
             value={region}
@@ -112,7 +115,7 @@ const PropertiesPage: React.FC = () => {
             <MenuItem value="3">Cascais</MenuItem>
           </Select>
         </FormControl>
-        <Box sx={{ flexGrow: 1 }} />
+        <Box className="flex-grow" />
         <Button
           variant={showMap ? 'contained' : 'outlined'}
           startIcon={<MapIcon />}
@@ -140,21 +143,21 @@ const PropertiesPage: React.FC = () => {
 
       {/* Loading State */}
       {isLoading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <Box className="flex justify-center py-16">
           <CircularProgress />
         </Box>
       )}
 
       {/* Error State */}
       {error && (
-        <Alert severity="error" sx={{ mb: 4 }}>
+        <Alert severity="error" className="mb-8">
           Failed to load properties. Please try again later.
         </Alert>
       )}
 
       {/* Map View */}
       {showMap && data && (
-        <Box sx={{ mb: 4 }}>
+        <Box className="mb-8">
           <PropertyMap
             properties={data.results}
             onPropertyClick={(property) => {
@@ -192,7 +195,7 @@ const PropertiesPage: React.FC = () => {
 
           {/* Pagination */}
           {data.count > pageSize && (
-            <Stack spacing={2} sx={{ mt: 4, alignItems: 'center' }}>
+            <Stack spacing={2} className="mt-8 items-center">
               <Pagination
                 count={Math.ceil(data.count / pageSize)}
                 page={page}
@@ -200,7 +203,7 @@ const PropertiesPage: React.FC = () => {
                 color="primary"
                 size="large"
               />
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" className="text-gray-600">
                 Showing {(page - 1) * pageSize + 1} to{' '}
                 {Math.min(page * pageSize, data.count)} of {data.count} properties
               </Typography>
@@ -211,11 +214,11 @@ const PropertiesPage: React.FC = () => {
 
       {/* Empty State */}
       {!showMap && data && data.results.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="h6" color="text.secondary">
+        <Box className="text-center py-16">
+          <Typography variant="h6" className="text-gray-600">
             No properties found
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          <Typography variant="body2" className="text-gray-500 mt-2">
             Try adjusting your filters
           </Typography>
         </Box>
@@ -232,6 +235,5 @@ const PropertiesPage: React.FC = () => {
       />
     </Container>
   );
-};
+}
 
-export default PropertiesPage;
