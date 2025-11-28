@@ -10,7 +10,7 @@ import {
   Chip,
   Stack,
 } from '@mui/material';
-import { Home, Bed, Bath, SquareFoot } from '@mui/icons-material';
+import { Home, Bed, Bathtub, SquareFoot } from '@mui/icons-material';
 import { Property } from '@/types/property';
 
 interface PropertyCardProps {
@@ -92,7 +92,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
           )}
           {property.bathrooms && (
             <Box className="flex items-center gap-1">
-              <Bath fontSize="small" color="action" />
+              <Bathtub fontSize="small" color="action" />
               <Typography variant="body2">{property.bathrooms}</Typography>
             </Box>
           )}
