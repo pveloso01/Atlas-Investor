@@ -16,6 +16,16 @@ from api.models import Property, Region
 User = get_user_model()
 
 
+def get_response_results(response):
+    """Helper to get results from response, handling both paginated and non-paginated responses."""
+    if isinstance(response.data, dict) and 'results' in response.data:
+        return response.data['results']
+    elif isinstance(response.data, list):
+        return response.data
+    else:
+        return response.data
+
+
 class HealthCheckViewTest(TestCase):
     """Test cases for health_check endpoint."""
 
@@ -71,7 +81,8 @@ class PropertyViewSetTest(TestCase):
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
+        results = get_response_results(response)
+        self.assertEqual(len(results), 1)
 
     def test_retrieve_property_unauthenticated(self):
         """Test retrieving a property without authentication."""
@@ -162,8 +173,9 @@ class PropertyViewSetTest(TestCase):
         response = self.client.get(url, {'property_type': 'apartment'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['property_type'], 'apartment')
+        results = get_response_results(response)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['property_type'], 'apartment')
 
     def test_filter_by_region(self):
         """Test filtering properties by region."""
@@ -181,8 +193,9 @@ class PropertyViewSetTest(TestCase):
         response = self.client.get(url, {'region': self.region.id})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['region']['id'], self.region.id)
+        results = get_response_results(response)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['region']['id'], self.region.id)
 
     def test_search_by_address(self):
         """Test searching properties by address."""
@@ -199,8 +212,9 @@ class PropertyViewSetTest(TestCase):
         response = self.client.get(url, {'search': 'Test Address'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['results']), 1)
-        self.assertIn('Test Address', response.data['results'][0]['address'])
+        results = get_response_results(response)
+        self.assertEqual(len(results), 1)
+        self.assertIn('Test Address', results[0]['address'])
 
     def test_ordering_by_price(self):
         """Test ordering properties by price."""
@@ -338,7 +352,8 @@ class RegionViewSetTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Response might be paginated or a list
         if isinstance(response.data, dict) and 'results' in response.data:
-            self.assertEqual(len(response.data['results']), 2)
+            results = get_response_results(response)
+            self.assertEqual(len(results), 2)
         else:
             self.assertEqual(len(response.data), 2)
 
@@ -354,6 +369,7 @@ class RegionViewSetTest(TestCase):
 
     def test_search_regions_by_name(self):
         """Test searching regions by name."""
+        # Create another region to ensure search is working
         Region.objects.create(  # type: ignore[attr-defined]
             name='Porto', code='OPO')
         
@@ -361,16 +377,14 @@ class RegionViewSetTest(TestCase):
         response = self.client.get(url, {'search': 'Lisbon'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Response might be paginated or a list
-        if isinstance(response.data, dict) and 'results' in response.data:
-            results = response.data['results']
-        else:
-            results = response.data
-        self.assertEqual(len(results), 1)
+        results = get_response_results(response)
+        # Should only return Lisbon, not Porto
+        self.assertEqual(len(results), 1, f"Expected 1 result, got {len(results)}: {[r.get('name') for r in results]}")
         self.assertEqual(results[0]['name'], 'Lisbon')
 
     def test_search_regions_by_code(self):
         """Test searching regions by code."""
+        # Create another region to ensure search is working
         Region.objects.create(  # type: ignore[attr-defined]
             name='Porto', code='OPO')
         
@@ -378,12 +392,9 @@ class RegionViewSetTest(TestCase):
         response = self.client.get(url, {'search': 'LIS'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Response might be paginated or a list
-        if isinstance(response.data, dict) and 'results' in response.data:
-            results = response.data['results']
-        else:
-            results = response.data
-        self.assertEqual(len(results), 1)
+        results = get_response_results(response)
+        # Should only return LIS, not OPO
+        self.assertEqual(len(results), 1, f"Expected 1 result, got {len(results)}: {[r.get('code') for r in results]}")
         self.assertEqual(results[0]['code'], 'LIS')
 
     def test_region_ordering(self):
@@ -397,7 +408,7 @@ class RegionViewSetTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Response might be paginated or a list
         if isinstance(response.data, dict) and 'results' in response.data:
-            results = response.data['results']
+            results = get_response_results(response)
         else:
             results = response.data
         self.assertEqual(len(results), 2)

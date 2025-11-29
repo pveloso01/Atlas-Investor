@@ -295,9 +295,18 @@ class SavedPropertyModelTest(TestCase):
 
     def test_saved_property_empty_notes(self):
         """Test SavedProperty with empty notes."""
+        # Create a different property to avoid UNIQUE constraint
+        prop2 = Property.objects.create(  # type: ignore[attr-defined]
+            external_id='TEST-002',
+            address='Test Address 456',
+            price=Decimal('200000.00'),
+            size_sqm=Decimal('80.00'),
+            property_type='apartment',
+            region=self.region
+        )
         saved = SavedProperty.objects.create(  # type: ignore[attr-defined]
             user=self.user,
-            property=self.property,
+            property=prop2,
             notes=''
         )
         self.assertEqual(saved.notes, '')

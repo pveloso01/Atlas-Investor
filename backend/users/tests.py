@@ -22,7 +22,7 @@ class UserModelTest(TestCase):
 
     def test_user_str(self):
         """Test User __str__ method."""
-        self.assertEqual(str(self.user), 'testuser')
+        self.assertEqual(str(self.user), 'test@example.com')
 
     def test_user_email_unique(self):
         """Test User email uniqueness."""

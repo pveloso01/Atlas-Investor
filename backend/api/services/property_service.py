@@ -23,9 +23,9 @@ class PropertyService:
     @staticmethod
     def calculate_yield(price: Decimal, annual_rent: Decimal) -> Optional[Decimal]:
         """Calculate rental yield percentage."""
-        if price and price > 0 and annual_rent:
+        if price and price > 0 and annual_rent is not None:
             return (annual_rent / price) * 100
-        return None
+        return Decimal('0.00') if price and price > 0 and annual_rent == 0 else None
 
     @staticmethod
     def normalize_coordinates(coordinates) -> Optional[List[float]]:
