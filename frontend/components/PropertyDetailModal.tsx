@@ -14,7 +14,7 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
-import { Home, Bed, Bathtub, SquareFoot, LocationOn, Euro } from '@mui/icons-material';
+import { Bed, Bathtub, SquareFoot, LocationOn, Euro } from '@mui/icons-material';
 import { Property } from '@/types/property';
 
 interface PropertyDetailModalProps {
