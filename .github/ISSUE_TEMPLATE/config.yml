@@ -1,0 +1,9 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/pveloso01/Atlas-Investor/tree/main/docs
+    about: Check the documentation for setup and architecture details
+  - name: 💬 Discussions
+    url: https://github.com/pveloso01/Atlas-Investor/discussions
+    about: Ask questions and discuss ideas
+
