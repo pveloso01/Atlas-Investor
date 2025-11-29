@@ -80,7 +80,11 @@ jobs:
           DEBUG: 'True'
         run: python manage.py migrate
       
-      - name: Run tests (if any)
+      - name: Install coverage
+        working-directory: ./backend
+        run: pip install coverage
+
+      - name: Run tests with coverage
         working-directory: ./backend
         env:
           USE_POSTGRES: 'True'
@@ -92,8 +96,17 @@ jobs:
           SECRET_KEY: test-secret-key-for-ci
           DEBUG: 'True'
         run: |
-          # Run tests if test files exist
-          python manage.py test || echo "No tests found, skipping"
+          coverage run --source='api,users' manage.py test api users
+          coverage report --omit='*/migrations/*,*/venv/*,*/__pycache__/*,manage.py,*/settings.py,*/wsgi.py,*/asgi.py,*/urls.py,*/tests/*'
+          coverage xml
+      
+      - name: Upload coverage to Codecov (optional)
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./backend/coverage.xml
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: false
 
   frontend-tests:
     name: Frontend Tests
