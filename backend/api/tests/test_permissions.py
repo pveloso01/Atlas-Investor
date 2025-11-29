@@ -95,9 +95,9 @@ class IsAuthenticatedOrReadOnlyTest(TestCase):
 
     def test_user_not_authenticated(self):
         """Test permission with user that is not authenticated."""
+        from django.contrib.auth.models import AnonymousUser
         request = self.factory.post('/api/properties/')
-        request.user = self.user
-        request.user.is_authenticated = False
+        request.user = AnonymousUser()
         
         view = None
         has_permission = self.permission.has_permission(request, view)

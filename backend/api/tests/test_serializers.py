@@ -226,9 +226,12 @@ class PropertySerializerTest(TestCase):
             'raw_data',
             'created_at', 'updated_at'
         ]
+        # region_id is write_only, so it won't appear in serialized output
+        write_only_fields = ['region_id']
         
         for field in expected_fields:
-            self.assertIn(field, data, f"Field '{field}' missing from serializer data")
+            if field not in write_only_fields:
+                self.assertIn(field, data, f"Field '{field}' missing from serializer data")
 
     def test_property_serializer_with_optional_fields(self):
         """Test PropertySerializer with optional fields set to None."""

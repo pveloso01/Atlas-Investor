@@ -22,6 +22,7 @@ const customJestConfig = {
     '!**/coverage/**',
     '!**/*.config.{js,ts}',
     '!**/types/**',
+    '!app/layout.tsx', // Exclude root layout as it's mostly metadata
   ],
   coverageThreshold: {
     global: {
@@ -32,8 +33,13 @@ const customJestConfig = {
     },
   },
   testMatch: [
-    '**/__tests__/**/*.{js,jsx,ts,tsx}',
+    '**/__tests__/**/*.{spec,test}.{js,jsx,ts,tsx}',
     '**/*.{spec,test}.{js,jsx,ts,tsx}',
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.next/',
+    '/__tests__/utils/',
   ],
 };
 

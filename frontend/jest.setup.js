@@ -57,3 +57,26 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve() {}
 };
 
+// Mock TextDecoder/TextEncoder for mapbox-gl
+global.TextDecoder = class TextDecoder {
+  decode() {
+    return '';
+  }
+};
+
+global.TextEncoder = class TextEncoder {
+  encode() {
+    return new Uint8Array();
+  }
+};
+
+// Mock fetch for RTK Query
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    status: 200,
+    json: async () => ({}),
+    text: async () => '',
+  })
+);
+
