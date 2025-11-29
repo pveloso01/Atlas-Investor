@@ -33,3 +33,5 @@ class IsAuthenticatedOrReadOnly(permissions.BasePermission):
         # Write permissions require authentication
         return request.user and request.user.is_authenticated
 
+
+
