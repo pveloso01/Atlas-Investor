@@ -7,9 +7,16 @@ This document provides a complete structure for creating all GitHub issues for t
 Create these milestones first (Settings → Milestones):
 
 1. **Phase 1: Foundation & MVP** (Due: 8 weeks from start)
+   - **Description**: Build a working prototype that demonstrates core value: property search, basic analysis, and map visualization. This phase includes data ingestion, property display, basic investment analysis (rental strategy), user accounts, and core features. Deliverable: MVP ready for user testing with core features working.
+
 2. **Phase 2: Core Features** (Due: 16 weeks from start)
+   - **Description**: Add multi-strategy analysis (fix-and-flip, development, commercial), regional data integration with INE statistics, advanced scoring and ranking algorithms, and comprehensive financing module with tax considerations. This phase expands the platform's analytical capabilities significantly.
+
 3. **Phase 3: Advanced Features** (Due: 24 weeks from start)
+   - **Description**: Add zoning integration with PDM data, predictive analytics for price and rent estimation, enhanced user experience with advanced search and dashboard, comprehensive reporting and export capabilities, and full mobile responsiveness. This phase adds sophisticated features that differentiate the platform.
+
 4. **Phase 4: Polish & Scale** (Due: 32 weeks from start)
+   - **Description**: Optimize performance, scale infrastructure for production, enhance data pipeline with automation and multiple sources, conduct security hardening, user testing, and complete documentation. Deliverable: Production-ready platform ready for public launch.
 
 ## Size Estimates
 
