@@ -7,23 +7,36 @@ This guide explains how to set up GitHub Issues, Labels, and Project Boards for 
 Go to **Settings → Labels** in your GitHub repository and create the following labels:
 
 ### Phase Labels
-- **`phase-1`** - Color: `#0E8A16` (green) - Foundation & MVP
-- **`phase-2`** - Color: `#1D76DB` (blue) - Core Features
-- **`phase-3`** - Color: `#FBCA04` (yellow) - Advanced Features
-- **`phase-4`** - Color: `#D93F0B` (red) - Polish & Scale
+- **`phase-1`** - Color: `#0E8A16` (green)
+  - Description: `Foundation & MVP - Project setup, basic features, and working prototype`
+- **`phase-2`** - Color: `#1D76DB` (blue)
+  - Description: `Core Features - Advanced analysis, data integration, and core functionality`
+- **`phase-3`** - Color: `#FBCA04` (yellow)
+  - Description: `Advanced Features - Advanced analytics, reporting, and enhanced features`
+- **`phase-4`** - Color: `#D93F0B` (red)
+  - Description: `Polish & Scale - Performance optimization, polish, and scaling`
 
 ### Component Labels
-- **`backend`** - Color: `#0052CC` (blue) - Backend/Django related
-- **`frontend`** - Color: `#5319E7` (purple) - Frontend/Next.js related
-- **`infrastructure`** - Color: `#B60205` (red) - DevOps, CI/CD, Docker, etc.
+- **`backend`** - Color: `#0052CC` (blue)
+  - Description: `Backend/Django - Python backend, API endpoints, services, and business logic`
+- **`frontend`** - Color: `#5319E7` (purple)
+  - Description: `Frontend/Next.js - React frontend, UI components, and user interface`
+- **`infrastructure`** - Color: `#B60205` (red)
+  - Description: `Infrastructure - DevOps, CI/CD, Docker, deployment, and system configuration`
 
 ### Type Labels
-- **`bug`** - Color: `#D73A4A` (red) - Something isn't working
-- **`enhancement`** - Color: `#A2EEEF` (cyan) - New feature or request
-- **`task`** - Color: `#7057FF` (purple) - Task from roadmap
-- **`documentation`** - Color: `#0075CA` (blue) - Documentation improvements
-- **`refactoring`** - Color: `#C5DEF5` (light blue) - Code refactoring
-- **`testing`** - Color: `#BFD4F2` (light blue) - Tests and coverage
+- **`bug`** - Color: `#D73A4A` (red)
+  - Description: `Bug - Something isn't working as expected`
+- **`enhancement`** - Color: `#A2EEEF` (cyan)
+  - Description: `Enhancement - New feature or improvement request`
+- **`task`** - Color: `#7057FF` (purple)
+  - Description: `Task - Work item from the implementation roadmap`
+- **`documentation`** - Color: `#0075CA` (blue)
+  - Description: `Documentation - Documentation updates, guides, and README changes`
+- **`refactoring`** - Color: `#C5DEF5` (light blue)
+  - Description: `Refactoring - Code refactoring without changing functionality`
+- **`testing`** - Color: `#BFD4F2` (light blue)
+  - Description: `Testing - Tests, test coverage, and testing infrastructure`
 
 ## Project Board Setup
 
