@@ -235,3 +235,5 @@ class IsOwnerOrReadOnlyTest(TestCase):
             
             self.assertFalse(has_permission, f"Method {method} should require ownership")
 
+
+
