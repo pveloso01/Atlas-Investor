@@ -13,30 +13,51 @@ class PropertySerializer(serializers.ModelSerializer):
     """Property serializer with region details."""
     region = RegionSerializer(read_only=True)
     region_id = serializers.PrimaryKeyRelatedField(
-        queryset=Region.objects.all(),
+        queryset=Region.objects.all(),  # type: ignore[attr-defined]
         source='region',
         write_only=True,
         required=False
     )
     coordinates = serializers.SerializerMethodField()
+    price_per_sqm = serializers.SerializerMethodField()
 
     class Meta:
         model = Property
         fields = [
-            'id', 'external_id', 'address', 'coordinates', 'price', 'size_sqm',
-            'property_type', 'bedrooms', 'bathrooms', 'region', 'region_id',
-            'raw_data', 'created_at', 'updated_at'
+            # Basic Information
+            'id', 'external_id', 'address', 'coordinates', 'description',
+            # Pricing & Size
+            'price', 'size_sqm', 'price_per_sqm',
+            # Property Details
+            'property_type', 'bedrooms', 'bathrooms', 'year_built', 'condition',
+            # Apartment-specific
+            'floor_number', 'total_floors', 'has_elevator',
+            # Features
+            'parking_spaces', 'has_balcony', 'has_terrace',
+            # Energy & Environment
+            'energy_rating',
+            # Listing Information
+            'listing_status', 'source_url', 'last_synced_at',
+            # Relationships
+            'region', 'region_id',
+            # Media
+            'images',
+            # Additional Data
+            'raw_data',
+            # Timestamps
+            'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def get_coordinates(self, obj):
         """Return coordinates as [longitude, latitude]."""
-        if obj.coordinates:
-            # Handle PostGIS PointField (has .x and .y attributes)
-            if hasattr(obj.coordinates, 'x') and hasattr(obj.coordinates, 'y'):
-                return [obj.coordinates.x, obj.coordinates.y]
-            # Handle JSONField (already a list [longitude, latitude])
-            elif isinstance(obj.coordinates, (list, tuple)) and len(obj.coordinates) >= 2:
-                return [obj.coordinates[0], obj.coordinates[1]]
+        # Use model method for consistency
+        return obj.get_coordinates_list()
+
+    def get_price_per_sqm(self, obj):
+        """Return calculated price per square meter."""
+        price_per_sqm = obj.price_per_sqm
+        if price_per_sqm:
+            return str(price_per_sqm)
         return None
 
