@@ -137,7 +137,15 @@ jobs:
       - name: Run tests with coverage
         working-directory: ./frontend
         run: |
-          npm test -- --watchAll=false --coverage --coverageThreshold='{"global":{"branches":60,"functions":60,"lines":60,"statements":60}}' || echo "Tests failed or not configured"
+          npm run test:ci
+        env:
+          CI: true
+      
+      - name: Check coverage threshold
+        working-directory: ./frontend
+        run: |
+          npm run test:coverage -- --coverageReporters=json-summary --coverageReporters=text
+          node -e "const fs = require('fs'); const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8')); const total = summary.total; if (total.statements.pct < 95 || total.branches.pct < 95 || total.functions.pct < 95 || total.lines.pct < 95) { console.error('Coverage is below 95%:', JSON.stringify(total, null, 2)); process.exit(1); } else { console.log('Coverage check passed:', JSON.stringify(total, null, 2)); }"
 
   docker-build:
     name: Build Docker Images
