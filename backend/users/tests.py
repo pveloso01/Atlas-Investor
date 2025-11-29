@@ -222,7 +222,7 @@ class UserCreateSerializerTest(TestCase):
         serializer = UserCreateSerializer(data=data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('email', serializer.errors)
-        self.assertIn('already exists', str(serializer.errors['email'][0]))
+        self.assertIn('already exists', str(serializer.errors['email'][0]))  # type: ignore[index]
 
     def test_user_create_serializer_password_retype_removed(self):
         """Test that password_retype is removed before user creation."""
@@ -255,8 +255,8 @@ class UserCreateSerializerTest(TestCase):
         self.assertTrue(serializer.is_valid())
         
         user = serializer.save()
-        self.assertEqual(user.first_name, '')
-        self.assertEqual(user.last_name, '')
+        self.assertEqual(user.first_name, '')  # type: ignore[attr-defined]
+        self.assertEqual(user.last_name, '')  # type: ignore[attr-defined]
 
     def test_user_create_serializer_password_write_only(self):
         """Test that password fields are write-only."""

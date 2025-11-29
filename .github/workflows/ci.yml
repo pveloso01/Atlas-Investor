@@ -96,8 +96,8 @@ jobs:
           SECRET_KEY: test-secret-key-for-ci
           DEBUG: 'True'
         run: |
-          coverage run --source='api,users' manage.py test api users
-          coverage report --omit='*/migrations/*,*/venv/*,*/__pycache__/*,manage.py,*/settings.py,*/wsgi.py,*/asgi.py,*/urls.py,*/tests/*'
+          coverage run --source='api,users' --omit='*/migrations/*,*/venv/*,*/__pycache__/*,manage.py,*/settings.py,*/wsgi.py,*/asgi.py,*/urls.py,*/tests/*' manage.py test api users
+          coverage report --omit='*/migrations/*,*/venv/*,*/__pycache__/*,manage.py,*/settings.py,*/wsgi.py,*/asgi.py,*/urls.py,*/tests/*' --fail-under=90
           coverage xml
       
       - name: Upload coverage to Codecov (optional)
@@ -134,9 +134,10 @@ jobs:
         working-directory: ./frontend
         run: npm run build
       
-      - name: Run tests
+      - name: Run tests with coverage
         working-directory: ./frontend
-        run: npm test -- --watchAll=false --coverage || echo "Tests failed or not configured"
+        run: |
+          npm test -- --watchAll=false --coverage --coverageThreshold='{"global":{"branches":60,"functions":60,"lines":60,"statements":60}}' || echo "Tests failed or not configured"
 
   docker-build:
     name: Build Docker Images

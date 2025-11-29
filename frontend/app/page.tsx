@@ -26,7 +26,7 @@ export default function Home() {
               variant="outlined"
               size="large"
               className="px-8"
-            >
+          >
               Login
             </Button>
           </Link>

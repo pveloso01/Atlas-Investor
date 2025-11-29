@@ -175,7 +175,7 @@ export default function PropertiesPage() {
           <Grid container spacing={3}>
             {data.results.map((property: Property) => (
               <Grid
-                item
+                item={true}
                 xs={12}
                 sm={viewMode === 'grid' ? 6 : 12}
                 md={viewMode === 'grid' ? 4 : 12}

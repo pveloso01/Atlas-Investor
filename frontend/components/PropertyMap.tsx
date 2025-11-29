@@ -26,7 +26,10 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
 
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken) {
-      setMapError('Mapbox access token is not configured');
+      // Use setTimeout to avoid setState in effect
+      setTimeout(() => {
+        setMapError('Mapbox access token is not configured');
+      }, 0);
       return;
     }
 
