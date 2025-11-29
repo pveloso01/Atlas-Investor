@@ -34,7 +34,7 @@ export interface Property {
   images?: string[];
   region?: Region;
   region_id?: number;
-  raw_data?: Record<string, any>;
+  raw_data?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }

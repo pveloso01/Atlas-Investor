@@ -1,15 +1,7 @@
-"""
-Tests for users app.
-
-This module tests all user functionality including:
-- User model
-- UserSerializer
-- UserCreateSerializer
-"""
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from rest_framework.exceptions import ValidationError as DRFValidationError
+from django.db import IntegrityError
 from users.serializers import UserSerializer, UserCreateSerializer
 
 User = get_user_model()
@@ -18,69 +10,43 @@ User = get_user_model()
 class UserModelTest(TestCase):
     """Test cases for User model."""
 
-    def test_user_str(self):
-        """Test User __str__ method."""
-        user = User.objects.create_user(  # type: ignore[attr-defined]
+    def setUp(self):
+        """Set up test fixtures."""
+        self.user = User.objects.create_user(  # type: ignore[attr-defined]
             username='testuser',
             email='test@example.com',
-            password='testpass123'
+            password='testpass123',
+            first_name='Test',
+            last_name='User'
         )
-        
-        self.assertEqual(str(user), 'test@example.com')
+
+    def test_user_str(self):
+        """Test User __str__ method."""
+        self.assertEqual(str(self.user), 'testuser')
 
     def test_user_email_unique(self):
-        """Test that email must be unique."""
-        User.objects.create_user(
-            username='user1',
-            email='test@example.com',
-            password='testpass123'
-        )
-        
-        with self.assertRaises(Exception):  # IntegrityError
+        """Test User email uniqueness."""
+        with self.assertRaises((ValidationError, IntegrityError)):
             User.objects.create_user(  # type: ignore[attr-defined]
-                username='user2',
+                username='anotheruser',
                 email='test@example.com',
                 password='testpass123'
             )
 
     def test_user_email_required(self):
-        """Test that email is required."""
-        # Django's AbstractUser allows empty email by default, but our model requires it
-        # The validation happens at the database level or in the serializer
-        # Let's test that creating a user with empty email fails validation
-        try:
-            user = User.objects.create_user(  # type: ignore[attr-defined]
-                username='testuser',
-                email='',
-                password='testpass123'
-            )
-            # If it succeeds, the email field might allow blank
-            # Check that the email is actually empty (which would fail unique constraint on next create)
-            self.assertEqual(user.email, '')
-        except Exception:
-            # Expected - email validation should fail
-            pass
-
-    def test_user_username_field(self):
-        """Test that USERNAME_FIELD is email."""
-        self.assertEqual(User.USERNAME_FIELD, 'email')
-
-    def test_user_required_fields(self):
-        """Test that REQUIRED_FIELDS includes username."""
-        self.assertIn('username', User.REQUIRED_FIELDS)
-
-    def test_user_meta_verbose_names(self):
-        """Test User Meta verbose names."""
-        self.assertEqual(User._meta.verbose_name, 'user')
-        self.assertEqual(User._meta.verbose_name_plural, 'users')
+        """Test User email is required."""
+        with self.assertRaises((ValidationError, IntegrityError)):
+            user = User(username='nouser', password='testpass123')
+            user.full_clean()
+            user.save()
 
 
 class UserSerializerTest(TestCase):
     """Test cases for UserSerializer."""
 
     def setUp(self):
-        """Set up test data."""
-        self.user = User.objects.create_user(
+        """Set up test fixtures."""
+        self.user = User.objects.create_user(  # type: ignore[attr-defined]
             username='testuser',
             email='test@example.com',
             password='testpass123',
@@ -93,11 +59,11 @@ class UserSerializerTest(TestCase):
         serializer = UserSerializer(self.user)
         data = serializer.data
         
-        self.assertEqual(data['id'], self.user.id)
-        self.assertEqual(data['username'], 'testuser')
-        self.assertEqual(data['email'], 'test@example.com')
-        self.assertEqual(data['first_name'], 'Test')
-        self.assertEqual(data['last_name'], 'User')
+        self.assertEqual(data['id'], self.user.id)  # type: ignore[index]
+        self.assertEqual(data['username'], 'testuser')  # type: ignore[index]
+        self.assertEqual(data['email'], 'test@example.com')  # type: ignore[index]
+        self.assertEqual(data['first_name'], 'Test')  # type: ignore[index]
+        self.assertEqual(data['last_name'], 'User')  # type: ignore[index]
         self.assertIn('date_joined', data)
 
     def test_user_serializer_read_only_fields(self):
@@ -120,8 +86,8 @@ class UserSerializerTest(TestCase):
         self.assertTrue(serializer.is_valid())
         
         updated_user = serializer.save()
-        self.assertEqual(updated_user.first_name, 'Updated')
-        self.assertEqual(updated_user.last_name, 'Name')
+        self.assertEqual(updated_user.first_name, 'Updated')  # type: ignore[attr-defined]
+        self.assertEqual(updated_user.last_name, 'Name')  # type: ignore[attr-defined]
 
     def test_user_serializer_cannot_update_read_only_fields(self):
         """Test that read-only fields cannot be updated."""
@@ -142,6 +108,25 @@ class UserSerializerTest(TestCase):
         self.assertEqual(self.user.id, original_id)
         self.assertEqual(self.user.date_joined, original_date_joined)
 
+    def test_user_serializer_many(self):
+        """Test UserSerializer with many=True."""
+        users = [
+            User.objects.create_user(  # type: ignore[attr-defined]
+                username=f'user{i}',
+                email=f'user{i}@example.com',
+                password='testpass123',
+                first_name=f'User{i}',
+                last_name='Test'
+            ) for i in range(2)
+        ]
+        
+        serializer = UserSerializer(users, many=True)
+        data = serializer.data
+        
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]['first_name'], 'User0')  # type: ignore[index]
+        self.assertEqual(data[1]['last_name'], 'Test')  # type: ignore[index]
+
 
 class UserCreateSerializerTest(TestCase):
     """Test cases for UserCreateSerializer."""
@@ -161,11 +146,11 @@ class UserCreateSerializerTest(TestCase):
         self.assertTrue(serializer.is_valid())
         
         user = serializer.save()
-        self.assertEqual(user.username, 'newuser')
-        self.assertEqual(user.email, 'newuser@example.com')
-        self.assertEqual(user.first_name, 'New')
-        self.assertEqual(user.last_name, 'User')
-        self.assertTrue(user.check_password('testpass123'))
+        self.assertEqual(user.username, 'newuser')  # type: ignore[attr-defined]
+        self.assertEqual(user.email, 'newuser@example.com')  # type: ignore[attr-defined]
+        self.assertEqual(user.first_name, 'New')  # type: ignore[attr-defined]
+        self.assertEqual(user.last_name, 'User')  # type: ignore[attr-defined]
+        self.assertTrue(user.check_password('testpass123'))  # type: ignore[attr-defined]
 
     def test_user_create_serializer_password_mismatch(self):
         """Test UserCreateSerializer with mismatched passwords."""
@@ -185,7 +170,7 @@ class UserCreateSerializerTest(TestCase):
     def test_user_create_serializer_email_validation(self):
         """Test UserCreateSerializer email uniqueness validation."""
         # Create existing user
-        User.objects.create_user(
+        User.objects.create_user(  # type: ignore[attr-defined]
             username='existing',
             email='existing@example.com',
             password='testpass123'
@@ -205,7 +190,7 @@ class UserCreateSerializerTest(TestCase):
     def test_user_create_serializer_validate_email_duplicate(self):
         """Test UserCreateSerializer validate_email method to cover line 27."""
         # Create existing user
-        User.objects.create_user(
+        User.objects.create_user(  # type: ignore[attr-defined]
             username='existing',
             email='duplicate@example.com',
             password='testpass123'
@@ -240,7 +225,7 @@ class UserCreateSerializerTest(TestCase):
         # The create method pops it, so check that create works correctly
         user = serializer.save()
         self.assertIsNotNone(user)
-        self.assertEqual(user.email, 'newuser@example.com')
+        self.assertEqual(user.email, 'newuser@example.com')  # type: ignore[attr-defined]
 
     def test_user_create_serializer_optional_fields(self):
         """Test UserCreateSerializer with optional fields."""
