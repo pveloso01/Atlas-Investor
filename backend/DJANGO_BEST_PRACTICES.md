@@ -53,6 +53,25 @@ user = models.ForeignKey(User, ...)
 - Use related_name for reverse relationships
 - Add Meta classes for ordering, verbose names
 - Use `__str__` methods for readable representations
+- Add `@property` methods for calculated fields (e.g., `price_per_sqm`)
+- Add helper methods for data transformation (e.g., `get_coordinates_list()`)
+
+### Model Methods
+```python
+# ✅ Good - Business logic in model methods
+class Property(models.Model):
+    @property
+    def price_per_sqm(self) -> Optional[Decimal]:
+        """Calculate price per square meter."""
+        if self.size_sqm and self.size_sqm > 0:
+            return self.price / self.size_sqm
+        return None
+
+    def get_coordinates_list(self) -> Optional[list]:
+        """Get coordinates as [longitude, latitude] list."""
+        # Handle both PostGIS and JSONField formats
+        pass
+```
 
 ## Serializer Best Practices
 
@@ -133,6 +152,47 @@ urlpatterns = [
 4. **Separation of Concerns**: Models, views, serializers in appropriate places
 5. **Dependency Direction**: Lower-level apps don't depend on higher-level apps
 
+## Service Layer Pattern
+
+### Purpose
+Business logic should be separated from views and serializers into service classes.
+This keeps views thin and makes business logic reusable and testable.
+
+### Structure
+```
+api/
+├── services/          # Business logic layer
+│   ├── __init__.py
+│   └── property_service.py
+├── utils/             # Utility functions
+│   ├── __init__.py
+│   └── coordinates.py
+├── permissions.py     # Custom permission classes
+└── tests/             # Test suite
+    ├── __init__.py
+    ├── test_models.py
+    └── test_services.py
+```
+
+### Service Layer Guidelines
+- Services contain business logic that doesn't belong in models or views
+- Services are stateless (use `@staticmethod` or class methods)
+- Services can be called from views, serializers, or other services
+- Keep services focused on a single domain (e.g., `PropertyService`)
+
+### Example
+```python
+# ✅ Good - Business logic in service
+from api.services.property_service import PropertyService
+
+comparison = PropertyService.compare_to_region_average(property)
+
+# ❌ Bad - Business logic in view
+def compare_to_region(property):
+    # Complex calculation logic here...
+    pass
+```
+
 ## Current App Structure
 
 ```
@@ -141,11 +201,17 @@ backend/
 ├── users/             # User management and authentication
 │   ├── models.py      # Custom User model
 │   ├── serializers.py # User serializers
+│   ├── views.py       # User views (if needed)
 │   └── admin.py       # User admin
 └── api/               # Business domain (Properties, Regions)
     ├── models.py      # Property, Region models
     ├── serializers/   # Property, Region serializers
-    └── views.py       # API endpoints
+    ├── services/      # Business logic layer
+    ├── utils/         # Utility functions
+    ├── permissions.py # Custom permissions
+    ├── views.py       # API endpoints
+    ├── admin.py       # Admin configuration
+    └── tests/         # Test suite
 ```
 
 ## References

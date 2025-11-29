@@ -83,250 +83,197 @@ class Command(BaseCommand):
         # Create sample properties (10-20 realistic properties from Lisbon and Porto)
         self.stdout.write('\nCreating sample properties...')
         
+        # Helper function to generate property data with new fields
+        def create_property_data(
+            external_id, address, coordinates, description, price, size_sqm,
+            property_type, bedrooms, bathrooms, region_code,
+            year_built=None, condition=None, floor_number=None, total_floors=None,
+            has_elevator=None, parking_spaces=0, has_balcony=False, has_terrace=False,
+            energy_rating=None, listing_status='active', source_url=''
+        ):
+            """Create property data dictionary with all fields."""
+            data = {
+                'external_id': external_id,
+                'address': address,
+                'coordinates': coordinates,
+                'description': description,
+                'price': price,
+                'size_sqm': size_sqm,
+                'property_type': property_type,
+                'bedrooms': bedrooms,
+                'bathrooms': bathrooms,
+                'parking_spaces': parking_spaces,
+                'has_balcony': has_balcony,
+                'has_terrace': has_terrace,
+                'listing_status': listing_status,
+                'source_url': source_url or f'https://example.com/listings/{external_id.lower()}',
+                'images': [
+                    f'https://example.com/images/{external_id.lower()}-1.jpg',
+                    f'https://example.com/images/{external_id.lower()}-2.jpg',
+                ],
+                'region_code': region_code,
+                'raw_data': {'source': 'manual'},
+            }
+            
+            # Add optional fields if provided
+            if year_built is not None:
+                data['year_built'] = year_built
+            if condition is not None:
+                data['condition'] = condition
+            if floor_number is not None:
+                data['floor_number'] = floor_number
+            if total_floors is not None:
+                data['total_floors'] = total_floors
+            if has_elevator is not None:
+                data['has_elevator'] = has_elevator
+            if energy_rating is not None:
+                data['energy_rating'] = energy_rating
+                
+            return data
+
         properties_data = [
             # Lisbon Properties
-            {
-                'external_id': 'LIS-001',
-                'address': 'Rua Augusta 123, 1100-053 Lisboa',
-                'coordinates': [-9.1393, 38.7223],
-                'price': 350000.00,
-                'size_sqm': 85.0,
-                'property_type': 'apartment',
-                'bedrooms': 2,
-                'bathrooms': 1.0,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Beautiful apartment in the heart of Lisbon'},
-            },
-            {
-                'external_id': 'LIS-002',
-                'address': 'Avenida da Liberdade 245, 1250-096 Lisboa',
-                'coordinates': [-9.1450, 38.7165],
-                'price': 485000.00,
-                'size_sqm': 95.0,
-                'property_type': 'apartment',
-                'bedrooms': 2,
-                'bathrooms': 2.0,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Elegant apartment on Lisbon\'s main boulevard'},
-            },
-            {
-                'external_id': 'LIS-003',
-                'address': 'Rua do Comércio 78, 1100-148 Lisboa',
-                'coordinates': [-9.1378, 38.7086],
-                'price': 420000.00,
-                'size_sqm': 88.0,
-                'property_type': 'apartment',
-                'bedrooms': 2,
-                'bathrooms': 1.5,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Renovated apartment in historic Baixa district'},
-            },
-            {
-                'external_id': 'LIS-004',
-                'address': 'Rua da Prata 156, 1100-420 Lisboa',
-                'coordinates': [-9.1385, 38.7102],
-                'price': 380000.00,
-                'size_sqm': 75.0,
-                'property_type': 'apartment',
-                'bedrooms': 1,
-                'bathrooms': 1.0,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Compact studio in central Lisbon'},
-            },
-            {
-                'external_id': 'LIS-005',
-                'address': 'Rua de São Bento 234, 1200-821 Lisboa',
-                'coordinates': [-9.1502, 38.7145],
-                'price': 550000.00,
-                'size_sqm': 120.0,
-                'property_type': 'apartment',
-                'bedrooms': 3,
-                'bathrooms': 2.0,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Spacious 3-bedroom apartment in Lapa'},
-            },
-            {
-                'external_id': 'LIS-006',
-                'address': 'Rua do Alecrim 89, 1200-014 Lisboa',
-                'coordinates': [-9.1431, 38.7123],
-                'price': 320000.00,
-                'size_sqm': 70.0,
-                'property_type': 'apartment',
-                'bedrooms': 1,
-                'bathrooms': 1.0,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Charming 1-bedroom in Chiado area'},
-            },
-            {
-                'external_id': 'LIS-007',
-                'address': 'Avenida Almirante Reis 312, 1150-018 Lisboa',
-                'coordinates': [-9.1305, 38.7208],
-                'price': 295000.00,
-                'size_sqm': 82.0,
-                'property_type': 'apartment',
-                'bedrooms': 2,
-                'bathrooms': 1.0,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Affordable 2-bedroom in Arroios'},
-            },
-            {
-                'external_id': 'LIS-008',
-                'address': 'Rua de São Paulo 145, 1200-427 Lisboa',
-                'coordinates': [-9.1478, 38.7089],
-                'price': 680000.00,
-                'size_sqm': 150.0,
-                'property_type': 'house',
-                'bedrooms': 4,
-                'bathrooms': 3.0,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Renovated townhouse in Cais do Sodré'},
-            },
-            {
-                'external_id': 'LIS-009',
-                'address': 'Rua da Escola Politécnica 67, 1250-096 Lisboa',
-                'coordinates': [-9.1523, 38.7178],
-                'price': 520000.00,
-                'size_sqm': 110.0,
-                'property_type': 'apartment',
-                'bedrooms': 3,
-                'bathrooms': 2.0,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Modern apartment in Príncipe Real'},
-            },
-            {
-                'external_id': 'LIS-010',
-                'address': 'Rua do Salitre 201, 1250-199 Lisboa',
-                'coordinates': [-9.1498, 38.7192],
-                'price': 410000.00,
-                'size_sqm': 90.0,
-                'property_type': 'apartment',
-                'bedrooms': 2,
-                'bathrooms': 1.5,
-                'region_code': 'LIS',
-                'raw_data': {'source': 'manual', 'description': 'Bright apartment with balcony in Bairro Alto'},
-            },
+            create_property_data(
+                'LIS-001', 'Rua Augusta 123, 1100-053 Lisboa', [-9.1393, 38.7223],
+                'Beautiful apartment in the heart of Lisbon', 350000.00, 85.0,
+                'apartment', 2, 1.0, 'LIS',
+                year_built=2010, condition='good', floor_number=3, total_floors=5,
+                has_elevator=True, has_balcony=True, energy_rating='C'
+            ),
+            create_property_data(
+                'LIS-002', 'Avenida da Liberdade 245, 1250-096 Lisboa', [-9.1450, 38.7165],
+                'Elegant apartment on Lisbon\'s main boulevard', 485000.00, 95.0,
+                'apartment', 2, 2.0, 'LIS',
+                year_built=2015, condition='excellent', floor_number=4, total_floors=6,
+                has_elevator=True, has_balcony=True, energy_rating='B'
+            ),
+            create_property_data(
+                'LIS-003', 'Rua do Comércio 78, 1100-148 Lisboa', [-9.1378, 38.7086],
+                'Renovated apartment in historic Baixa district', 420000.00, 88.0,
+                'apartment', 2, 1.5, 'LIS',
+                year_built=2008, condition='good', floor_number=2, total_floors=4,
+                has_elevator=True, has_balcony=True, energy_rating='D'
+            ),
+            create_property_data(
+                'LIS-004', 'Rua da Prata 156, 1100-420 Lisboa', [-9.1385, 38.7102],
+                'Compact studio in central Lisbon', 380000.00, 75.0,
+                'apartment', 1, 1.0, 'LIS',
+                year_built=2012, condition='excellent', floor_number=1, total_floors=3,
+                has_elevator=False, has_balcony=False, energy_rating='C'
+            ),
+            create_property_data(
+                'LIS-005', 'Rua de São Bento 234, 1200-821 Lisboa', [-9.1502, 38.7145],
+                'Spacious 3-bedroom apartment in Lapa', 550000.00, 120.0,
+                'apartment', 3, 2.0, 'LIS',
+                year_built=2018, condition='excellent', floor_number=4, total_floors=6,
+                has_elevator=True, parking_spaces=1, has_balcony=True, energy_rating='B'
+            ),
+            create_property_data(
+                'LIS-006', 'Rua do Alecrim 89, 1200-014 Lisboa', [-9.1431, 38.7123],
+                'Charming 1-bedroom in Chiado area', 320000.00, 70.0,
+                'apartment', 1, 1.0, 'LIS',
+                year_built=1995, condition='fair', floor_number=2, total_floors=4,
+                has_elevator=False, has_balcony=True, energy_rating='E'
+            ),
+            create_property_data(
+                'LIS-007', 'Avenida Almirante Reis 312, 1150-018 Lisboa', [-9.1305, 38.7208],
+                'Affordable 2-bedroom in Arroios', 295000.00, 82.0,
+                'apartment', 2, 1.0, 'LIS',
+                year_built=2005, condition='good', floor_number=3, total_floors=5,
+                has_elevator=True, has_balcony=False, energy_rating='D'
+            ),
+            create_property_data(
+                'LIS-008', 'Rua de São Paulo 145, 1200-427 Lisboa', [-9.1478, 38.7089],
+                'Renovated townhouse in Cais do Sodré', 680000.00, 150.0,
+                'house', 4, 3.0, 'LIS',
+                year_built=2010, condition='excellent', parking_spaces=2, has_terrace=True, energy_rating='B'
+            ),
+            create_property_data(
+                'LIS-009', 'Rua da Escola Politécnica 67, 1250-096 Lisboa', [-9.1523, 38.7178],
+                'Modern apartment in Príncipe Real', 520000.00, 110.0,
+                'apartment', 3, 2.0, 'LIS',
+                year_built=2020, condition='excellent', floor_number=5, total_floors=7,
+                has_elevator=True, parking_spaces=1, has_balcony=True, energy_rating='A'
+            ),
+            create_property_data(
+                'LIS-010', 'Rua do Salitre 201, 1250-199 Lisboa', [-9.1498, 38.7192],
+                'Bright apartment with balcony in Bairro Alto', 410000.00, 90.0,
+                'apartment', 2, 1.5, 'LIS',
+                year_built=2015, condition='good', floor_number=3, total_floors=5,
+                has_elevator=True, has_balcony=True, energy_rating='C'
+            ),
             # Porto Properties
-            {
-                'external_id': 'OPO-001',
-                'address': 'Avenida da Boavista 456, 4050-115 Porto',
-                'coordinates': [-8.6291, 41.1579],
-                'price': 280000.00,
-                'size_sqm': 110.0,
-                'property_type': 'apartment',
-                'bedrooms': 3,
-                'bathrooms': 2.0,
-                'region_code': 'OPO',
-                'raw_data': {'source': 'manual', 'description': 'Spacious apartment in Porto with great views'},
-            },
-            {
-                'external_id': 'OPO-002',
-                'address': 'Rua de Cedofeita 234, 4050-180 Porto',
-                'coordinates': [-8.6253, 41.1502],
-                'price': 245000.00,
-                'size_sqm': 95.0,
-                'property_type': 'apartment',
-                'bedrooms': 2,
-                'bathrooms': 1.5,
-                'region_code': 'OPO',
-                'raw_data': {'source': 'manual', 'description': 'Renovated apartment in trendy Cedofeita'},
-            },
-            {
-                'external_id': 'OPO-003',
-                'address': 'Rua das Flores 89, 4050-262 Porto',
-                'coordinates': [-8.6145, 41.1423],
-                'price': 320000.00,
-                'size_sqm': 105.0,
-                'property_type': 'apartment',
-                'bedrooms': 3,
-                'bathrooms': 2.0,
-                'region_code': 'OPO',
-                'raw_data': {'source': 'manual', 'description': 'Historic building apartment in city center'},
-            },
-            {
-                'external_id': 'OPO-004',
-                'address': 'Rua de Santa Catarina 156, 4000-450 Porto',
-                'coordinates': [-8.6089, 41.1498],
-                'price': 195000.00,
-                'size_sqm': 65.0,
-                'property_type': 'apartment',
-                'bedrooms': 1,
-                'bathrooms': 1.0,
-                'region_code': 'OPO',
-                'raw_data': {'source': 'manual', 'description': 'Compact studio on main shopping street'},
-            },
-            {
-                'external_id': 'OPO-005',
-                'address': 'Rua do Almada 278, 4050-030 Porto',
-                'coordinates': [-8.6201, 41.1456],
-                'price': 265000.00,
-                'size_sqm': 88.0,
-                'property_type': 'apartment',
-                'bedrooms': 2,
-                'bathrooms': 1.0,
-                'region_code': 'OPO',
-                'raw_data': {'source': 'manual', 'description': 'Modern 2-bedroom in central Porto'},
-            },
-            {
-                'external_id': 'OPO-006',
-                'address': 'Rua de Camões 123, 4000-139 Porto',
-                'coordinates': [-8.6112, 41.1478],
-                'price': 350000.00,
-                'size_sqm': 125.0,
-                'property_type': 'apartment',
-                'bedrooms': 3,
-                'bathrooms': 2.5,
-                'region_code': 'OPO',
-                'raw_data': {'source': 'manual', 'description': 'Luxury apartment with river views'},
-            },
-            {
-                'external_id': 'OPO-007',
-                'address': 'Rua de Sá da Bandeira 345, 4000-427 Porto',
-                'coordinates': [-8.6056, 41.1512],
-                'price': 220000.00,
-                'size_sqm': 78.0,
-                'property_type': 'apartment',
-                'bedrooms': 2,
-                'bathrooms': 1.0,
-                'region_code': 'OPO',
-                'raw_data': {'source': 'manual', 'description': 'Affordable 2-bedroom near train station'},
-            },
-            {
-                'external_id': 'OPO-008',
-                'address': 'Rua de Miguel Bombarda 567, 4050-381 Porto',
-                'coordinates': [-8.6189, 41.1523],
-                'price': 310000.00,
-                'size_sqm': 115.0,
-                'property_type': 'apartment',
-                'bedrooms': 3,
-                'bathrooms': 2.0,
-                'region_code': 'OPO',
-                'raw_data': {'source': 'manual', 'description': 'Spacious apartment in arts district'},
-            },
+            create_property_data(
+                'OPO-001', 'Avenida da Boavista 456, 4050-115 Porto', [-8.6291, 41.1579],
+                'Spacious apartment in Porto with great views', 280000.00, 110.0,
+                'apartment', 3, 2.0, 'OPO',
+                year_built=2012, condition='good', floor_number=4, total_floors=6,
+                has_elevator=True, parking_spaces=1, has_balcony=True, energy_rating='C'
+            ),
+            create_property_data(
+                'OPO-002', 'Rua de Cedofeita 234, 4050-180 Porto', [-8.6253, 41.1502],
+                'Renovated apartment in trendy Cedofeita', 245000.00, 95.0,
+                'apartment', 2, 1.5, 'OPO',
+                year_built=2008, condition='good', floor_number=2, total_floors=4,
+                has_elevator=False, has_balcony=True, energy_rating='D'
+            ),
+            create_property_data(
+                'OPO-003', 'Rua das Flores 89, 4050-262 Porto', [-8.6145, 41.1423],
+                'Historic building apartment in city center', 320000.00, 105.0,
+                'apartment', 3, 2.0, 'OPO',
+                year_built=1920, condition='needs_renovation', floor_number=1, total_floors=3,
+                has_elevator=False, has_balcony=False, energy_rating='F'
+            ),
+            create_property_data(
+                'OPO-004', 'Rua de Santa Catarina 156, 4000-450 Porto', [-8.6089, 41.1498],
+                'Compact studio on main shopping street', 195000.00, 65.0,
+                'apartment', 1, 1.0, 'OPO',
+                year_built=2010, condition='good', floor_number=2, total_floors=4,
+                has_elevator=True, has_balcony=False, energy_rating='C'
+            ),
+            create_property_data(
+                'OPO-005', 'Rua do Almada 278, 4050-030 Porto', [-8.6201, 41.1456],
+                'Modern 2-bedroom in central Porto', 265000.00, 88.0,
+                'apartment', 2, 1.0, 'OPO',
+                year_built=2018, condition='excellent', floor_number=3, total_floors=5,
+                has_elevator=True, has_balcony=True, energy_rating='B'
+            ),
+            create_property_data(
+                'OPO-006', 'Rua de Camões 123, 4000-139 Porto', [-8.6112, 41.1478],
+                'Luxury apartment with river views', 350000.00, 125.0,
+                'apartment', 3, 2.5, 'OPO',
+                year_built=2021, condition='excellent', floor_number=6, total_floors=8,
+                has_elevator=True, parking_spaces=2, has_balcony=True, has_terrace=True, energy_rating='A'
+            ),
+            create_property_data(
+                'OPO-007', 'Rua de Sá da Bandeira 345, 4000-427 Porto', [-8.6056, 41.1512],
+                'Affordable 2-bedroom near train station', 220000.00, 78.0,
+                'apartment', 2, 1.0, 'OPO',
+                year_built=2000, condition='fair', floor_number=1, total_floors=3,
+                has_elevator=False, has_balcony=False, energy_rating='E'
+            ),
+            create_property_data(
+                'OPO-008', 'Rua de Miguel Bombarda 567, 4050-381 Porto', [-8.6189, 41.1523],
+                'Spacious apartment in arts district', 310000.00, 115.0,
+                'apartment', 3, 2.0, 'OPO',
+                year_built=2015, condition='good', floor_number=2, total_floors=4,
+                has_elevator=True, parking_spaces=1, has_balcony=True, energy_rating='C'
+            ),
             # Cascais Properties
-            {
-                'external_id': 'CAS-001',
-                'address': 'Rua da Praia, 2750-310 Cascais',
-                'coordinates': [-9.4215, 38.6979],
-                'price': 450000.00,
-                'size_sqm': 95.0,
-                'property_type': 'apartment',
-                'bedrooms': 2,
-                'bathrooms': 2.0,
-                'region_code': 'CAS',
-                'raw_data': {'source': 'manual', 'description': 'Luxury apartment near the beach in Cascais'},
-            },
-            {
-                'external_id': 'CAS-002',
-                'address': 'Avenida Dom Carlos I 234, 2750-310 Cascais',
-                'coordinates': [-9.4189, 38.6998],
-                'price': 520000.00,
-                'size_sqm': 110.0,
-                'property_type': 'apartment',
-                'bedrooms': 3,
-                'bathrooms': 2.0,
-                'region_code': 'CAS',
-                'raw_data': {'source': 'manual', 'description': 'Beachfront apartment with sea views'},
-            },
+            create_property_data(
+                'CAS-001', 'Rua da Praia, 2750-310 Cascais', [-9.4215, 38.6979],
+                'Luxury apartment near the beach in Cascais', 450000.00, 95.0,
+                'apartment', 2, 2.0, 'CAS',
+                year_built=2019, condition='excellent', floor_number=3, total_floors=5,
+                has_elevator=True, parking_spaces=1, has_balcony=True, has_terrace=True, energy_rating='A'
+            ),
+            create_property_data(
+                'CAS-002', 'Avenida Dom Carlos I 234, 2750-310 Cascais', [-9.4189, 38.6998],
+                'Beachfront apartment with sea views', 520000.00, 110.0,
+                'apartment', 3, 2.0, 'CAS',
+                year_built=2020, condition='excellent', floor_number=4, total_floors=6,
+                has_elevator=True, parking_spaces=2, has_balcony=True, has_terrace=True, energy_rating='A+'
+            ),
         ]
 
         for prop_data in properties_data:
