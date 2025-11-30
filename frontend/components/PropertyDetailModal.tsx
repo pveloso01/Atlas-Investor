@@ -9,11 +9,11 @@ import {
   Button,
   Typography,
   Box,
-  Grid,
   Chip,
   Stack,
   Divider,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { Bed, Bathtub, SquareFoot, LocationOn, Euro } from '@mui/icons-material';
 import { Property } from '@/types/property';
 
@@ -76,7 +76,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
       <DialogContent dividers>
         <Grid container spacing={3}>
           {/* Price Section */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
               <Euro color="primary" />
               <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
@@ -88,12 +88,12 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
             </Typography>
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Divider />
           </Grid>
 
           {/* Address */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Box sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
               <LocationOn color="action" />
               <Box>
@@ -111,7 +111,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
           </Grid>
 
           {/* Property Details */}
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
               Property Details
             </Typography>
@@ -143,7 +143,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
 
           {/* Coordinates */}
           {property.coordinates && (
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                 Location
               </Typography>
@@ -155,7 +155,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
 
           {/* External ID */}
           {property.external_id && (
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                 Reference
               </Typography>
@@ -166,10 +166,10 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
           {/* Raw Data Description */}
           {property.raw_data?.description && (
             <>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Divider />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
                   Description
                 </Typography>

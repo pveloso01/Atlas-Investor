@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import {
   Typography,
   Box,
-  Grid,
   Container,
   CircularProgress,
   Alert,
@@ -19,6 +18,7 @@ import {
   ToggleButtonGroup,
   Button,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import { ViewList, ViewModule, Map as MapIcon } from '@mui/icons-material';
 import { useGetPropertiesQuery } from '@/lib/store/api/propertyApi';
 import PropertyCard from '@/components/PropertyCard';
@@ -151,12 +151,21 @@ export default function PropertiesPage() {
       {/* Error State */}
       {error && (
         <Alert severity="error" className="mb-8">
-          Failed to load properties. Please try again later.
+          <Typography variant="body1" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
+            Failed to load properties
+          </Typography>
+          <Typography variant="body2" component="div">
+            {error && 'status' in error && error.status === 'PARSING_ERROR'
+              ? 'The server returned an invalid response. Please try refreshing the page.'
+              : error && 'status' in error && error.data && typeof error.data === 'object' && 'detail' in error.data
+              ? String(error.data.detail)
+              : 'Please check if the backend API is running and accessible.'}
+          </Typography>
         </Alert>
       )}
 
       {/* Map View */}
-      {showMap && data && (
+      {showMap && data && data.results && (
         <Box className="mb-8">
           <PropertyMap
             properties={data.results}
@@ -170,16 +179,12 @@ export default function PropertiesPage() {
       )}
 
       {/* Properties Grid/List */}
-      {!showMap && data && data.results.length > 0 && (
+      {!showMap && data && data.results && data.results.length > 0 && (
         <>
           <Grid container spacing={3}>
             {data.results.map((property: Property) => (
               <Grid
-                item={true}
-                xs={12}
-                sm={viewMode === 'grid' ? 6 : 12}
-                md={viewMode === 'grid' ? 4 : 12}
-                lg={viewMode === 'grid' ? 3 : 12}
+                size={{ xs: 12, sm: viewMode === 'grid' ? 6 : 12, md: viewMode === 'grid' ? 4 : 12, lg: viewMode === 'grid' ? 3 : 12 }}
                 key={property.id}
               >
                 <PropertyCard
@@ -194,10 +199,10 @@ export default function PropertiesPage() {
           </Grid>
 
           {/* Pagination */}
-          {data.count > pageSize && (
+          {data && data.count && data.count > pageSize && (
             <Stack spacing={2} className="mt-8 items-center">
               <Pagination
-                count={Math.ceil(data.count / pageSize)}
+                count={Math.ceil((data.count || 0) / pageSize)}
                 page={page}
                 onChange={handlePageChange}
                 color="primary"
@@ -205,7 +210,7 @@ export default function PropertiesPage() {
               />
               <Typography variant="body2" className="text-gray-600">
                 Showing {(page - 1) * pageSize + 1} to{' '}
-                {Math.min(page * pageSize, data.count)} of {data.count} properties
+                {Math.min(page * pageSize, data?.count || 0)} of {data?.count || 0} properties
               </Typography>
             </Stack>
           )}
@@ -213,7 +218,7 @@ export default function PropertiesPage() {
       )}
 
       {/* Empty State */}
-      {!showMap && data && data.results.length === 0 && (
+      {!showMap && data && data.results && data.results.length === 0 && (
         <Box className="text-center py-16">
           <Typography variant="h6" className="text-gray-600">
             No properties found

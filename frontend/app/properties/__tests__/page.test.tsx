@@ -506,15 +506,16 @@ describe('PropertiesPage', () => {
 
   it('does not display pagination when count is less than page size', async () => {
     mockUseGetPropertiesQuery.mockReturnValue({
-      ok: true,
-      status: 200,
-      json: async () => ({
+      data: {
         count: 5,
         next: null,
         previous: null,
         results: mockProperties.slice(0, 5),
-      }),
-    } as Response);
+      },
+      isLoading: false,
+      error: undefined,
+      refetch: jest.fn(),
+    } as ReturnType<typeof useGetPropertiesQuery>);
 
     render(<PropertiesPage />);
     
@@ -710,27 +711,16 @@ describe('PropertiesPage', () => {
     
     if (page3Button) {
       mockUseGetPropertiesQuery.mockReturnValueOnce({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        headers: new Headers(),
-        json: async () => ({
+        data: {
           count: 25,
           next: null,
           previous: 'http://example.com/api/properties/?page=2',
           results: mockProperties,
-        }),
-        text: async () => '',
-        blob: async () => new Blob(),
-        arrayBuffer: async () => new ArrayBuffer(0),
-        formData: async () => new FormData(),
-        clone: function() { return this; },
-        body: null,
-        bodyUsed: false,
-        redirected: false,
-        type: 'default' as ResponseType,
-        url: 'http://localhost:8000/api/properties/?page=3',
-      } as Response);
+        },
+        isLoading: false,
+        error: undefined,
+        refetch: jest.fn(),
+      } as ReturnType<typeof useGetPropertiesQuery>);
       
       fireEvent.click(page3Button);
       
