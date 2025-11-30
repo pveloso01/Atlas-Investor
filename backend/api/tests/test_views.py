@@ -428,11 +428,11 @@ class RegionViewSetTest(TestCase):
     def test_price_range_action_with_type_error(self):
         """Test price_range action with TypeError (None passed to Decimal)."""
         url = '/api/properties/price_range/'
-        # This should trigger TypeError in the try block
-        response = self.client.get(url, {'min_price': None})
+        # Cannot pass None in query string, use empty string instead
+        response = self.client.get(url, {'min_price': ''})
         
         # Should handle gracefully
-        self.assertIn(response.status_code, [status.HTTP_400_BAD_REQUEST, status.HTTP_200_OK])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_price_range_action_with_value_error(self):
         """Test price_range action with ValueError (invalid string)."""
@@ -493,7 +493,16 @@ class RegionViewSetTest(TestCase):
 
     def test_compare_to_region_action_coverage(self):
         """Test compare_to_region action to cover lines 39-41."""
-        url = f'/api/properties/{self.property.pk}/compare_to_region/'
+        # Create a property for this test
+        property = Property.objects.create(  # type: ignore[attr-defined]
+            external_id='TEST-COVERAGE',
+            address='Test Address',
+            price=Decimal('250000.00'),
+            size_sqm=Decimal('100.00'),
+            property_type='apartment',
+            region=self.region
+        )
+        url = f'/api/properties/{property.pk}/compare_to_region/'
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)

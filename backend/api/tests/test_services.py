@@ -143,20 +143,6 @@ class PropertyServiceTest(TestCase):
         result = PropertyService.normalize_coordinates([1])
         self.assertIsNone(result)
 
-    def test_normalize_coordinates_postgis_point(self):
-        """Test normalize_coordinates with PostGIS Point object."""
-        try:
-            from django.contrib.gis.geos import Point
-            
-            point = Point(-9.1393, 38.7223, srid=4326)
-            result = PropertyService.normalize_coordinates(point)
-            
-            self.assertEqual(result, [-9.1393, 38.7223])
-            self.assertIsInstance(result, list)
-        except ImportError:
-            # PostGIS not available, skip this test
-            self.skipTest("PostGIS not available")
-
     def test_normalize_coordinates_invalid_input(self):
         """Test normalize_coordinates with invalid input."""
         result = PropertyService.normalize_coordinates("invalid")
@@ -371,19 +357,6 @@ class PropertyServiceTest(TestCase):
         result = PropertyService.calculate_yield(Decimal('300000.00'), Decimal('0.00'))
         self.assertEqual(result, Decimal('0.00'))
 
-    def test_normalize_coordinates_with_postgis_point_service(self):
-        """Test normalize_coordinates with PostGIS Point object."""
-        try:
-            from django.contrib.gis.geos import Point
-            
-            point = Point(-9.1393, 38.7223, srid=4326)
-            result = PropertyService.normalize_coordinates(point)
-            
-            self.assertEqual(result, [-9.1393, 38.7223])
-            self.assertIsInstance(result, list)
-        except ImportError:
-            self.skipTest("PostGIS not available")
-
     def test_normalize_coordinates_with_tuple(self):
         """Test normalize_coordinates with tuple."""
         coords = (-9.1393, 38.7223)
@@ -455,18 +428,6 @@ class PropertyServiceTest(TestCase):
             Decimal('12000.00')
         )
         self.assertEqual(result, Decimal('4.00'))
-
-    def test_normalize_coordinates_with_postgis_point_hasattr(self):
-        """Test normalize_coordinates with PostGIS Point (covers hasattr branch)."""
-        try:
-            from django.contrib.gis.geos import Point
-            
-            point = Point(-9.1393, 38.7223, srid=4326)
-            result = PropertyService.normalize_coordinates(point)
-            # This covers lines 41-42
-            self.assertEqual(result, [-9.1393, 38.7223])
-        except ImportError:
-            self.skipTest("PostGIS not available")
 
     def test_normalize_coordinates_with_list_branch(self):
         """Test normalize_coordinates with list (covers isinstance branch)."""

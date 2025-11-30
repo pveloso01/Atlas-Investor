@@ -127,14 +127,12 @@ class AdminTest(TestCase):
         """Test SavedPropertyAdmin has_notes method without notes."""
         from api.admin import SavedPropertyAdmin
         
-        saved = SavedProperty.objects.create(  # type: ignore[attr-defined]
-            user=self.user,
-            property=self.property,
-            notes=''
-        )
+        # Use existing saved_property and update notes to empty
+        self.saved_property.notes = ''
+        self.saved_property.save()
         
         admin = SavedPropertyAdmin(SavedProperty, site)
-        result = admin.has_notes(saved)  # type: ignore[attr-defined]
+        result = admin.has_notes(self.saved_property)  # type: ignore[attr-defined]
         
         self.assertEqual(result, '-')
 
