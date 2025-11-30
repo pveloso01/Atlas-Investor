@@ -6,11 +6,16 @@ import { ReactNode } from 'react';
 
 const theme = createTheme({
   palette: {
+    mode: 'light',
     primary: {
       main: '#1976d2',
     },
     secondary: {
       main: '#dc004e',
+    },
+    background: {
+      default: '#ffffff',
+      paper: '#ffffff',
     },
   },
 });
