@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Count
 from .models import Property, Region, SavedProperty
 
 
@@ -14,11 +15,19 @@ class RegionAdmin(admin.ModelAdmin):
     ordering = ['name']
     readonly_fields = ['created_at', 'updated_at']
     
+    def get_queryset(self, request):
+        """Annotate queryset with property count for sorting."""
+        queryset = super().get_queryset(request)
+        return queryset.annotate(property_count_annotation=Count('property_set'))
+    
     def property_count(self, obj):
         """Display count of properties in this region."""
+        # Use annotation if available, otherwise fall back to count()
+        if hasattr(obj, 'property_count_annotation'):
+            return obj.property_count_annotation
         return obj.property_set.count()  # type: ignore[attr-defined]
     property_count.short_description = 'Properties'  # type: ignore[attr-defined]
-    property_count.admin_order_field = 'property__count'  # type: ignore[attr-defined]
+    property_count.admin_order_field = 'property_count_annotation'  # type: ignore[attr-defined]
 
 
 @admin.register(Property)
@@ -74,6 +83,11 @@ class PropertyAdmin(admin.ModelAdmin):
         }),
     )
 
+    def get_queryset(self, request):
+        """Annotate queryset with saved count for sorting."""
+        queryset = super().get_queryset(request)
+        return queryset.annotate(saved_count_annotation=Count('saved_by'))
+    
     def price_per_sqm(self, obj):
         """Display calculated price per square meter."""
         price_per_sqm = obj.price_per_sqm
@@ -85,9 +99,12 @@ class PropertyAdmin(admin.ModelAdmin):
     
     def saved_count(self, obj):
         """Display count of users who saved this property."""
+        # Use annotation if available, otherwise fall back to count()
+        if hasattr(obj, 'saved_count_annotation'):
+            return obj.saved_count_annotation
         return obj.saved_by.count()  # type: ignore[attr-defined]
     saved_count.short_description = 'Saved By'  # type: ignore[attr-defined]
-    saved_count.admin_order_field = 'saved_by__count'  # type: ignore[attr-defined]
+    saved_count.admin_order_field = 'saved_count_annotation'  # type: ignore[attr-defined]
 
 
 @admin.register(SavedProperty)
