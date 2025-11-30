@@ -1,11 +1,19 @@
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework import viewsets, filters, status
+from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Property, Region
 from .serializers.property_serializers import PropertySerializer, RegionSerializer
 from .services.property_service import PropertyService
 from .permissions import IsAuthenticatedOrReadOnly as CustomIsAuthenticatedOrReadOnly
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    """Custom pagination class that respects page_size query parameter."""
+    page_size = 20
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 @api_view(['GET'])
@@ -23,6 +31,7 @@ class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()  # type: ignore[attr-defined]
     serializer_class = PropertySerializer
     permission_classes = [CustomIsAuthenticatedOrReadOnly]
+    pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['property_type', 'region']
     search_fields = ['address']
@@ -71,5 +80,7 @@ class RegionViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for Region model (read-only)."""
     queryset = Region.objects.all()  # type: ignore[attr-defined]
     serializer_class = RegionSerializer
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'code']
     ordering = ['name']
