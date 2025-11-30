@@ -16,6 +16,8 @@ class PropertyService:
     @staticmethod
     def calculate_price_per_sqm(price: Decimal, size_sqm: Decimal) -> Optional[Decimal]:
         """Calculate price per square meter."""
+        if price is None:
+            return None
         if size_sqm and size_sqm > 0:
             return price / size_sqm
         return None
