@@ -10,60 +10,150 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('users', '0001_initial'),  # Required: SavedProperty references users.User
+        ("users", "0001_initial"),  # Required: SavedProperty references users.User
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Region',
+            name="Region",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True)),
-                ('code', models.CharField(max_length=10, unique=True)),
-                ('avg_price_per_sqm', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('avg_rent', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('avg_yield', models.DecimalField(blank=True, decimal_places=2, max_digits=5, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
+                ("code", models.CharField(max_length=10, unique=True)),
+                (
+                    "avg_price_per_sqm",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
+                (
+                    "avg_rent",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
+                (
+                    "avg_yield",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=5, null=True
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='Property',
+            name="Property",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('external_id', models.CharField(blank=True, max_length=100, null=True, unique=True)),
-                ('address', models.CharField(max_length=255)),
-                ('coordinates', models.JSONField(blank=True, help_text='Coordinates as [longitude, latitude]', null=True)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=12)),
-                ('size_sqm', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('property_type', models.CharField(choices=[('apartment', 'Apartment'), ('house', 'House'), ('land', 'Land'), ('commercial', 'Commercial'), ('mixed', 'Mixed Use')], max_length=20)),
-                ('bedrooms', models.IntegerField(blank=True, null=True)),
-                ('bathrooms', models.DecimalField(blank=True, decimal_places=1, max_digits=3, null=True)),
-                ('raw_data', models.JSONField(blank=True, default=dict)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('region', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='api.region')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "external_id",
+                    models.CharField(
+                        blank=True, max_length=100, null=True, unique=True
+                    ),
+                ),
+                ("address", models.CharField(max_length=255)),
+                (
+                    "coordinates",
+                    models.JSONField(
+                        blank=True,
+                        help_text="Coordinates as [longitude, latitude]",
+                        null=True,
+                    ),
+                ),
+                ("price", models.DecimalField(decimal_places=2, max_digits=12)),
+                ("size_sqm", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "property_type",
+                    models.CharField(
+                        choices=[
+                            ("apartment", "Apartment"),
+                            ("house", "House"),
+                            ("land", "Land"),
+                            ("commercial", "Commercial"),
+                            ("mixed", "Mixed Use"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("bedrooms", models.IntegerField(blank=True, null=True)),
+                (
+                    "bathrooms",
+                    models.DecimalField(
+                        blank=True, decimal_places=1, max_digits=3, null=True
+                    ),
+                ),
+                ("raw_data", models.JSONField(blank=True, default=dict)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "region",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="api.region",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Properties',
-                'ordering': ['-created_at'],
+                "verbose_name_plural": "Properties",
+                "ordering": ["-created_at"],
             },
         ),
         migrations.CreateModel(
-            name='SavedProperty',
+            name="SavedProperty",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('notes', models.TextField(blank=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('property', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_by', to='api.property')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='saved_properties', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("notes", models.TextField(blank=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "property",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="saved_by",
+                        to="api.property",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="saved_properties",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
-                'unique_together': {('user', 'property')},
+                "ordering": ["-created_at"],
+                "unique_together": {("user", "property")},
             },
         ),
     ]
