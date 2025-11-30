@@ -299,8 +299,9 @@ class PropertyViewSetTest(TestCase):
         response = self.client.get(url, {'min_price': '250000', 'max_price': '350000'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['external_id'], 'TEST-001')
+        results = get_response_results(response)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['external_id'], 'TEST-001')
 
     def test_price_range_action_min_only(self):
         """Test price_range action with only min_price."""
@@ -308,7 +309,8 @@ class PropertyViewSetTest(TestCase):
         response = self.client.get(url, {'min_price': '250000'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        results = get_response_results(response)
+        self.assertEqual(len(results), 1)
 
     def test_price_range_action_max_only(self):
         """Test price_range action with only max_price."""
@@ -316,7 +318,8 @@ class PropertyViewSetTest(TestCase):
         response = self.client.get(url, {'max_price': '350000'})
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        results = get_response_results(response)
+        self.assertEqual(len(results), 1)
 
     def test_price_range_action_invalid_params(self):
         """Test price_range action with invalid parameters."""
@@ -516,4 +519,38 @@ class RegionViewSetTest(TestCase):
         
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('error', response.data)
+
+    def test_price_range_action_pagination(self):
+        """Test that price_range action applies pagination correctly."""
+        # Create 25 properties within the price range (more than default page size of 20)
+        for i in range(25):
+            Property.objects.create(  # type: ignore[attr-defined]
+                external_id=f'TEST-PAG-{i}',
+                address=f'Test Property {i}',
+                price=Decimal('300000.00'),
+                size_sqm=Decimal('100.00'),
+                property_type='apartment',
+                region=self.region
+            )
+        
+        url = '/api/properties/price_range/'
+        response = self.client.get(url, {'min_price': '250000', 'max_price': '350000'})
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Should return paginated response with count and results
+        self.assertIn('count', response.data)
+        self.assertIn('results', response.data)
+        self.assertIn('next', response.data)
+        # We have 1 property from setUp + 25 new = 26 total
+        # Default page size is 20, so first page should have 20 results
+        self.assertGreaterEqual(response.data['count'], 26)
+        self.assertEqual(len(response.data['results']), 20)  # First page
+        # Verify pagination links exist
+        self.assertIsNotNone(response.data['next'])
+        
+        # Test second page
+        response_page2 = self.client.get(response.data['next'])
+        self.assertEqual(response_page2.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response_page2.data['results']), 6)  # Remaining items
+        self.assertIsNone(response_page2.data['next'])  # Should be last page
 

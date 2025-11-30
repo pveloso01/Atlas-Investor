@@ -72,6 +72,14 @@ class PropertyViewSet(viewsets.ModelViewSet):
             )
         
         queryset = PropertyService.get_properties_in_price_range(min_price, max_price)
+        
+        # Apply pagination to the queryset
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        # Fallback if pagination is not configured (should not happen)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
