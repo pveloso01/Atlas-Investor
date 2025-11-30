@@ -1,3 +1,5 @@
+'use client';
+
 import { Typography, Box, Container } from '@mui/material';
 
 export default function LoginPage() {

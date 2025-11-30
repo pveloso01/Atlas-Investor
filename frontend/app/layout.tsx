@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "@/lib/store/StoreProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import EmotionRegistry from "@/lib/emotion/registry";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,11 +20,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <StoreProvider>
-          <ThemeProvider>
-            {children}
-          </ThemeProvider>
-        </StoreProvider>
+        <EmotionRegistry>
+          <StoreProvider>
+            <ThemeProvider>
+              {children}
+            </ThemeProvider>
+          </StoreProvider>
+        </EmotionRegistry>
       </body>
     </html>
   );
