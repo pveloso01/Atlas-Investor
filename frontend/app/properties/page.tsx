@@ -18,25 +18,22 @@ import {
   ToggleButtonGroup,
   Button,
 } from '@mui/material';
-import Grid from '@mui/material/Grid';
 import { ViewList, ViewModule, Map as MapIcon } from '@mui/icons-material';
 import { useGetPropertiesQuery } from '@/lib/store/api/propertyApi';
 import PropertyCard from '@/components/PropertyCard';
-import PropertyDetailModal from '@/components/PropertyDetailModal';
 import PropertyMap from '@/components/PropertyMap';
-import { Property } from '@/types/property';
+import { useRouter } from 'next/navigation';
 
 type ViewMode = 'grid' | 'list';
 
 export default function PropertiesPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [pageSize] = useState(12);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [propertyType, setPropertyType] = useState<string>('');
   const [region, setRegion] = useState<string>('');
   const [search, setSearch] = useState<string>('');
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
   const { data, error, isLoading } = useGetPropertiesQuery({
@@ -170,8 +167,7 @@ export default function PropertiesPage() {
           <PropertyMap
             properties={data.results}
             onPropertyClick={(property) => {
-              setSelectedProperty(property);
-              setModalOpen(true);
+              router.push(`/properties/${property.id}`);
             }}
             height={600}
           />
@@ -181,22 +177,25 @@ export default function PropertiesPage() {
       {/* Properties Grid/List */}
       {!showMap && data && data.results && data.results.length > 0 && (
         <>
-          <Grid container spacing={3}>
-            {data.results.map((property: Property) => (
-              <Grid
-                size={{ xs: 12, sm: viewMode === 'grid' ? 6 : 12, md: viewMode === 'grid' ? 4 : 12, lg: viewMode === 'grid' ? 3 : 12 }}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: viewMode === 'grid' ? 'repeat(2, 1fr)' : '1fr',
+                md: viewMode === 'grid' ? 'repeat(3, 1fr)' : '1fr',
+                lg: viewMode === 'grid' ? 'repeat(4, 1fr)' : '1fr',
+              },
+              gap: 3,
+            }}
+          >
+            {data.results.map((property) => (
+              <PropertyCard
                 key={property.id}
-              >
-                <PropertyCard
-                  property={property}
-                  onClick={() => {
-                    setSelectedProperty(property);
-                    setModalOpen(true);
-                  }}
-                />
-              </Grid>
+                property={property}
+              />
             ))}
-          </Grid>
+          </Box>
 
           {/* Pagination */}
           {data && data.count && data.count > pageSize && (
@@ -228,16 +227,6 @@ export default function PropertiesPage() {
           </Typography>
         </Box>
       )}
-
-      {/* Property Detail Modal */}
-      <PropertyDetailModal
-        property={selectedProperty}
-        open={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setSelectedProperty(null);
-        }}
-      />
     </Container>
   );
 }
