@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.db.models import Count
 from django.utils.html import format_html
 from .models import User
 
@@ -25,9 +26,18 @@ class CustomUserAdmin(UserAdmin):
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     
+    def get_queryset(self, request):
+        """Annotate queryset with saved properties count for ordering."""
+        queryset = super().get_queryset(request)
+        return queryset.annotate(saved_properties_count_annotated=Count('saved_properties'))
+    
     def saved_properties_count(self, obj):
         """Display count of saved properties."""
-        count = obj.saved_properties.count()  # type: ignore[attr-defined]
+        # Use annotated value if available, otherwise fall back to counting
+        count = getattr(obj, 'saved_properties_count_annotated', None)
+        if count is None:
+            count = obj.saved_properties.count()  # type: ignore[attr-defined]
+        
         if count > 0:
             return format_html(
                 '<a href="/admin/api/savedproperty/?user__id__exact={}">{}</a>',
@@ -35,6 +45,6 @@ class CustomUserAdmin(UserAdmin):
                 count
             )
         return 0
-    saved_properties_count.short_description = 'Saved Properties'
-    saved_properties_count.admin_order_field = 'saved_properties__count'
+    saved_properties_count.short_description = 'Saved Properties'  # type: ignore[attr-defined]
+    saved_properties_count.admin_order_field = 'saved_properties_count_annotated'  # type: ignore[attr-defined]
 
