@@ -4,9 +4,14 @@ import PropertyDetailPage from '../page';
 import { mockProperty, mockPropertyWithoutOptional } from '@/__tests__/utils/mock-data';
 import { useGetPropertyQuery } from '@/lib/store/api/propertyApi';
 
-// Mock the RTK Query hook
+// Mock the RTK Query hook and API
 jest.mock('@/lib/store/api/propertyApi', () => ({
   useGetPropertyQuery: jest.fn(),
+  propertyApi: {
+    reducerPath: 'propertyApi',
+    reducer: (state = {}) => state,
+    middleware: () => (next: (action: unknown) => unknown) => (action: unknown) => next(action),
+  },
 }));
 
 // Mock Next.js router
@@ -37,7 +42,7 @@ describe('PropertyDetailPage', () => {
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
-  it('displays property details when loaded', async () => {
+  it('displays property details when loaded', () => {
     mockUseGetPropertyQuery.mockReturnValue({
       data: mockProperty,
       error: undefined,
@@ -47,10 +52,7 @@ describe('PropertyDetailPage', () => {
 
     render(<PropertyDetailPage />);
 
-    await waitFor(() => {
-      expect(screen.getByText('Property Details')).toBeInTheDocument();
-    });
-
+    expect(screen.getAllByText('Property Details').length).toBeGreaterThan(0);
     expect(screen.getByText('Rua Teste 123, Lisbon')).toBeInTheDocument();
     expect(screen.getByText('Lisbon')).toBeInTheDocument();
     expect(screen.getByText('Apartment')).toBeInTheDocument();
@@ -117,7 +119,7 @@ describe('PropertyDetailPage', () => {
     });
   });
 
-  it('handles property without coordinates', async () => {
+  it('handles property without coordinates', () => {
     const propertyWithoutCoords = { ...mockProperty, coordinates: undefined };
     mockUseGetPropertyQuery.mockReturnValue({
       data: propertyWithoutCoords,
@@ -128,10 +130,7 @@ describe('PropertyDetailPage', () => {
 
     render(<PropertyDetailPage />);
 
-    await waitFor(() => {
-      expect(screen.getByText('Property Details')).toBeInTheDocument();
-    });
-
+    expect(screen.getAllByText('Property Details').length).toBeGreaterThan(0);
     expect(screen.queryByText(/Latitude/i)).not.toBeInTheDocument();
   });
 
