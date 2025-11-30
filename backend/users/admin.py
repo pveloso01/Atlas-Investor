@@ -64,5 +64,9 @@ class CustomUserAdmin(UserAdmin):
             )
         return 0
 
-    saved_properties_count.short_description = "Saved Properties"  # type: ignore[attr-defined]
-    saved_properties_count.admin_order_field = "saved_properties_count_annotated"  # type: ignore[attr-defined]
+    saved_properties_count.short_description = (  # type: ignore[attr-defined]
+        "Saved Properties"
+    )
+    saved_properties_count.admin_order_field = (  # type: ignore[attr-defined]
+        "saved_properties_count_annotated"
+    )

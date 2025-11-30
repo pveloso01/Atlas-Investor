@@ -24,7 +24,7 @@ class SeedDataCommandTest(TestCase):
         self.assertEqual(Region.objects.count(), 3)  # type: ignore[attr-defined]
 
         # Verify region names
-        region_names = list(Region.objects.values_list("name", flat=True))  # type: ignore[attr-defined]
+        region_names = list(Region.objects.values_list("name", flat=True))  # type: ignore[attr-defined]  # noqa: E501
         self.assertIn("Lisbon", region_names)
         self.assertIn("Porto", region_names)
         self.assertIn("Cascais", region_names)
@@ -57,8 +57,8 @@ class SeedDataCommandTest(TestCase):
         # Should have only the seed data, not the existing data
         self.assertEqual(Region.objects.count(), 3)  # type: ignore[attr-defined]
         self.assertEqual(Property.objects.count(), 20)  # type: ignore[attr-defined]
-        self.assertFalse(Region.objects.filter(code="EXIST").exists())  # type: ignore[attr-defined]
-        self.assertFalse(Property.objects.filter(external_id="EXIST-001").exists())  # type: ignore[attr-defined]
+        self.assertFalse(Region.objects.filter(code="EXIST").exists())  # type: ignore[attr-defined]  # noqa: E501
+        self.assertFalse(Property.objects.filter(external_id="EXIST-001").exists())  # type: ignore[attr-defined]  # noqa: E501
 
     def test_seed_data_idempotent(self):
         """Test that running seed_data multiple times is idempotent."""
@@ -107,7 +107,7 @@ class SeedDataCommandTest(TestCase):
         call_command("seed_data", stdout=out)
 
         # All properties should have coordinates
-        properties_without_coords = Property.objects.filter(coordinates__isnull=True)  # type: ignore[attr-defined]
+        properties_without_coords = Property.objects.filter(coordinates__isnull=True)  # type: ignore[attr-defined]  # noqa: E501
         self.assertEqual(properties_without_coords.count(), 0)
 
     def test_seed_data_output(self):
@@ -128,9 +128,9 @@ class SeedDataCommandTest(TestCase):
         call_command("seed_data", stdout=out)
 
         # Verify properties are distributed across regions
-        lisbon_count = Property.objects.filter(region__code="LIS").count()  # type: ignore[attr-defined]
-        porto_count = Property.objects.filter(region__code="OPO").count()  # type: ignore[attr-defined]
-        cascais_count = Property.objects.filter(region__code="CAS").count()  # type: ignore[attr-defined]
+        lisbon_count = Property.objects.filter(region__code="LIS").count()  # type: ignore[attr-defined]  # noqa: E501
+        porto_count = Property.objects.filter(region__code="OPO").count()  # type: ignore[attr-defined]  # noqa: E501
+        cascais_count = Property.objects.filter(region__code="CAS").count()  # type: ignore[attr-defined]  # noqa: E501
 
         self.assertGreater(lisbon_count, 0)
         self.assertGreater(porto_count, 0)

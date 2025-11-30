@@ -81,7 +81,7 @@ class UserSerializerTest(TestCase):
         self.assertTrue(serializer.is_valid())
 
         updated_user = serializer.save()
-        self.assertEqual(updated_user.first_name, "Updated")  # type: ignore[attr-defined]
+        self.assertEqual(updated_user.first_name, "Updated")  # type: ignore[attr-defined]  # noqa: E501
         self.assertEqual(updated_user.last_name, "Name")  # type: ignore[attr-defined]
 
     def test_user_serializer_cannot_update_read_only_fields(self):
@@ -140,10 +140,10 @@ class UserCreateSerializerTest(TestCase):
 
         user = serializer.save()
         self.assertEqual(user.username, "newuser")  # type: ignore[attr-defined]
-        self.assertEqual(user.email, "newuser@example.com")  # type: ignore[attr-defined]
+        self.assertEqual(user.email, "newuser@example.com")  # type: ignore[attr-defined]  # noqa: E501
         self.assertEqual(user.first_name, "New")  # type: ignore[attr-defined]
         self.assertEqual(user.last_name, "User")  # type: ignore[attr-defined]
-        self.assertTrue(user.check_password("testpass123"))  # type: ignore[attr-defined]
+        self.assertTrue(user.check_password("testpass123"))  # type: ignore[attr-defined]  # noqa: E501
 
     def test_user_create_serializer_password_mismatch(self):
         """Test UserCreateSerializer with mismatched passwords."""
@@ -196,7 +196,9 @@ class UserCreateSerializerTest(TestCase):
         serializer = UserCreateSerializer(data=data)
         self.assertFalse(serializer.is_valid())
         self.assertIn("email", serializer.errors)
-        self.assertIn("already exists", str(serializer.errors["email"][0]))  # type: ignore[index]
+        self.assertIn(
+            "already exists", str(serializer.errors["email"][0])
+        )  # type: ignore[index]
 
     def test_user_create_serializer_password_retype_removed(self):
         """Test that password_retype is removed before user creation."""
@@ -214,7 +216,7 @@ class UserCreateSerializerTest(TestCase):
         # The create method pops it, so check that create works correctly
         user = serializer.save()
         self.assertIsNotNone(user)
-        self.assertEqual(user.email, "newuser@example.com")  # type: ignore[attr-defined]
+        self.assertEqual(user.email, "newuser@example.com")  # type: ignore[attr-defined]  # noqa: E501
 
     def test_user_create_serializer_optional_fields(self):
         """Test UserCreateSerializer with optional fields."""

@@ -119,9 +119,15 @@ class Property(models.Model):
     )
 
     # Features
-    parking_spaces = models.IntegerField(default=0, help_text="Number of parking spaces")  # type: ignore[assignment]
-    has_balcony = models.BooleanField(default=False, help_text="Property has balcony")  # type: ignore[assignment]
-    has_terrace = models.BooleanField(default=False, help_text="Property has terrace")  # type: ignore[assignment]
+    parking_spaces = models.IntegerField(
+        default=0, help_text="Number of parking spaces"
+    )  # type: ignore[assignment]
+    has_balcony = models.BooleanField(
+        default=False, help_text="Property has balcony"
+    )  # type: ignore[assignment]
+    has_terrace = models.BooleanField(
+        default=False, help_text="Property has terrace"
+    )  # type: ignore[assignment]
 
     # Energy & Environment
     energy_rating = models.CharField(
@@ -163,7 +169,8 @@ class Property(models.Model):
     def price_per_sqm(self) -> Optional[Decimal]:
         """Calculate price per square meter."""
         if self.size_sqm and self.size_sqm > 0:
-            # Convert to Decimal for calculation (Django DecimalField returns Decimal at runtime)
+            # Convert to Decimal for calculation
+            # (Django DecimalField returns Decimal at runtime)
             price = Decimal(str(self.price))  # type: ignore[arg-type]
             size = Decimal(str(self.size_sqm))  # type: ignore[arg-type]
             return price / size
@@ -180,10 +187,16 @@ class Property(models.Model):
 
         # Handle PostGIS PointField (has .x and .y attributes)
         if hasattr(self.coordinates, "x") and hasattr(self.coordinates, "y"):
-            return [float(self.coordinates.x), float(self.coordinates.y)]  # type: ignore[attr-defined]
+            return [
+                float(self.coordinates.x),
+                float(self.coordinates.y),
+            ]  # type: ignore[attr-defined]
 
         # Handle JSONField (already a list [longitude, latitude])
-        if isinstance(self.coordinates, (list, tuple)) and len(self.coordinates) >= 2:
+        if (
+            isinstance(self.coordinates, (list, tuple))
+            and len(self.coordinates) >= 2
+        ):
             return [float(self.coordinates[0]), float(self.coordinates[1])]
 
         return None
@@ -209,4 +222,6 @@ class SavedProperty(models.Model):
 
     def __str__(self) -> str:
         # Django ForeignKey access is dynamic - type checker needs help
-        return f"{self.user.email} - {self.property.address}"  # type: ignore[attr-defined]
+        return (
+            f"{self.user.email} - {self.property.address}"  # type: ignore[attr-defined]
+        )

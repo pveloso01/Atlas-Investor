@@ -34,10 +34,14 @@ class Command(BaseCommand):
         clear = options["clear"]
 
         if clear:
-            self.stdout.write(self.style.WARNING("Clearing existing data..."))  # type: ignore[attr-defined]
+            self.stdout.write(  # type: ignore[attr-defined]
+                self.style.WARNING("Clearing existing data...")
+            )
             Property.objects.all().delete()  # type: ignore[attr-defined]
             Region.objects.all().delete()  # type: ignore[attr-defined]
-            self.stdout.write(self.style.SUCCESS("Existing data cleared."))  # type: ignore[attr-defined]
+            self.stdout.write(  # type: ignore[attr-defined]
+                self.style.SUCCESS("Existing data cleared.")
+            )
 
         # Create regions
         self.stdout.write("Creating regions...")
@@ -67,17 +71,19 @@ class Command(BaseCommand):
 
         regions = {}
         for region_data in regions_data:
-            region, created = Region.objects.get_or_create(  # type: ignore[attr-defined]
-                code=region_data["code"], defaults=region_data
+            region, created = (  # type: ignore[attr-defined]
+                Region.objects.get_or_create(
+                    code=region_data["code"], defaults=region_data
+                )
             )
             regions[region_data["code"]] = region
             if created:
-                self.stdout.write(
-                    self.style.SUCCESS(f"  ✓ Created region: {region.name}")  # type: ignore[attr-defined]
+                self.stdout.write(  # type: ignore[attr-defined]
+                    self.style.SUCCESS(f"  ✓ Created region: {region.name}")
                 )
             else:
-                self.stdout.write(
-                    self.style.WARNING(f"  - Region already exists: {region.name}")  # type: ignore[attr-defined]
+                self.stdout.write(  # type: ignore[attr-defined]
+                    self.style.WARNING(f"  - Region already exists: {region.name}")
                 )
 
         # Create sample properties (10-20 realistic properties from Lisbon and Porto)
@@ -546,7 +552,8 @@ class Command(BaseCommand):
             region_code = prop_data.pop("region_code")
             region = regions.get(region_code)
 
-            # Handle coordinates - always store as [longitude, latitude] list in JSONField
+            # Handle coordinates - always store as
+            # [longitude, latitude] list in JSONField
             # The Property model uses JSONField for coordinates, not PostGIS PointField
             coordinates = prop_data.pop("coordinates")
             # Ensure coordinates are stored as [longitude, latitude] list
@@ -558,18 +565,22 @@ class Command(BaseCommand):
             else:
                 prop_data["coordinates"] = None
 
-            property_obj, created = Property.objects.get_or_create(  # type: ignore[attr-defined]
-                external_id=prop_data["external_id"],
-                defaults={
-                    **prop_data,
-                    "region": region,
-                },
+            property_obj, created = (  # type: ignore[attr-defined]
+                Property.objects.get_or_create(
+                    external_id=prop_data["external_id"],
+                    defaults={
+                        **prop_data,
+                        "region": region,
+                    },
+                )
             )
 
             if created:
-                self.stdout.write(
-                    self.style.SUCCESS(  # type: ignore[attr-defined]
-                        f"  ✓ Created property: {property_obj.address} - €{property_obj.price:,.0f}"
+                address = property_obj.address
+                price = property_obj.price
+                self.stdout.write(  # type: ignore[attr-defined]
+                    self.style.SUCCESS(
+                        f"  ✓ Created property: {address} - €{price:,.0f}"
                     )
                 )
             else:
@@ -583,6 +594,6 @@ class Command(BaseCommand):
             self.style.SUCCESS(  # type: ignore[attr-defined]
                 f"\n✓ Seed data created successfully!\n"
                 f"  - {Region.objects.count()} regions\n"  # type: ignore[attr-defined]
-                f"  - {Property.objects.count()} properties"  # type: ignore[attr-defined]
+                f"  - {Property.objects.count()} properties"  # type: ignore[attr-defined]  # noqa: E501
             )
         )

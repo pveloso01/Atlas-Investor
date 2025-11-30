@@ -31,7 +31,8 @@ SECRET_KEY = os.getenv(
 # In production, set DEBUG=False and configure ALLOWED_HOSTS properly.
 DEBUG = os.getenv("DEBUG", "True").lower() not in ("false", "0", "no", "off")
 
-# ALLOWED_HOSTS: Default to localhost for development, require explicit setting for production
+# ALLOWED_HOSTS: Default to localhost for development,
+# require explicit setting for production
 allowed_hosts_env = os.getenv("ALLOWED_HOSTS", "")
 if allowed_hosts_env:
     ALLOWED_HOSTS = [
@@ -173,7 +174,10 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",

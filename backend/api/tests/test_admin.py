@@ -41,7 +41,7 @@ class AdminTest(TestCase):
             region=self.region,
         )
 
-        self.saved_property = SavedProperty.objects.create(  # type: ignore[attr-defined]
+        self.saved_property = SavedProperty.objects.create(  # type: ignore[attr-defined]  # noqa: E501
             user=self.user, property=self.property, notes="Test notes"
         )
 
@@ -107,7 +107,7 @@ class AdminTest(TestCase):
         from api.admin import SavedPropertyAdmin
 
         admin = SavedPropertyAdmin(SavedProperty, site)
-        result = admin.property_region(self.saved_property)  # type: ignore[attr-defined]
+        result = admin.property_region(self.saved_property)  # type: ignore[attr-defined]  # noqa: E501
 
         self.assertEqual(result, self.region)
 
@@ -175,7 +175,7 @@ class AdminTest(TestCase):
         from api.admin import SavedPropertyAdmin
 
         admin = SavedPropertyAdmin(SavedProperty, site)
-        result = admin.property_region(self.saved_property)  # type: ignore[attr-defined]
+        result = admin.property_region(self.saved_property)  # type: ignore[attr-defined]  # noqa: E501
         self.assertEqual(result, self.region)
 
     def test_region_admin_property_count_coverage(self):

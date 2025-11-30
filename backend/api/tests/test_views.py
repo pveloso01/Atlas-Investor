@@ -18,7 +18,11 @@ User = get_user_model()
 
 
 def get_response_results(response):
-    """Helper to get results from response, handling both paginated and non-paginated responses."""
+    """
+    Helper to get results from response.
+
+    Handles both paginated and non-paginated responses.
+    """
     if isinstance(response.data, dict) and "results" in response.data:
         return response.data["results"]
     elif isinstance(response.data, list):
@@ -380,7 +384,8 @@ class RegionViewSetTest(TestCase):
         self.assertEqual(
             len(results),
             1,
-            f"Expected 1 result, got {len(results)}: {[r.get('name') for r in results]}",
+            f"Expected 1 result, got {len(results)}: "
+            f"{[r.get('name') for r in results]}",
         )
         self.assertEqual(results[0]["name"], "Lisbon")
 
@@ -398,7 +403,7 @@ class RegionViewSetTest(TestCase):
         self.assertEqual(
             len(results),
             1,
-            f"Expected 1 result, got {len(results)}: {[r.get('code') for r in results]}",
+            f"Expected 1 result, got {len(results)}: {[r.get('code') for r in results]}",  # noqa: E501
         )
         self.assertEqual(results[0]["code"], "LIS")
 
@@ -525,7 +530,8 @@ class RegionViewSetTest(TestCase):
 
     def test_price_range_action_pagination(self):
         """Test that price_range action applies pagination correctly."""
-        # Create 25 properties within the price range (more than default page size of 20)
+        # Create 25 properties within the price range
+        # (more than default page size of 20)
         for i in range(25):
             Property.objects.create(  # type: ignore[attr-defined]
                 external_id=f"TEST-PAG-{i}",

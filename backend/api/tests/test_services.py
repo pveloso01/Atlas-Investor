@@ -300,7 +300,7 @@ class PropertyServiceTest(TestCase):
 
     def test_calculate_price_per_sqm_with_none_price(self):
         """Test calculate_price_per_sqm with None price."""
-        result = PropertyService.calculate_price_per_sqm(None, Decimal("100.00"))  # type: ignore[arg-type]
+        result = PropertyService.calculate_price_per_sqm(None, Decimal("100.00"))  # type: ignore[arg-type]  # noqa: E501
         # Should return None when price is None (size_sqm check happens first)
         self.assertIsNone(result)
 
@@ -322,7 +322,7 @@ class PropertyServiceTest(TestCase):
 
     def test_calculate_yield_with_none_price(self):
         """Test calculate_yield with None price."""
-        result = PropertyService.calculate_yield(None, Decimal("12000.00"))  # type: ignore[arg-type]
+        result = PropertyService.calculate_yield(None, Decimal("12000.00"))  # type: ignore[arg-type]  # noqa: E501
         self.assertIsNone(result)
 
     def test_calculate_yield_with_zero_price(self):
@@ -339,7 +339,7 @@ class PropertyServiceTest(TestCase):
 
     def test_calculate_yield_with_none_annual_rent(self):
         """Test calculate_yield with None annual_rent."""
-        result = PropertyService.calculate_yield(Decimal("300000.00"), None)  # type: ignore[arg-type]
+        result = PropertyService.calculate_yield(Decimal("300000.00"), None)  # type: ignore[arg-type]  # noqa: E501
         self.assertIsNone(result)
 
     def test_calculate_yield_with_zero_annual_rent(self):
@@ -487,7 +487,7 @@ class PropertyServiceTest(TestCase):
         self.assertEqual(result, {})
 
     def test_compare_to_region_average_with_both_values(self):
-        """Test compare_to_region_average when both price_per_sqm and region_avg exist."""
+        """Test compare_to_region_average when both price_per_sqm and region_avg exist."""  # noqa: E501
         # This covers lines 92-97
         result = PropertyService.compare_to_region_average(self.property)
 
@@ -533,7 +533,7 @@ class PropertyServiceTest(TestCase):
         self.assertNotIn("price_difference", result)
 
     def test_compare_to_region_average_with_both_none(self):
-        """Test compare_to_region_average when both price_per_sqm and region_avg are None."""
+        """Test compare_to_region_average when both price_per_sqm and region_avg are None."""  # noqa: E501
         region_no_avg = Region.objects.create(  # type: ignore[attr-defined]
             name="No Avg", code="NOAVG", avg_price_per_sqm=None
         )

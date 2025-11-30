@@ -271,7 +271,7 @@ class SavedPropertyModelTest(TestCase):
             region=self.region,
         )
 
-        self.saved_property = SavedProperty.objects.create(  # type: ignore[attr-defined]
+        self.saved_property = SavedProperty.objects.create(  # type: ignore[attr-defined]  # noqa: E501
             user=self.user, property=self.property, notes="This is a test note"
         )
 
@@ -329,7 +329,7 @@ class SavedPropertyModelTest(TestCase):
             user=self.user, property=property2, notes="Second note"
         )
 
-        saved_properties = list(SavedProperty.objects.filter(user=self.user))  # type: ignore[attr-defined]
+        saved_properties = list(SavedProperty.objects.filter(user=self.user))  # type: ignore[attr-defined]  # noqa: E501
         # Should be ordered by -created_at (newest first)
         self.assertEqual(saved_properties[0], saved2)
         self.assertEqual(saved_properties[1], self.saved_property)
@@ -348,7 +348,7 @@ class SavedPropertyModelTest(TestCase):
         self.user.delete()
 
         # SavedProperty should be deleted
-        self.assertFalse(SavedProperty.objects.filter(user_id=user_id).exists())  # type: ignore[attr-defined]
+        self.assertFalse(SavedProperty.objects.filter(user_id=user_id).exists())  # type: ignore[attr-defined]  # noqa: E501
 
     def test_saved_property_cascade_delete_property(self):
         """Test that SavedProperty is deleted when Property is deleted."""
@@ -356,7 +356,7 @@ class SavedPropertyModelTest(TestCase):
         self.property.delete()
 
         # SavedProperty should be deleted
-        self.assertFalse(SavedProperty.objects.filter(property_id=property_id).exists())  # type: ignore[attr-defined]
+        self.assertFalse(SavedProperty.objects.filter(property_id=property_id).exists())  # type: ignore[attr-defined]  # noqa: E501
 
     def test_get_coordinates_list_with_invalid_format(self):
         """Test get_coordinates_list with invalid coordinate format."""
@@ -416,7 +416,7 @@ class SavedPropertyModelTest(TestCase):
 
     def test_property_price_per_sqm_property_execution(self):
         """Test price_per_sqm property execution to cover lines 134-139."""
-        # This covers lines 134-139: if self.size_sqm and self.size_sqm > 0: ... return price / size
+        # This covers lines 134-139: if self.size_sqm and self.size_sqm > 0: ... return price / size  # noqa: E501
         prop = Property.objects.create(  # type: ignore[attr-defined]
             external_id="TEST-PPSQM-2",
             address="Test",
@@ -432,7 +432,7 @@ class SavedPropertyModelTest(TestCase):
 
     def test_property_get_coordinates_list_list_execution(self):
         """Test get_coordinates_list with list to cover lines 155-156."""
-        # This covers lines 155-156: if isinstance(..., (list, tuple)): return [float(...), float(...)]
+        # This covers lines 155-156: if isinstance(..., (list, tuple)): return [float(...), float(...)]  # noqa: E501
         prop = Property.objects.create(  # type: ignore[attr-defined]
             external_id="TEST-COORDS-LIST-2",
             address="Test",
