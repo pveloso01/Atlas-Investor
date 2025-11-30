@@ -57,6 +57,12 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve() {}
 };
 
+// Mock window.scrollTo
+Object.defineProperty(window, 'scrollTo', {
+  writable: true,
+  value: jest.fn(),
+});
+
 // Mock TextDecoder/TextEncoder for mapbox-gl
 global.TextDecoder = class TextDecoder {
   decode() {

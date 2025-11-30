@@ -154,7 +154,7 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
               <Typography variant="body2">
                 Latitude: {property.coordinates[1]}, Longitude: {property.coordinates[0]}
               </Typography>
-              </Grid>
+            </Grid>
             </>
           )}
 
@@ -163,10 +163,10 @@ const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
             <>
               {/* @ts-expect-error - MUI v7 Grid type inference issue */}
               <Grid size={{ xs: 12 }}>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                Reference
-              </Typography>
-              <Typography variant="body2">{property.external_id}</Typography>
+                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                  Reference
+                </Typography>
+                <Typography variant="body2">{property.external_id}</Typography>
               </Grid>
             </>
           )}

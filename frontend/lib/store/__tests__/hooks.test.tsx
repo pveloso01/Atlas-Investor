@@ -37,10 +37,10 @@ describe('hooks', () => {
         <Provider store={store}>{children}</Provider>
       );
 
-      const { result } = renderHook(() => useAppSelector((state) => state), { wrapper });
+      const { result } = renderHook(() => useAppSelector((state) => state[propertyApi.reducerPath]), { wrapper });
       
       expect(result.current).toBeDefined();
-      expect(result.current).toHaveProperty(propertyApi.reducerPath);
+      expect(result.current).toBeTruthy();
     });
 
     it('selects specific state slice', () => {
