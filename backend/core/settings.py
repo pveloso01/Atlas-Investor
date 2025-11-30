@@ -24,10 +24,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-9^7l!_8u^%-o^ti+za1e=21r!sgbp4ug_y%6dkrvtxz&v5r5(!')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG defaults to False for security. Set DEBUG=True in environment only for development.
-DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
+# DEBUG defaults to True for development convenience. Set DEBUG=False in production.
+# In production, set DEBUG=False and configure ALLOWED_HOSTS properly.
+DEBUG = os.getenv('DEBUG', 'True').lower() not in ('false', '0', 'no', 'off')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
+# ALLOWED_HOSTS: Default to localhost for development, require explicit setting for production
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+elif DEBUG:
+    # In development mode, allow localhost and common development hosts
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+else:
+    # In production, ALLOWED_HOSTS must be explicitly set
+    ALLOWED_HOSTS = []
 
 
 # Application definition
