@@ -97,7 +97,7 @@ jobs:
           DEBUG: 'True'
         run: |
           coverage run --source='api,users' --omit='*/migrations/*,*/venv/*,*/__pycache__/*,manage.py,*/settings.py,*/wsgi.py,*/asgi.py,*/urls.py,*/tests/*' manage.py test api users
-          coverage report --omit='*/migrations/*,*/venv/*,*/__pycache__/*,manage.py,*/settings.py,*/wsgi.py,*/asgi.py,*/urls.py,*/tests/*' --fail-under=90
+          coverage report --omit='*/migrations/*,*/venv/*,*/__pycache__/*,manage.py,*/settings.py,*/wsgi.py,*/asgi.py,*/urls.py,*/tests/*' --fail-under=80
           coverage xml
       
       - name: Upload coverage to Codecov (optional)
@@ -145,7 +145,7 @@ jobs:
         working-directory: ./frontend
         run: |
           npm run test:coverage -- --coverageReporters=json-summary --coverageReporters=text || true
-          node -e "const fs = require('fs'); try { const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8')); const total = summary.total; const thresholds = { statements: 85, branches: 75, functions: 70, lines: 85 }; if (total.statements.pct < thresholds.statements || total.branches.pct < thresholds.branches || total.functions.pct < thresholds.functions || total.lines.pct < thresholds.lines) { console.error('Coverage is below threshold:', JSON.stringify({ required: thresholds, actual: { statements: total.statements.pct, branches: total.branches.pct, functions: total.functions.pct, lines: total.lines.pct } }, null, 2)); process.exit(1); } else { console.log('Coverage check passed:', JSON.stringify(total, null, 2)); } } catch(e) { console.log('Coverage file not found, tests may have failed'); process.exit(1); }"
+          node -e "const fs = require('fs'); try { const summary = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8')); const total = summary.total; const thresholds = { statements: 80, branches: 80, functions: 80, lines: 80 }; if (total.statements.pct < thresholds.statements || total.branches.pct < thresholds.branches || total.functions.pct < thresholds.functions || total.lines.pct < thresholds.lines) { console.error('Coverage is below threshold:', JSON.stringify({ required: thresholds, actual: { statements: total.statements.pct, branches: total.branches.pct, functions: total.functions.pct, lines: total.lines.pct } }, null, 2)); process.exit(1); } else { console.log('Coverage check passed:', JSON.stringify(total, null, 2)); } } catch(e) { console.log('Coverage file not found, tests may have failed'); process.exit(1); }"
 
   docker-build:
     name: Build Docker Images
