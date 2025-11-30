@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,20 +22,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-9^7l!_8u^%-o^ti+za1e=21r!sgbp4ug_y%6dkrvtxz&v5r5(!')
+SECRET_KEY = os.getenv(
+    "SECRET_KEY", "django-insecure-9^7l!_8u^%-o^ti+za1e=21r!sgbp4ug_y%6dkrvtxz&v5r5(!"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG defaults to True for development convenience. Set DEBUG=False in production.
 # In production, set DEBUG=False and configure ALLOWED_HOSTS properly.
-DEBUG = os.getenv('DEBUG', 'True').lower() not in ('false', '0', 'no', 'off')
+DEBUG = os.getenv("DEBUG", "True").lower() not in ("false", "0", "no", "off")
 
 # ALLOWED_HOSTS: Default to localhost for development, require explicit setting for production
-allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
+allowed_hosts_env = os.getenv("ALLOWED_HOSTS", "")
 if allowed_hosts_env:
-    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+    ALLOWED_HOSTS = [
+        host.strip() for host in allowed_hosts_env.split(",") if host.strip()
+    ]
 elif DEBUG:
     # In development mode, allow localhost and common development hosts
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
 else:
     # In production, ALLOWED_HOSTS must be explicitly set
     ALLOWED_HOSTS = []
@@ -44,60 +49,61 @@ else:
 
 # Try to import PostGIS, only add if available
 try:
-    from django.contrib.gis import gdal
+    from django.contrib.gis import gdal  # noqa: F401
+
     HAS_POSTGIS = True
 except (ImportError, Exception):
     HAS_POSTGIS = False
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'django_filters',
-    'corsheaders',
-    'djoser',
-    'users',
-    'api',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "django_filters",
+    "corsheaders",
+    "djoser",
+    "users",
+    "api",
 ]
 
 # Only add PostGIS if GDAL is available
 if HAS_POSTGIS:
-    INSTALLED_APPS.insert(6, 'django.contrib.gis')
+    INSTALLED_APPS.insert(6, "django.contrib.gis")
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'core.urls'
+ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+WSGI_APPLICATION = "core.wsgi.application"
 
 
 # Database
@@ -108,55 +114,56 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # For production: Use PostgreSQL with PostGIS (requires GDAL)
 
 # Check if DATABASE_URL is provided (Heroku, Render, etc.)
-if 'DATABASE_URL' in os.environ:
+if "DATABASE_URL" in os.environ:
     try:
         import dj_database_url  # type: ignore[import-untyped]
+
         db_config = dj_database_url.config(conn_max_age=600, conn_health_checks=True)
-        
+
         # If PostGIS is available and DATABASE_URL uses postgres, try PostGIS backend
-        if HAS_POSTGIS and db_config.get('ENGINE') == 'django.db.backends.postgresql':
-            db_config['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
-        
-        DATABASES = {'default': db_config}
+        if HAS_POSTGIS and db_config.get("ENGINE") == "django.db.backends.postgresql":
+            db_config["ENGINE"] = "django.contrib.gis.db.backends.postgis"
+
+        DATABASES = {"default": db_config}
     except ImportError:
         # Fallback if dj-database-url is not installed
         DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": BASE_DIR / "db.sqlite3",
             }
         }
-elif os.getenv('USE_POSTGRES', 'False').lower() == 'true':
+elif os.getenv("USE_POSTGRES", "False").lower() == "true":
     if HAS_POSTGIS:
         # Use PostGIS backend if available
         DATABASES = {
-            'default': {
-                'ENGINE': 'django.contrib.gis.db.backends.postgis',
-                'NAME': os.getenv('DB_NAME', 'atlas_investor'),
-                'USER': os.getenv('DB_USER', 'postgres'),
-                'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-                'HOST': os.getenv('DB_HOST', 'localhost'),
-                'PORT': os.getenv('DB_PORT', '5432'),
+            "default": {
+                "ENGINE": "django.contrib.gis.db.backends.postgis",
+                "NAME": os.getenv("DB_NAME", "atlas_investor"),
+                "USER": os.getenv("DB_USER", "postgres"),
+                "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
+                "HOST": os.getenv("DB_HOST", "localhost"),
+                "PORT": os.getenv("DB_PORT", "5432"),
             }
         }
     else:
         # Fall back to standard PostgreSQL if PostGIS is not available
         DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.getenv('DB_NAME', 'atlas_investor'),
-                'USER': os.getenv('DB_USER', 'postgres'),
-                'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-                'HOST': os.getenv('DB_HOST', 'localhost'),
-                'PORT': os.getenv('DB_PORT', '5432'),
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "NAME": os.getenv("DB_NAME", "atlas_investor"),
+                "USER": os.getenv("DB_USER", "postgres"),
+                "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
+                "HOST": os.getenv("DB_HOST", "localhost"),
+                "PORT": os.getenv("DB_PORT", "5432"),
             }
         }
 else:
     # SQLite for development (PostGIS features disabled)
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
 
@@ -166,16 +173,16 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -183,9 +190,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Europe/Lisbon'
+TIME_ZONE = "Europe/Lisbon"
 
 USE_I18N = True
 
@@ -195,51 +202,50 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Custom User Model
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"
 
 # REST Framework
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
-    'PAGE_SIZE_QUERY_PARAM': 'page_size',
-    'MAX_PAGE_SIZE': 100,
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 20,
+    "PAGE_SIZE_QUERY_PARAM": "page_size",
+    "MAX_PAGE_SIZE": 100,
 }
 
 # JWT Settings
-from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
 }
 
 # Djoser Settings
 DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'USER_CREATE_PASSWORD_RETYPE': True,
-    'SERIALIZERS': {
-        'user_create': 'users.serializers.UserCreateSerializer',
-        'user': 'users.serializers.UserSerializer',
-        'current_user': 'users.serializers.UserSerializer',
+    "LOGIN_FIELD": "email",
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "SERIALIZERS": {
+        "user_create": "users.serializers.UserCreateSerializer",
+        "user": "users.serializers.UserSerializer",
+        "current_user": "users.serializers.UserSerializer",
     },
-    'PERMISSIONS': {
-        'user': ['rest_framework.permissions.IsAuthenticated'],
-        'user_list': ['rest_framework.permissions.IsAuthenticated'],
+    "PERMISSIONS": {
+        "user": ["rest_framework.permissions.IsAuthenticated"],
+        "user_list": ["rest_framework.permissions.IsAuthenticated"],
     },
 }
 
