@@ -127,7 +127,7 @@ class SavedPropertyAdmin(admin.ModelAdmin):
     
     def has_notes(self, obj):
         """Display whether notes exist."""
-        return '✓' if obj.notes else '-'
+        return bool(obj.notes)
     has_notes.short_description = 'Has Notes'  # type: ignore[attr-defined]
     has_notes.boolean = True  # type: ignore[attr-defined]
 
