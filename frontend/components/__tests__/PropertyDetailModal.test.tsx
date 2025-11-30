@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@/__tests__/utils/test-utils';
 import PropertyDetailModal from '../PropertyDetailModal';
 import { mockProperty, mockPropertyWithoutOptional } from '@/__tests__/utils/mock-data';
+import type { Property } from '@/types/property';
 
 describe('PropertyDetailModal', () => {
   const handleClose = jest.fn();
@@ -234,7 +235,7 @@ describe('PropertyDetailModal', () => {
     const types = ['house', 'land', 'commercial', 'mixed', 'unknown'];
     types.forEach(type => {
       const { unmount } = render(
-        <PropertyDetailModal property={{ ...mockProperty, property_type: type as any }} open={true} onClose={handleClose} />
+        <PropertyDetailModal property={{ ...mockProperty, property_type: type as Property['property_type'] }} open={true} onClose={handleClose} />
       );
       expect(screen.getByText('Rua Teste 123, Lisbon')).toBeInTheDocument();
       unmount();

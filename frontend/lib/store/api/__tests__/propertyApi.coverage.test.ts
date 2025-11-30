@@ -30,7 +30,7 @@ describe('propertyApi coverage tests', () => {
       (localStorage.getItem as jest.Mock).mockReturnValue(mockToken);
       
       // Create a store to trigger the API setup
-      const store = makeStore();
+      makeStore();
       
       // Verify localStorage.getItem would be called with 'access_token'
       // This tests line 28: const token = localStorage.getItem('access_token');
@@ -84,7 +84,7 @@ describe('propertyApi coverage tests', () => {
       // Wait for the query to complete
       try {
         await result;
-      } catch (e) {
+      } catch {
         // Ignore errors, we just want to verify the call was made
       }
       
@@ -98,7 +98,7 @@ describe('propertyApi coverage tests', () => {
     it('does not set authorization header when token is null', () => {
       (localStorage.getItem as jest.Mock).mockReturnValue(null);
       
-      const store = makeStore();
+      makeStore();
       expect(propertyApi.reducerPath).toBe('propertyApi');
       
       const token = localStorage.getItem('access_token');
@@ -109,11 +109,11 @@ describe('propertyApi coverage tests', () => {
 
     it('handles SSR scenario when window is undefined', () => {
       const originalWindow = global.window;
-      // @ts-ignore
+      // @ts-expect-error - Testing SSR scenario where window is undefined
       delete global.window;
       
       // In SSR, typeof window !== 'undefined' is false, so line 27-32 should not execute
-      const store = makeStore();
+      makeStore();
       expect(propertyApi.reducerPath).toBe('propertyApi');
       
       // Restore window
@@ -200,6 +200,7 @@ describe('propertyApi coverage tests', () => {
       // Test the query function (lines 55-56)
       // query: (id) => `properties/${id}/`
       // Access the query function through the endpoint definition
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const queryFn = (endpoint as any).query;
       if (queryFn) {
         // Test line 55: query: (id) => `properties/${id}/`
@@ -216,6 +217,7 @@ describe('propertyApi coverage tests', () => {
       const endpoint = propertyApi.endpoints.getProperty;
       
       // Test line 55 directly
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const queryFn = (endpoint as any).query;
       if (queryFn) {
         expect(queryFn(1)).toBe('properties/1/');

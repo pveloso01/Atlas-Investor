@@ -1,4 +1,3 @@
-// @ts-nocheck - MUI v7 Grid type inference issues
 'use client';
 
 import React from 'react';

@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen, waitFor } from '@/__tests__/utils/test-utils';
+import { render, screen } from '@/__tests__/utils/test-utils';
 import PropertyMap from '../PropertyMap';
 import { mockProperties, mockProperty } from '@/__tests__/utils/mock-data';
+import type { Property } from '@/types/property';
 
 // Mock mapbox-gl
 jest.mock('mapbox-gl', () => ({
@@ -121,7 +122,7 @@ describe('PropertyMap', () => {
 
   it('handles properties with invalid coordinates', () => {
     const propertiesWithInvalidCoords = [
-      { ...mockProperty, coordinates: [1] as any },
+      { ...mockProperty, coordinates: [1] as Property['coordinates'] },
     ];
     
     const { container } = render(
@@ -183,6 +184,7 @@ describe('PropertyMap', () => {
 
   it('handles marker click event', () => {
     const handleClick = jest.fn();
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mapboxgl = require('mapbox-gl');
     const mockAddEventListener = jest.fn();
     

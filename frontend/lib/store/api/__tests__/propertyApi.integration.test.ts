@@ -1,5 +1,4 @@
 import { propertyApi } from '../propertyApi';
-import { PropertyListParams } from '../propertyApi';
 
 describe('propertyApi integration', () => {
 

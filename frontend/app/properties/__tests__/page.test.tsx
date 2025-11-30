@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@/__tests__/utils/test-utils';
-import userEvent from '@testing-library/user-event';
 import PropertiesPage from '../page';
 import { mockProperties } from '@/__tests__/utils/mock-data';
+import type { UseQueryResult } from '@reduxjs/toolkit/query/react';
+import type { PropertyListResponse } from '@/lib/store/api/propertyApi';
 
 // Mock mapbox-gl
 jest.mock('mapbox-gl', () => ({
@@ -44,6 +45,7 @@ jest.mock('@/lib/store/api/propertyApi', () => {
 
 import { useGetPropertiesQuery } from '@/lib/store/api/propertyApi';
 
+type UseGetPropertiesQueryResult = UseQueryResult<PropertyListResponse, unknown>;
 const mockUseGetPropertiesQuery = useGetPropertiesQuery as jest.MockedFunction<typeof useGetPropertiesQuery>;
 
 describe('PropertiesPage', () => {
@@ -71,7 +73,7 @@ describe('PropertiesPage', () => {
         previous: null,
         results: mockProperties,
       },
-    } as any);
+    } as UseGetPropertiesQueryResult);
   });
 
   afterEach(() => {
@@ -115,7 +117,7 @@ describe('PropertiesPage', () => {
       isSuccess: false,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
     
     render(<PropertiesPage />);
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
@@ -130,7 +132,7 @@ describe('PropertiesPage', () => {
       isSuccess: false,
       isError: true,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     
@@ -161,7 +163,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     
@@ -234,7 +236,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     // Verify properties are rendered
@@ -256,7 +258,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     
@@ -284,7 +286,7 @@ describe('PropertiesPage', () => {
         isSuccess: true,
         isError: false,
         refetch: jest.fn(),
-      } as any);
+      } as UseGetPropertiesQueryResult);
       
       fireEvent.click(page2Button);
       
@@ -310,7 +312,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     
@@ -334,7 +336,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     // Verify properties are rendered
@@ -356,7 +358,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     // Verify properties are rendered
@@ -429,7 +431,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     // Verify properties are rendered
@@ -448,7 +450,7 @@ describe('PropertiesPage', () => {
       isLoading: false,
       error: undefined,
       refetch: jest.fn(),
-    } as ReturnType<typeof useGetPropertiesQuery>);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     
@@ -519,7 +521,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     
@@ -546,7 +548,7 @@ describe('PropertiesPage', () => {
         isSuccess: true,
         isError: false,
         refetch: jest.fn(),
-      } as any);
+      } as UseGetPropertiesQueryResult);
       
       fireEvent.click(page2Button);
       
@@ -574,7 +576,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     
@@ -602,7 +604,7 @@ describe('PropertiesPage', () => {
         isSuccess: true,
         isError: false,
         refetch: jest.fn(),
-      } as any);
+      } as UseGetPropertiesQueryResult);
       
       fireEvent.click(page2Button);
       
@@ -630,7 +632,7 @@ describe('PropertiesPage', () => {
       isSuccess: true,
       isError: false,
       refetch: jest.fn(),
-    } as any);
+    } as UseGetPropertiesQueryResult);
 
     render(<PropertiesPage />);
     
@@ -794,11 +796,8 @@ describe('PropertiesPage', () => {
     // The map's onPropertyClick handler (lines 163-166) is: (property) => { setSelectedProperty(property); setModalOpen(true); }
     // To test lines 164-165, we need to simulate the onPropertyClick callback
     // We can do this by getting the PropertyMap component and calling its onPropertyClick prop
-    const { mockProperty } = require('@/__tests__/utils/mock-data');
-    
     // Find the PropertyMap component and trigger its onPropertyClick handler
     // This simulates clicking a property on the map
-    const mapComponent = screen.getByText('Hide Map').closest('div')?.querySelector('[class*="MuiBox-root"]');
     
     // Since we can't easily access the component's props, we verify the map is rendered
     // The actual onPropertyClick handler (lines 164-165) will be tested through integration

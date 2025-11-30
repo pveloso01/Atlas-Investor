@@ -20,7 +20,6 @@ export default function EmotionRegistry({ children }: { children: React.ReactNod
       return null;
     }
     let styles = '';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     for (const name of names) {
       styles += cache.inserted[name];
     }

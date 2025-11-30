@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@/__tests__/utils/test-utils';
 import PropertyCard from '../PropertyCard';
 import { mockProperty, mockPropertyWithoutOptional } from '@/__tests__/utils/mock-data';
+import type { Property } from '@/types/property';
 
 describe('PropertyCard', () => {
   it('renders property information correctly', () => {
@@ -113,7 +114,7 @@ describe('PropertyCard', () => {
   it('handles all property types', () => {
     const types = ['house', 'land', 'commercial', 'mixed', 'unknown'];
     types.forEach(type => {
-      const { unmount } = render(<PropertyCard property={{ ...mockProperty, property_type: type as any }} />);
+      const { unmount } = render(<PropertyCard property={{ ...mockProperty, property_type: type as Property['property_type'] }} />);
       expect(screen.getByText('Rua Teste 123, Lisbon')).toBeInTheDocument();
       unmount();
     });

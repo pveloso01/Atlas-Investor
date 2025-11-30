@@ -20,9 +20,12 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
-  const [mapError, setMapError] = useState<string | null>(null);
-
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [mapError, _setMapError] = useState<string | null>(
+    mapboxToken ? null : 'Mapbox access token is not configured'
+  );
+  // mapError is used in the render below (line 133), setter is intentionally unused
 
   useEffect(() => {
     if (!mapContainer.current) {
@@ -30,7 +33,6 @@ const PropertyMap: React.FC<PropertyMapProps> = ({
     }
     
     if (!mapboxToken) {
-      setMapError('Mapbox access token is not configured');
       return;
     }
 

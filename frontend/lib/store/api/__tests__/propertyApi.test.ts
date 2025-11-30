@@ -1,5 +1,6 @@
 import { propertyApi } from '../propertyApi';
 import { PropertyListParams } from '../propertyApi';
+import type { Property } from '@/types/property';
 
 describe('propertyApi', () => {
   it('has correct reducer path', () => {
@@ -152,7 +153,7 @@ describe('propertyApi', () => {
       const endpoint = propertyApi.endpoints.getProperty;
       const providesTags = endpoint.providesTags;
       if (typeof providesTags === 'function') {
-        const mockResult = { id: 5 } as any;
+        const mockResult = { id: 5 } as Property;
         const tags = providesTags(mockResult, undefined, 5);
         expect(tags).toEqual([{ type: 'Property', id: 5 }]);
       }
@@ -162,7 +163,7 @@ describe('propertyApi', () => {
       const endpoint = propertyApi.endpoints.getProperty;
       const providesTags = endpoint.providesTags;
       if (typeof providesTags === 'function') {
-        const mockError = { status: 404 } as any;
+        const mockError = { status: 404 } as { status: number };
         const tags = providesTags(undefined, mockError, 10);
         expect(tags).toEqual([{ type: 'Property', id: 10 }]);
       }
