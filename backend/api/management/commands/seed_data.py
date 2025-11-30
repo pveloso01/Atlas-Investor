@@ -280,14 +280,14 @@ class Command(BaseCommand):
             region_code = prop_data.pop('region_code')
             region = regions.get(region_code)
             
-            # Handle coordinates based on PostGIS availability
+            # Handle coordinates - always store as [longitude, latitude] list in JSONField
+            # The Property model uses JSONField for coordinates, not PostGIS PointField
             coordinates = prop_data.pop('coordinates')
-            if HAS_POSTGIS and Point:
-                # Use PostGIS PointField
-                prop_data['coordinates'] = Point(coordinates[0], coordinates[1], srid=4326)
+            # Ensure coordinates are stored as [longitude, latitude] list
+            if isinstance(coordinates, (list, tuple)) and len(coordinates) >= 2:
+                prop_data['coordinates'] = [float(coordinates[0]), float(coordinates[1])]
             else:
-                # Use JSONField (store as [longitude, latitude])
-                prop_data['coordinates'] = coordinates
+                prop_data['coordinates'] = None
 
             property_obj, created = Property.objects.get_or_create(  # type: ignore[attr-defined]
                 external_id=prop_data['external_id'],

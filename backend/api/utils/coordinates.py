@@ -34,15 +34,18 @@ def normalize_coordinates(coordinates) -> Optional[List[float]]:
 
 
 def create_point_from_coordinates(
-    coordinates: List[float],
+    coordinates: Optional[List[float]],
     srid: int = 4326
 ) -> Optional[Point]:  # type: ignore[valid-type]
     """
     Create a PostGIS Point from [longitude, latitude] coordinates.
     
-    Returns None if PostGIS is not available.
+    Returns None if PostGIS is not available or coordinates is None.
     """
     if not HAS_POSTGIS or Point is None:
+        return None
+    
+    if coordinates is None:
         return None
     
     if len(coordinates) >= 2:
