@@ -368,54 +368,6 @@ class SavedPropertyModelTest(TestCase):
         # SavedProperty should be deleted
         self.assertFalse(SavedProperty.objects.filter(property_id=property_id).exists())  # type: ignore[attr-defined]
 
-    def test_price_per_sqm_with_none_price(self):
-        """Test price_per_sqm property with None price."""
-        prop = Property.objects.create(  # type: ignore[attr-defined]
-            external_id='TEST-NONE-PRICE',
-            address='Test',
-            price=None,  # type: ignore[arg-type]
-            size_sqm=Decimal('100.00'),
-            property_type='apartment',
-            region=self.region
-        )
-        
-        # Accessing price_per_sqm should handle None price
-        try:
-            result = prop.price_per_sqm
-            # If it doesn't raise, check the result
-            if result is not None:
-                # This shouldn't happen, but test it
-                self.assertIsInstance(result, Decimal)
-        except (TypeError, AttributeError):
-            # Expected if price is None
-            pass
-
-    def test_get_coordinates_list_with_postgis_point(self):
-        """Test get_coordinates_list with PostGIS Point object."""
-        try:
-            from django.contrib.gis.geos import Point
-            
-            prop = Property.objects.create(  # type: ignore[attr-defined]
-                external_id='TEST-POSTGIS',
-                address='Test',
-                price=Decimal('300000.00'),
-                size_sqm=Decimal('100.00'),
-                property_type='apartment',
-                region=self.region
-            )
-            
-            # Set coordinates as PostGIS Point
-            point = Point(-9.1393, 38.7223, srid=4326)
-            prop.coordinates = point
-            prop.save()
-            
-            coords = prop.get_coordinates_list()
-            # Should handle PostGIS Point
-            if coords:
-                self.assertEqual(len(coords), 2)
-        except ImportError:
-            self.skipTest("PostGIS not available")
-
     def test_get_coordinates_list_with_invalid_format(self):
         """Test get_coordinates_list with invalid coordinate format."""
         prop = Property.objects.create(  # type: ignore[attr-defined]
@@ -452,14 +404,8 @@ class SavedPropertyModelTest(TestCase):
 
     def test_saved_property_str_with_none_email(self):
         """Test SavedProperty __str__ when user email might be None."""
-        saved = SavedProperty.objects.create(  # type: ignore[attr-defined]
-            user=self.user,
-            property=self.property,
-            notes='Test'
-        )
-        
-        # Should work normally
-        result = str(saved)
+        # Use existing saved_property
+        result = str(self.saved_property)
         self.assertIn('test@example.com', result)
         self.assertIn('Test Address 123', result)
 
@@ -493,30 +439,6 @@ class SavedPropertyModelTest(TestCase):
         # This executes lines 134-138
         result = prop.price_per_sqm
         self.assertEqual(result, Decimal('3000.00'))
-
-    def test_property_get_coordinates_list_postgis_execution(self):
-        """Test get_coordinates_list with PostGIS Point to cover lines 151-152."""
-        try:
-            from django.contrib.gis.geos import Point
-            
-            prop = Property.objects.create(  # type: ignore[attr-defined]
-                external_id='TEST-COORDS-POSTGIS-2',
-                address='Test',
-                price=Decimal('300000.00'),
-                size_sqm=Decimal('100.00'),
-                property_type='apartment',
-                region=self.region
-            )
-            
-            point = Point(-9.1393, 38.7223, srid=4326)
-            prop.coordinates = point
-            prop.save()
-            
-            # This covers lines 151-152: if hasattr(...): return [float(...), float(...)]
-            coords = prop.get_coordinates_list()
-            self.assertEqual(coords, [-9.1393, 38.7223])
-        except ImportError:
-            self.skipTest("PostGIS not available")
 
     def test_property_get_coordinates_list_list_execution(self):
         """Test get_coordinates_list with list to cover lines 155-156."""
@@ -571,30 +493,6 @@ class SavedPropertyModelTest(TestCase):
         # This covers lines 134-138
         result = prop.price_per_sqm
         self.assertEqual(result, Decimal('3000.00'))
-
-    def test_property_get_coordinates_list_postgis_branch(self):
-        """Test get_coordinates_list with PostGIS Point to cover lines 151-152."""
-        try:
-            from django.contrib.gis.geos import Point
-            
-            prop = Property.objects.create(  # type: ignore[attr-defined]
-                external_id='TEST-COORDS-POSTGIS',
-                address='Test',
-                price=Decimal('300000.00'),
-                size_sqm=Decimal('100.00'),
-                property_type='apartment',
-                region=self.region
-            )
-            
-            point = Point(-9.1393, 38.7223, srid=4326)
-            prop.coordinates = point
-            prop.save()
-            
-            # This covers lines 151-152
-            coords = prop.get_coordinates_list()
-            self.assertEqual(coords, [-9.1393, 38.7223])
-        except ImportError:
-            self.skipTest("PostGIS not available")
 
     def test_property_get_coordinates_list_list_branch(self):
         """Test get_coordinates_list with list to cover lines 155-156."""

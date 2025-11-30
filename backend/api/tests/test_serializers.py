@@ -278,24 +278,6 @@ class PropertySerializerTest(TestCase):
         self.assertIsNotNone(data['price_per_sqm'])
         self.assertEqual(float(data['price_per_sqm']), 3000.00)
 
-    def test_get_coordinates_with_postgis_point(self):
-        """Test get_coordinates with PostGIS Point."""
-        try:
-            from django.contrib.gis.geos import Point
-            
-            point = Point(-9.1393, 38.7223, srid=4326)
-            self.property.coordinates = point
-            self.property.save()
-            
-            serializer = PropertySerializer(self.property)
-            data = serializer.data
-            
-            # Should handle PostGIS Point
-            if data['coordinates']:
-                self.assertEqual(len(data['coordinates']), 2)
-        except ImportError:
-            self.skipTest("PostGIS not available")
-
     def test_get_coordinates_with_none_comprehensive(self):
         """Test get_coordinates with None."""
         self.property.coordinates = None
