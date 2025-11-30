@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
   Card,
   CardContent,
@@ -15,10 +16,9 @@ import { Property } from '@/types/property';
 
 interface PropertyCardProps {
   property: Property;
-  onClick?: () => void;
 }
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const formatPrice = (price: string | number) => {
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
     return new Intl.NumberFormat('pt-PT', {
@@ -50,8 +50,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
 
   return (
     <Card
-      className="h-full flex flex-col cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-lg"
-      onClick={onClick}
+      component={Link}
+      href={`/properties/${property.id}`}
+      className="h-full flex flex-col cursor-pointer transition-transform hover:-translate-y-1 hover:shadow-lg no-underline"
     >
       <CardMedia
         component="div"
