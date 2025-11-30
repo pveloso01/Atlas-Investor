@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@/__tests__/utils/test-utils';
+import { render, screen } from '@/__tests__/utils/test-utils';
 import PropertyCard from '../PropertyCard';
 import { mockProperty, mockPropertyWithoutOptional } from '@/__tests__/utils/mock-data';
 import type { Property } from '@/types/property';
@@ -33,24 +33,12 @@ describe('PropertyCard', () => {
     expect(screen.queryByText('2')).not.toBeInTheDocument(); // No bedrooms
   });
 
-  it('calls onClick when card is clicked', () => {
-    const handleClick = jest.fn();
-    render(<PropertyCard property={mockProperty} onClick={handleClick} />);
-    
-    const card = screen.getByText('Rua Teste 123, Lisbon').closest('.MuiCard-root');
-    fireEvent.click(card!);
-    
-    expect(handleClick).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not call onClick when not provided', () => {
+  it('renders as a link to the property detail page', () => {
     render(<PropertyCard property={mockProperty} />);
     
-    const card = screen.getByText('Rua Teste 123, Lisbon').closest('.MuiCard-root');
-    fireEvent.click(card!);
-    
-    // Should not throw error
-    expect(card).toBeInTheDocument();
+    const link = screen.getByText('Rua Teste 123, Lisbon').closest('a');
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/properties/1');
   });
 
   it('formats price correctly', () => {
