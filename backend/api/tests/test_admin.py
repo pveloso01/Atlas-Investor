@@ -121,7 +121,7 @@ class AdminTest(TestCase):
         admin = SavedPropertyAdmin(SavedProperty, site)
         result = admin.has_notes(self.saved_property)  # type: ignore[attr-defined]
         
-        self.assertEqual(result, '✓')
+        self.assertTrue(result)
 
     def test_saved_property_admin_has_notes_without_notes(self):
         """Test SavedPropertyAdmin has_notes method without notes."""
@@ -134,7 +134,7 @@ class AdminTest(TestCase):
         admin = SavedPropertyAdmin(SavedProperty, site)
         result = admin.has_notes(self.saved_property)  # type: ignore[attr-defined]
         
-        self.assertEqual(result, '-')
+        self.assertFalse(result)
 
     def test_property_admin_price_per_sqm_formatting(self):
         """Test PropertyAdmin price_per_sqm formatting to cover all lines."""
