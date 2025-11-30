@@ -1,15 +1,18 @@
 import type { NextConfig } from "next";
 import path from "path";
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   /* config options here */
   reactCompiler: true,
-  // @ts-ignore - Turbopack resolveAlias is not in NextConfig type yet
   turbopack: {
     resolveAlias: {
-      '@': path.resolve(__dirname, './'),
+      '@': path.join(process.cwd(), './'),
     },
   },
+} as NextConfig & {
+  turbopack?: {
+    resolveAlias?: Record<string, string>;
+  };
 };
 
 export default nextConfig;
