@@ -11,39 +11,36 @@ jest.mock('next/link', () => {
   return MockLink;
 });
 
+// Mock the property API
+jest.mock('@/lib/store/api/propertyApi', () => ({
+  useGetPropertiesQuery: jest.fn(() => ({
+    data: { results: [] },
+    isLoading: false,
+    error: null,
+  })),
+}));
+
 describe('Home Page', () => {
   it('renders main heading', () => {
     render(<Home />);
-    expect(screen.getByText('Atlas Investor')).toBeInTheDocument();
+    expect(screen.getByText(/Discover and Analyze the Best Property Deals in Portugal/i)).toBeInTheDocument();
   });
 
   it('renders subtitle', () => {
     render(<Home />);
-    expect(screen.getByText('Real Estate Investment Platform for Portugal')).toBeInTheDocument();
+    expect(screen.getByText(/All in One Place/i)).toBeInTheDocument();
   });
 
-  it('renders Browse Properties button', () => {
+  it('renders Get Started button', () => {
     render(<Home />);
-    const browseButton = screen.getByText('Browse Properties');
-    expect(browseButton).toBeInTheDocument();
+    const getStartedButton = screen.getByText('Get Started Free');
+    expect(getStartedButton).toBeInTheDocument();
   });
 
-  it('renders Login button', () => {
+  it('Get Started button links to /signup', () => {
     render(<Home />);
-    const loginButton = screen.getByText('Login');
-    expect(loginButton).toBeInTheDocument();
-  });
-
-  it('Browse Properties button links to /properties', () => {
-    render(<Home />);
-    const browseButton = screen.getByText('Browse Properties').closest('a');
-    expect(browseButton).toHaveAttribute('href', '/properties');
-  });
-
-  it('Login button links to /login', () => {
-    render(<Home />);
-    const loginButton = screen.getByText('Login').closest('a');
-    expect(loginButton).toHaveAttribute('href', '/login');
+    const getStartedButton = screen.getByText('Get Started Free').closest('a');
+    expect(getStartedButton).toHaveAttribute('href', '/signup');
   });
 });
 
