@@ -245,7 +245,7 @@ describe('propertyApi coverage tests', () => {
         expect(result).toBe('properties/');
         
         // Test with undefined params (default parameter)
-        const result2 = queryFn(undefined as any);
+        const result2 = queryFn(undefined as PropertyListParams);
         expect(result2).toBe('properties/');
       } else {
         // Fallback: use initiate

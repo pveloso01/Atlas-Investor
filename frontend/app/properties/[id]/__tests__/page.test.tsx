@@ -196,7 +196,6 @@ describe('PropertyDetailPage', () => {
 
     // When size is 0, calculatePricePerSqm returns 'N/A' (line 34)
     await waitFor(() => {
-      const pricePerSqm = screen.queryByText(/per m²/i);
       // The N/A case might not be displayed, but the branch is covered
       expect(screen.getAllByText('Property Details').length).toBeGreaterThan(0);
     });
