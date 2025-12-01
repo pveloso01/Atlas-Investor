@@ -39,7 +39,7 @@ This document describes the architecture of the Atlas Investor platform.
 
 ### Frontend Layer
 
-**Technology**: React 18+ with TypeScript
+**Technology**: Next.js 15+ with TypeScript and App Router
 
 **Responsibilities:**
 - User interface and user experience

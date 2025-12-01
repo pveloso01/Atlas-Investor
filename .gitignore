@@ -10,8 +10,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
+backend/lib/
+backend/lib64/
 parts/
 sdist/
 var/
@@ -26,6 +28,8 @@ venv/
 env/
 ENV/
 .venv
+backend/venv/
+frontend/node_modules/
 
 # Django
 *.log
@@ -42,7 +46,8 @@ db.sqlite3-journal
 .env.*.local
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo

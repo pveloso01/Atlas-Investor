@@ -43,6 +43,12 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - USE_POSTGRES=True
+      - DB_NAME=atlas_investor
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/atlas_investor
       - REDIS_URL=redis://redis:6379/0
       - DEBUG=True
@@ -59,14 +65,15 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: atlas-frontend
-    command: npm start
+    command: npm run dev
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - /app/.next
     ports:
       - "3000:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:8000/api
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
     depends_on:
       - backend
     env_file:
@@ -81,6 +88,12 @@ services:
     volumes:
       - ./backend:/app
     environment:
+      - USE_POSTGRES=True
+      - DB_NAME=atlas_investor
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/atlas_investor
       - REDIS_URL=redis://redis:6379/0
     depends_on:

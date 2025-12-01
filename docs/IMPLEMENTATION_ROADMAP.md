@@ -6,6 +6,19 @@ This document outlines the phased development plan for Atlas Investor.
 
 The development is organized into 4 phases over 32 weeks, assuming ~20 hours/week of development time. The timeline can be adjusted based on available resources.
 
+## Current Status
+
+**Last Updated**: 2025-11-28
+
+**Phase 1 - Week 1-2: Project Setup & Infrastructure** ✅ **COMPLETED**
+- All project initialization tasks completed
+- Database models created (Property, Region, User, SavedProperty)
+- Backend API foundation with Djoser authentication
+- Frontend foundation with Next.js, Redux, Material-UI, and Tailwind CSS
+- Conditional PostGIS support with SQLite fallback for development
+
+**Next Steps**: Week 3-4 - Data Ingestion & Property Display
+
 ## Phase 1: Foundation & MVP (Weeks 1-8)
 
 ### Goal
@@ -15,40 +28,40 @@ Build a working prototype that demonstrates core value: property search, basic a
 
 #### Tasks
 1. **Project Initialization**
-   - [ ] Initialize Django project with REST framework
-   - [ ] Set up React app with TypeScript
-   - [ ] Configure Docker and Docker Compose
-   - [ ] Set up Git repository structure
-   - [ ] Configure development environment (VS Code settings, .env files)
+   - [x] Initialize Django project with REST framework
+   - [x] Set up Next.js app with TypeScript and App Router
+   - [x] Configure Docker and Docker Compose
+   - [x] Set up Git repository structure
+   - [x] Configure development environment (VS Code settings, .env files)
 
 2. **Database Setup**
-   - [ ] Install and configure PostgreSQL with PostGIS
-   - [ ] Create initial database schema:
-     - `Property` model (id, address, coordinates, price, size, type, region, raw_data JSON)
-     - `Region` model (name, code, avg_price_per_sqm, avg_rent, yield)
-     - `User` model (Django auth)
-     - `SavedProperty` model (user, property, notes, created_at)
-   - [ ] Set up database migrations
-   - [ ] Create initial seed data (2-3 sample properties for testing)
+   - [x] Install and configure PostgreSQL with PostGIS (conditional support with SQLite fallback)
+   - [x] Create initial database schema:
+     - [x] `Property` model (id, address, coordinates, price, size, type, region, raw_data JSON)
+     - [x] `Region` model (name, code, avg_price_per_sqm, avg_rent, yield)
+     - [x] `User` model (custom User model extending AbstractUser with email as username)
+     - [x] `SavedProperty` model (user, property, notes, created_at)
+   - [x] Set up database migrations
+   - [x] Create initial seed data (20 sample properties from Lisbon, Porto, and Cascais)
 
 3. **Backend Foundation**
-   - [ ] Set up Django REST Framework
-   - [ ] Create basic API endpoints:
-     - `GET /api/properties/` (list with filters)
-     - `GET /api/properties/{id}/` (detail)
-     - `POST /api/auth/register/`
-     - `POST /api/auth/login/`
-   - [ ] Configure CORS for frontend
-   - [ ] Set up basic authentication (JWT tokens)
+   - [x] Set up Django REST Framework
+   - [x] Create basic API endpoints:
+     - [x] `GET /api/properties/` (list with filters)
+     - [x] `GET /api/properties/{id}/` (detail via ViewSet)
+     - [x] `POST /api/auth/register/` (via Djoser)
+     - [x] `POST /api/auth/login/` (via Djoser)
+   - [x] Configure CORS for frontend
+   - [x] Set up basic authentication (JWT tokens via Djoser)
 
 4. **Frontend Foundation**
-   - [ ] Set up React app structure (components, pages, services)
-   - [ ] Configure Redux store
-   - [ ] Set up API service layer (axios)
-   - [ ] Create basic routing (React Router)
-   - [ ] Set up Material-UI theme
+   - [x] Set up Next.js app structure (components, app router pages)
+   - [x] Configure Redux store for Next.js
+   - [x] Set up API service layer (RTK Query)
+   - [x] Create basic routing (Next.js App Router)
+   - [x] Set up Material-UI theme
 
-**Deliverable**: Working development environment with basic API and frontend skeleton
+**Deliverable**: Working development environment with basic API and frontend skeleton ✅ **COMPLETED**
 
 ---
 
@@ -581,12 +594,12 @@ Optimize performance, scale infrastructure, and prepare for production launch.
 ### Technology Evolution Considerations
 
 **Next.js Evaluation (Phase 4):**
-- During Phase 4 (Performance Optimization), evaluate whether migrating from React to Next.js would provide significant benefits
+- ✅ **Completed**: Migrated to Next.js for better SEO, performance, and developer experience
 - **Consider Next.js if:**
   - SEO becomes important (public property pages, blog content)
   - Server-side rendering would improve performance metrics
   - Built-in routing and optimization features would simplify codebase
-- **Stay with React if:**
+- **Next.js Benefits Realized:**
   - Current SPA architecture meets all performance requirements
   - Migration effort outweighs benefits
   - Team is more productive with current stack
