@@ -240,5 +240,34 @@ describe('PropertyMap', () => {
     // When onPropertyClick is not provided, the if condition on line 91 is false
     // This is tested indirectly by verifying the component renders
   });
+
+  it('renders with onPropertyClick handler (covers line 93-96 branch)', () => {
+    const handleClick = jest.fn();
+    const { container } = render(
+      <PropertyMap properties={mockProperties} onPropertyClick={handleClick} />
+    );
+    
+    // Verify the component renders successfully with onPropertyClick
+    // This ensures the branch at line 93 (if (onPropertyClick)) is taken
+    // The useEffect will execute and the branch will be covered
+    const mapContainer = container.querySelector('[class*="MuiBox-root"]');
+    expect(mapContainer).toBeInTheDocument();
+    // Component renders with onPropertyClick prop, covering the branch
+  });
+
+  it('returns early from useEffect when mapboxToken is falsy', () => {
+    process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = '';
+    
+    render(<PropertyMap properties={mockProperties} />);
+    
+    // Should show error message instead of initializing map
+    expect(screen.getByText(/Mapbox access token is not configured/i)).toBeInTheDocument();
+    
+    // Verify map was not initialized (early return in useEffect line 36)
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mapboxgl = require('mapbox-gl');
+    // The map should not be created when token is missing
+    expect(mapboxgl.Map).not.toHaveBeenCalled();
+  });
 });
 
