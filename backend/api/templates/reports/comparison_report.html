@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Comparison Report</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1.5cm;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #333;
+        }
+        
+        .header {
+            border-bottom: 3px solid #1a5f7a;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 20pt;
+            font-weight: bold;
+            color: #1a5f7a;
+        }
+        
+        .logo span {
+            color: #ff6b35;
+        }
+        
+        .report-info {
+            text-align: right;
+            font-size: 9pt;
+            color: #666;
+        }
+        
+        h1 {
+            font-size: 18pt;
+            color: #1a5f7a;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            font-size: 14pt;
+            color: #1a5f7a;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .summary-section {
+            background: linear-gradient(135deg, #1a5f7a 0%, #2d8aa9 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-size: 16pt;
+            font-weight: bold;
+        }
+        
+        .summary-label {
+            font-size: 9pt;
+            opacity: 0.85;
+            margin-top: 3px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .comparison-table th {
+            background: #f8f9fa;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+            font-size: 9pt;
+        }
+        
+        .comparison-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #fafafa;
+        }
+        
+        .property-header {
+            background: #1a5f7a;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .feature-label {
+            font-weight: 600;
+            color: #666;
+            width: 150px;
+            background: #f8f9fa;
+        }
+        
+        .highlight {
+            background: #fff8f4 !important;
+            font-weight: bold;
+        }
+        
+        .best-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .price-value {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #1a5f7a;
+        }
+        
+        .check {
+            color: #4CAF50;
+        }
+        
+        .cross {
+            color: #F44336;
+        }
+        
+        .recommendation {
+            background: #fff8f4;
+            border: 1px solid #ffd9c4;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .recommendation h3 {
+            color: #ff6b35;
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 8pt;
+            color: #666;
+        }
+        
+        .disclaimer {
+            margin-top: 8px;
+            font-size: 7pt;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Atlas<span>Investor</span></div>
+        <div class="report-info">
+            <div>Property Comparison Report</div>
+            <div>{{ generated_at }}</div>
+            <div>{{ property_count }} Properties Compared</div>
+        </div>
+    </div>
+
+    <h1>Property Comparison Analysis</h1>
+
+    <div class="summary-section">
+        <div style="font-size: 12pt; font-weight: bold; margin-bottom: 5px;">Summary Statistics</div>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-value">{{ comparison_metrics.lowest_price }}</div>
+                <div class="summary-label">Lowest Price</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">{{ comparison_metrics.highest_price }}</div>
+                <div class="summary-label">Highest Price</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">{{ comparison_metrics.avg_price }}</div>
+                <div class="summary-label">Average Price</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">{{ comparison_metrics.avg_size }}</div>
+                <div class="summary-label">Average Size</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">{{ comparison_metrics.avg_yield }}</div>
+                <div class="summary-label">Average Yield</div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Detailed Comparison</h2>
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th class="feature-label">Feature</th>
+                {% for prop_data in properties %}
+                <th class="property-header">
+                    Property {{ forloop.counter }}<br>
+                    <small>{{ prop_data.property.address|truncatechars:25 }}</small>
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="highlight">
+                <td class="feature-label">Price</td>
+                {% for prop_data in properties %}
+                <td class="price-value">{{ prop_data.price_formatted }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Price/m²</td>
+                {% for prop_data in properties %}
+                <td>{{ prop_data.price_per_sqm }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Size</td>
+                {% for prop_data in properties %}
+                <td>{{ prop_data.property.size_sqm }} m²</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Type</td>
+                {% for prop_data in properties %}
+                <td>{{ prop_data.property_type_display }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Bedrooms</td>
+                {% for prop_data in properties %}
+                <td>{{ prop_data.property.bedrooms|default:"N/A" }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Bathrooms</td>
+                {% for prop_data in properties %}
+                <td>{{ prop_data.property.bathrooms|default:"N/A" }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Year Built</td>
+                {% for prop_data in properties %}
+                <td>{{ prop_data.property.year_built|default:"N/A" }}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Location</td>
+                {% for prop_data in properties %}
+                <td>{% if prop_data.property.region %}{{ prop_data.property.region.name }}{% else %}N/A{% endif %}</td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Parking</td>
+                {% for prop_data in properties %}
+                <td>
+                    {% if prop_data.property.parking_spaces > 0 %}
+                    <span class="check">✓</span> {{ prop_data.property.parking_spaces }} space(s)
+                    {% else %}
+                    <span class="cross">✗</span>
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Elevator</td>
+                {% for prop_data in properties %}
+                <td>
+                    {% if prop_data.property.has_elevator %}
+                    <span class="check">✓</span>
+                    {% else %}
+                    <span class="cross">✗</span>
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr class="highlight">
+                <td class="feature-label">Est. Gross Yield</td>
+                {% for prop_data in properties %}
+                <td {% if forloop.counter0 == comparison_metrics.best_yield_index %}class="best-value"{% endif %}>
+                    {% if prop_data.analysis.gross_yield %}
+                    {{ prop_data.analysis.gross_yield|floatformat:2 }}%
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr class="highlight">
+                <td class="feature-label">Est. Net Yield</td>
+                {% for prop_data in properties %}
+                <td>
+                    {% if prop_data.analysis.net_yield %}
+                    {{ prop_data.analysis.net_yield|floatformat:2 }}%
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td class="feature-label">Monthly Cash Flow</td>
+                {% for prop_data in properties %}
+                <td>
+                    {% if prop_data.analysis.monthly_cash_flow %}
+                    €{{ prop_data.analysis.monthly_cash_flow|floatformat:0 }}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+
+    {% if comparison_metrics.best_yield_index >= 0 %}
+    <div class="recommendation">
+        <h3>Investment Recommendation</h3>
+        <p>
+            Based on estimated rental yield, <strong>Property {{ comparison_metrics.best_yield_index|add:1 }}</strong> 
+            shows the highest potential return with the best gross yield among the compared properties.
+            However, please consider all factors including location, condition, and your personal investment goals.
+        </p>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <div>Atlas Investor - Real Estate Investment Platform for Portugal</div>
+        <div class="disclaimer">
+            This report is for informational purposes only and should not be considered financial advice. 
+            Yield estimates are based on regional averages and may vary. Please conduct your own due diligence.
+        </div>
+    </div>
+</body>
+</html>
+
