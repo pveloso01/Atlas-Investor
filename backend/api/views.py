@@ -58,7 +58,7 @@ def health_check(request):
 class PropertyViewSet(viewsets.ModelViewSet):
     """ViewSet for Property model."""
 
-    queryset = Property.objects.all()  # type: ignore[attr-defined]
+    queryset = Property.objects.select_related("region").all()  # type: ignore[attr-defined]
     serializer_class = PropertySerializer
     permission_classes = [CustomIsAuthenticatedOrReadOnly]
     pagination_class = StandardResultsSetPagination
@@ -253,10 +253,11 @@ class ContactRequestViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Limit contact requests to current user (staff can see all)."""
         user = self.request.user
+        base_queryset = ContactRequest.objects.select_related("property", "property__region")  # type: ignore[attr-defined]
         if user.is_staff:
-            return ContactRequest.objects.all()  # type: ignore[attr-defined]
+            return base_queryset
         if user.is_authenticated:
-            return ContactRequest.objects.filter(user=user)  # type: ignore[attr-defined]
+            return base_queryset.filter(user=user)
         return ContactRequest.objects.none()  # type: ignore[attr-defined]
 
     def perform_create(self, serializer):
@@ -446,8 +447,10 @@ class SavedPropertyViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        """Limit saved properties to current user."""
-        return SavedProperty.objects.filter(user=self.request.user)  # type: ignore[attr-defined]
+        """Limit saved properties to current user with optimized queries."""
+        return SavedProperty.objects.select_related(  # type: ignore[attr-defined]
+            "property", "property__region"
+        ).filter(user=self.request.user)
 
     def get_serializer_class(self):
         """Use property serializer for detail views."""
