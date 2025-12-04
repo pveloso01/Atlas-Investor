@@ -25,6 +25,9 @@ import MarketComparison from '@/components/PropertyDetails/MarketComparison';
 import ScenarioComparison from '@/components/PropertyDetails/ScenarioComparison';
 import PropertyActions from '@/components/PropertyDetails/PropertyActions';
 import AnalysisPanel from '@/components/PropertyDetails/AnalysisPanel';
+import LoadingSpinner from '@/components/Shared/LoadingSpinner';
+import ErrorMessage from '@/components/Shared/ErrorMessage';
+import { PropertyDetailSkeleton } from '@/components/Shared/SkeletonLoader';
 import { colors } from '@/lib/theme/colors';
 
 const formatPrice = (price: string | number) => {
@@ -61,17 +64,23 @@ export default function PropertyDetailPage() {
   const router = useRouter();
   const propertyId = parseInt(params.id as string, 10);
 
-  const { data: property, error, isLoading } = useGetPropertyQuery(propertyId);
+  const { data: property, error, isLoading, refetch } = useGetPropertyQuery(propertyId);
   
   // Type assertion to help TypeScript inference
   const typedProperty = property as Property | undefined;
 
   if (isLoading) {
     return (
-      <Container maxWidth="lg" className="py-8">
-        <Box className="flex justify-center py-16">
-          <CircularProgress />
-        </Box>
+      <Container maxWidth="xl" className="py-8">
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => router.push('/properties')}
+          variant="outlined"
+          className="mb-4"
+        >
+          Back to Properties
+        </Button>
+        <PropertyDetailSkeleton />
       </Container>
     );
   }
@@ -79,25 +88,28 @@ export default function PropertyDetailPage() {
   if (error) {
     return (
       <Container maxWidth="lg" className="py-8">
-        <Alert severity="error" className="mb-8">
-          <Typography variant="body1" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
-            Failed to load property
-          </Typography>
-          <Typography variant="body2" component="div">
-            {error && 'status' in error && error.status === 'PARSING_ERROR'
-              ? 'The server returned an invalid response. Please try refreshing the page.'
-              : error && 'status' in error && error.data && typeof error.data === 'object' && 'detail' in error.data
-              ? String(error.data.detail)
-              : 'Please check if the backend API is running and accessible.'}
-          </Typography>
-        </Alert>
         <Button
           startIcon={<ArrowBack />}
           onClick={() => router.push('/properties')}
           variant="outlined"
+          className="mb-4"
         >
           Back to Properties
         </Button>
+        <ErrorMessage
+          title="Failed to load property"
+          message={
+            error && 'status' in error && error.status === 'PARSING_ERROR'
+              ? 'The server returned an invalid response.'
+              : error && 'status' in error && error.data && typeof error.data === 'object' && 'detail' in error.data
+              ? String(error.data.detail)
+              : 'Unable to load property details. Please try again.'
+          }
+          error={error}
+          onRetry={refetch}
+          showHomeButton
+          variant="page"
+        />
       </Container>
     );
   }
@@ -105,18 +117,21 @@ export default function PropertyDetailPage() {
   if (!typedProperty) {
     return (
       <Container maxWidth="lg" className="py-8">
-        <Alert severity="warning" className="mb-8">
-          <Typography variant="body1" component="div">
-            Property not found
-          </Typography>
-        </Alert>
         <Button
           startIcon={<ArrowBack />}
           onClick={() => router.push('/properties')}
           variant="outlined"
+          className="mb-4"
         >
           Back to Properties
         </Button>
+        <ErrorMessage
+          title="Property not found"
+          message="The property you're looking for doesn't exist or has been removed."
+          showHomeButton
+          variant="page"
+          severity="warning"
+        />
       </Container>
     );
   }
