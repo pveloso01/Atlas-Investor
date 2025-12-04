@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@/__tests__/utils/test-utils';
+import { render, screen, waitFor } from '@/__tests__/utils/test-utils';
 import OnboardingTour from '../Onboarding/OnboardingTour';
 import userEvent from '@testing-library/user-event';
 
@@ -33,31 +33,48 @@ Object.defineProperty(window, 'localStorage', {
 describe('OnboardingTour', () => {
   beforeEach(() => {
     localStorageMock.clear();
+    jest.useFakeTimers();
   });
 
-  it('opens tour when not completed', () => {
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
+  it('opens tour when not completed', async () => {
     render(<OnboardingTour steps={mockSteps} />);
-    expect(screen.getByText('Step 1')).toBeInTheDocument();
+    // Run the setTimeout that opens the tour
+    jest.runAllTimers();
+    await waitFor(() => {
+      expect(screen.getByText('Step 1')).toBeInTheDocument();
+    });
   });
 
-  it('does not open tour when already completed', () => {
+  it('does not open tour when already completed', async () => {
     localStorageMock.setItem('atlas-onboarding-completed', 'true');
     render(<OnboardingTour steps={mockSteps} />);
-    expect(screen.queryByText('Step 1')).not.toBeInTheDocument();
+    jest.runAllTimers();
+    await waitFor(() => {
+      expect(screen.queryByText('Step 1')).not.toBeInTheDocument();
+    });
   });
 
   it('navigates to next step', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     render(<OnboardingTour steps={mockSteps} />);
-    const nextButton = screen.getByText(/next/i);
+
+    const nextButton = await screen.findByText(/next/i);
     await user.click(nextButton);
     expect(screen.getByText('Step 2')).toBeInTheDocument();
   });
 
   it('navigates to previous step', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     render(<OnboardingTour steps={mockSteps} />);
-    const nextButton = screen.getByText(/next/i);
+
+    const nextButton = await screen.findByText(/next/i);
     await user.click(nextButton);
     const prevButton = screen.getByText(/previous/i);
     await user.click(prevButton);
@@ -65,9 +82,14 @@ describe('OnboardingTour', () => {
   });
 
   it('calls onComplete when tour is finished', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     const onComplete = jest.fn();
     render(<OnboardingTour steps={mockSteps} onComplete={onComplete} />);
+
+    // Wait for tour to open
+    await screen.findByText('Step 1');
+
     // Navigate through all steps
     for (let i = 0; i < mockSteps.length - 1; i++) {
       const nextButton = screen.getByText(/next/i);
@@ -79,39 +101,63 @@ describe('OnboardingTour', () => {
   });
 
   it('calls onSkip when skip is clicked', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     const onSkip = jest.fn();
     render(<OnboardingTour steps={mockSteps} onSkip={onSkip} />);
-    const skipButton = screen.getByText(/skip/i);
+
+    const skipButton = await screen.findByText(/skip/i);
     await user.click(skipButton);
     expect(onSkip).toHaveBeenCalled();
   });
 
-  it('does not open when already completed in localStorage', () => {
+  it('does not open when already completed in localStorage', async () => {
     localStorageMock.setItem('atlas-onboarding-completed', 'true');
     render(<OnboardingTour steps={mockSteps} />);
-    expect(screen.queryByText('Step 1')).not.toBeInTheDocument();
+    jest.runAllTimers();
+    await waitFor(() => {
+      expect(screen.queryByText('Step 1')).not.toBeInTheDocument();
+    });
   });
 
-  it('handles custom storage key', () => {
+  it('handles custom storage key', async () => {
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} storageKey="custom-key" />);
-    expect(screen.getByText('Step 1')).toBeInTheDocument();
+    jest.runAllTimers();
+    await waitFor(() => {
+      expect(screen.getByText('Step 1')).toBeInTheDocument();
+    });
   });
 
   it('saves completion to custom storage key', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} storageKey="custom-key" />);
+
+    // Wait for tour to open and navigate to finish
+    await screen.findByText('Step 1');
+
+    // Navigate through all steps
+    for (let i = 0; i < mockSteps.length - 1; i++) {
+      const nextButton = screen.getByText(/next/i);
+      await user.click(nextButton);
+    }
+
     const finishButton = screen.getByText(/get started/i);
     await user.click(finishButton);
     expect(localStorageMock.getItem('custom-key')).toBe('true');
   });
 
   it('does not call onComplete when not provided', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} />);
+
+    // Wait for tour to open
+    await screen.findByText('Step 1');
+
     // Navigate through all steps
     for (let i = 0; i < mockSteps.length - 1; i++) {
       const nextButton = screen.getByText(/next/i);
@@ -124,10 +170,12 @@ describe('OnboardingTour', () => {
   });
 
   it('does not call onSkip when not provided', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} />);
-    const skipButton = screen.getByText(/skip/i);
+
+    const skipButton = await screen.findByText(/skip/i);
     await user.click(skipButton);
     // Should skip without error even without onSkip callback
     expect(localStorageMock.getItem('atlas-onboarding-completed')).toBe('true');
@@ -136,15 +184,24 @@ describe('OnboardingTour', () => {
   it('handles previous button on first step', async () => {
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} />);
-    // On first step, previous button should be disabled or not call handlePrevious
-    expect(screen.getByText('Step 1')).toBeInTheDocument();
+    jest.runAllTimers();
+    await waitFor(() => {
+      // On first step, previous button should not exist
+      expect(screen.getByText('Step 1')).toBeInTheDocument();
+      expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+    });
   });
 
   it('handles next button on last step', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     const onComplete = jest.fn();
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} onComplete={onComplete} />);
+
+    // Wait for tour to open
+    await screen.findByText('Step 1');
+
     // Navigate to last step
     for (let i = 0; i < mockSteps.length - 1; i++) {
       const nextButton = screen.getByText(/next/i);
@@ -157,24 +214,34 @@ describe('OnboardingTour', () => {
   });
 
   it('shows previous button when not on first step', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} />);
-    const nextButton = screen.getByText(/next/i);
+
+    const nextButton = await screen.findByText(/next/i);
     await user.click(nextButton);
     expect(screen.getByText('Previous')).toBeInTheDocument();
   });
 
-  it('does not show previous button on first step', () => {
+  it('does not show previous button on first step', async () => {
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} />);
-    expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+    jest.runAllTimers();
+    await waitFor(() => {
+      expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+    });
   });
 
   it('displays correct button text on last step', async () => {
+    jest.useRealTimers();
     const user = userEvent.setup();
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} />);
+
+    // Wait for tour to open
+    await screen.findByText('Step 1');
+
     // Navigate to last step
     for (let i = 0; i < mockSteps.length - 1; i++) {
       const nextButton = screen.getByText(/next/i);
@@ -183,10 +250,12 @@ describe('OnboardingTour', () => {
     expect(screen.getByText('Get Started')).toBeInTheDocument();
   });
 
-  it('displays Next button when not on last step', () => {
+  it('displays Next button when not on last step', async () => {
     localStorageMock.clear();
     render(<OnboardingTour steps={mockSteps} />);
-    expect(screen.getByText('Next')).toBeInTheDocument();
+    jest.runAllTimers();
+    await waitFor(() => {
+      expect(screen.getByText('Next')).toBeInTheDocument();
+    });
   });
 });
-

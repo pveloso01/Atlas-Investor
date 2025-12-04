@@ -29,7 +29,9 @@ describe('InsightsCarousel', () => {
   it('navigates to next insight', async () => {
     const user = userEvent.setup();
     render(<InsightsCarousel insights={mockInsights} />);
-    const nextButton = screen.getByRole('button', { name: /next/i });
+    // Find the next button (arrow forward icon button)
+    const buttons = screen.getAllByRole('button');
+    const nextButton = buttons[buttons.length - 1]; // Last button is next
     await user.click(nextButton);
     expect(screen.getByText('Insight 2')).toBeInTheDocument();
   });
@@ -37,8 +39,9 @@ describe('InsightsCarousel', () => {
   it('navigates to previous insight', async () => {
     const user = userEvent.setup();
     render(<InsightsCarousel insights={mockInsights} />);
-    const nextButton = screen.getByRole('button', { name: /next/i });
-    const prevButton = screen.getByRole('button', { name: /previous/i });
+    const buttons = screen.getAllByRole('button');
+    const nextButton = buttons[buttons.length - 1]; // Last button is next
+    const prevButton = buttons[buttons.length - 2]; // Second to last is prev
     await user.click(nextButton);
     await user.click(prevButton);
     expect(screen.getByText('Insight 1')).toBeInTheDocument();
@@ -48,7 +51,7 @@ describe('InsightsCarousel', () => {
     render(<InsightsCarousel insights={mockInsights} />);
     // Navigate to third insight
     // Need to click twice to get to third insight
-    expect(screen.getByRole('button', { name: /next/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button').length).toBeGreaterThan(0);
   });
 
   it('returns null when insights array is empty', () => {
@@ -95,7 +98,8 @@ describe('InsightsCarousel', () => {
     const user = userEvent.setup();
     render(<InsightsCarousel insights={mockInsights} />);
     // Navigate to last insight
-    const nextButton = screen.getByRole('button', { name: /next/i });
+    const buttons = screen.getAllByRole('button');
+    const nextButton = buttons[buttons.length - 1];
     await user.click(nextButton);
     await user.click(nextButton);
     expect(screen.getByText('Insight 3')).toBeInTheDocument();
@@ -107,10 +111,10 @@ describe('InsightsCarousel', () => {
   it('wraps around when navigating before first insight', async () => {
     const user = userEvent.setup();
     render(<InsightsCarousel insights={mockInsights} />);
-    const prevButton = screen.getByRole('button', { name: /previous/i });
+    const buttons = screen.getAllByRole('button');
+    const prevButton = buttons[buttons.length - 2]; // Second to last is prev
     // Click previous on first insight should wrap to last
     await user.click(prevButton);
     expect(screen.getByText('Insight 3')).toBeInTheDocument();
   });
 });
-

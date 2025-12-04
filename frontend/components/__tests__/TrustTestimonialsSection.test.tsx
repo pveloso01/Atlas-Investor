@@ -45,8 +45,9 @@ describe('TestimonialsSection', () => {
 
   it('renders all testimonials', () => {
     render(<TestimonialsSection testimonials={mockTestimonials} />);
-    expect(screen.getByText('Great platform!')).toBeInTheDocument();
-    expect(screen.getByText('Very helpful.')).toBeInTheDocument();
+    // Quotes are wrapped in smart quotes
+    expect(screen.getByText(/Great platform!/)).toBeInTheDocument();
+    expect(screen.getByText(/Very helpful./)).toBeInTheDocument();
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
   });
@@ -54,7 +55,7 @@ describe('TestimonialsSection', () => {
   it('displays rating stars when provided', () => {
     render(<TestimonialsSection testimonials={mockTestimonials} />);
     // The rating stars are rendered as text content
-    expect(screen.getByText('Great platform!')).toBeInTheDocument();
+    expect(screen.getByText(/Great platform!/)).toBeInTheDocument();
   });
 
   it('displays customer since when provided', () => {
@@ -64,8 +65,7 @@ describe('TestimonialsSection', () => {
 
   it('limits testimonials when maxItems is provided', () => {
     render(<TestimonialsSection testimonials={mockTestimonials} maxItems={1} />);
-    expect(screen.getByText('Great platform!')).toBeInTheDocument();
-    expect(screen.queryByText('Very helpful.')).not.toBeInTheDocument();
+    expect(screen.getByText(/Great platform!/)).toBeInTheDocument();
+    expect(screen.queryByText(/Very helpful./)).not.toBeInTheDocument();
   });
 });
-

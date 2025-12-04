@@ -79,9 +79,18 @@ describe('propertyApi query building', () => {
 
     it('provides correct tags for caching', () => {
       const endpoint = propertyApi.endpoints.getProperties;
+      const endpointAny = endpoint as unknown as {
+        providesTags?:
+          | string[]
+          | ((
+              result: unknown,
+              error: unknown,
+              arg: unknown
+            ) => Array<{ type: string; id?: number }>);
+      };
       // providesTags might be an array or function
-      if (Array.isArray(endpoint.providesTags)) {
-        expect(endpoint.providesTags).toEqual(['Property']);
+      if (Array.isArray(endpointAny.providesTags)) {
+        expect(endpointAny.providesTags).toEqual(['Property']);
       } else {
         // If it's a function or undefined, just verify endpoint exists
         expect(endpoint).toBeDefined();
@@ -107,7 +116,16 @@ describe('propertyApi query building', () => {
 
     it('provides correct tags for caching', () => {
       const endpoint = propertyApi.endpoints.getProperty;
-      const providesTags = endpoint.providesTags;
+      const endpointAny = endpoint as unknown as {
+        providesTags?:
+          | string[]
+          | ((
+              result: unknown,
+              error: unknown,
+              arg: unknown
+            ) => Array<{ type: string; id?: number }>);
+      };
+      const providesTags = endpointAny.providesTags;
       if (typeof providesTags === 'function') {
         const tags = providesTags(undefined, undefined, 1);
         expect(tags).toEqual([{ type: 'Property', id: 1 }]);
@@ -145,4 +163,3 @@ describe('propertyApi query building', () => {
     });
   });
 });
-

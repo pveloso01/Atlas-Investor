@@ -26,6 +26,7 @@ jest.mock('mapbox-gl', () => ({
   })),
   Popup: jest.fn().mockImplementation(() => ({
     setDOMContent: jest.fn().mockReturnThis(),
+    remove: jest.fn(),
   })),
   NavigationControl: jest.fn(),
   GeolocateControl: jest.fn(),
@@ -51,41 +52,39 @@ describe('PropertyMap', () => {
   });
 
   it('renders map container when token is provided', () => {
-    const { container } = render(
-      <PropertyMap properties={mockProperties} />
-    );
-    
+    const { container } = render(<PropertyMap properties={mockProperties} />);
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
   });
 
   it('displays error message when token is not configured', () => {
     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = '';
-    
+
     render(<PropertyMap properties={mockProperties} />);
-    
+
     expect(screen.getByText(/Mapbox access token is not configured/i)).toBeInTheDocument();
   });
 
   it('sets mapError when token is not configured in useEffect', () => {
     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = undefined;
-    
+
     render(<PropertyMap properties={mockProperties} />);
-    
+
     expect(screen.getByText(/Mapbox access token is not configured/i)).toBeInTheDocument();
   });
 
   it('handles mapError state correctly', () => {
     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = '';
-    
+
     const { rerender } = render(<PropertyMap properties={mockProperties} />);
-    
+
     expect(screen.getByText(/Mapbox access token is not configured/i)).toBeInTheDocument();
-    
+
     // Set token and rerender
     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = 'test-token';
     rerender(<PropertyMap properties={mockProperties} />);
-    
+
     // Map should render without error
     const { container } = render(<PropertyMap properties={mockProperties} />);
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
@@ -93,43 +92,35 @@ describe('PropertyMap', () => {
   });
 
   it('renders with custom height', () => {
-    const { container } = render(
-      <PropertyMap properties={mockProperties} height={800} />
-    );
-    
+    const { container } = render(<PropertyMap properties={mockProperties} height={800} />);
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
   });
 
   it('handles empty properties array', () => {
     const { container } = render(<PropertyMap properties={[]} />);
-    
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
   });
 
   it('handles properties without coordinates', () => {
-    const propertiesWithoutCoords = [
-      { ...mockProperty, coordinates: undefined },
-    ];
-    
-    const { container } = render(
-      <PropertyMap properties={propertiesWithoutCoords} />
-    );
-    
+    const propertiesWithoutCoords = [{ ...mockProperty, coordinates: undefined }];
+
+    const { container } = render(<PropertyMap properties={propertiesWithoutCoords} />);
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
   });
 
   it('handles properties with invalid coordinates', () => {
     const propertiesWithInvalidCoords = [
-      { ...mockProperty, coordinates: [1] as Property['coordinates'] },
+      { ...mockProperty, coordinates: [1, 1] as Property['coordinates'] },
     ];
-    
-    const { container } = render(
-      <PropertyMap properties={propertiesWithInvalidCoords} />
-    );
-    
+
+    const { container } = render(<PropertyMap properties={propertiesWithInvalidCoords} />);
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
   });
@@ -139,35 +130,33 @@ describe('PropertyMap', () => {
     const { container } = render(
       <PropertyMap properties={mockProperties} onPropertyClick={handleClick} />
     );
-    
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
     // Note: Actual click testing would require more complex setup with mapbox
   });
 
   it('handles properties with valid coordinates', () => {
-    const { container } = render(
-      <PropertyMap properties={[mockProperty]} />
-    );
-    
+    const { container } = render(<PropertyMap properties={[mockProperty]} />);
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
   });
 
   it('sets mapError when token is missing in useEffect', () => {
     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = '';
-    
+
     render(<PropertyMap properties={mockProperties} />);
-    
+
     // Should show error message - this tests lines 33-34: setMapError('Mapbox access token is not configured'); return;
     expect(screen.getByText(/Mapbox access token is not configured/i)).toBeInTheDocument();
   });
 
   it('sets mapError and returns early when token is undefined', () => {
     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = undefined;
-    
+
     render(<PropertyMap properties={mockProperties} />);
-    
+
     // Tests the early return path when !mapboxToken
     expect(screen.getByText(/Mapbox access token is not configured/i)).toBeInTheDocument();
   });
@@ -175,9 +164,9 @@ describe('PropertyMap', () => {
   it('handles empty string token in useEffect', () => {
     // Test the specific case where token is empty string (falsy)
     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = '';
-    
+
     render(<PropertyMap properties={mockProperties} />);
-    
+
     // This should trigger the early return in useEffect (lines 32-35)
     // where !mapboxToken evaluates to true for empty string
     expect(screen.getByText(/Mapbox access token is not configured/i)).toBeInTheDocument();
@@ -188,13 +177,13 @@ describe('PropertyMap', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mapboxgl = require('mapbox-gl');
     const mockAddEventListener = jest.fn();
-    
+
     // Setup mock to track addEventListener calls
     const mockGetElement = jest.fn().mockReturnValue({
       addEventListener: mockAddEventListener,
       removeEventListener: jest.fn(),
     });
-    
+
     // Override the Marker mock for this test
     (mapboxgl.Marker as jest.Mock).mockImplementation(() => ({
       setLngLat: jest.fn().mockReturnThis(),
@@ -204,15 +193,15 @@ describe('PropertyMap', () => {
       getLngLat: jest.fn().mockReturnValue({ lng: -9.1393, lat: 38.7223 }),
       remove: jest.fn(),
     }));
-    
+
     const { container } = render(
       <PropertyMap properties={mockProperties} onPropertyClick={handleClick} />
     );
-    
+
     // Verify the map container is rendered
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
-    
+
     // Verify markers were created (which means the code path including line 93 was executed)
     // The addEventListener is called in the useEffect when onPropertyClick is provided
     // We verify the component renders successfully with onPropertyClick prop
@@ -224,7 +213,7 @@ describe('PropertyMap', () => {
     const { container } = render(
       <PropertyMap properties={mockProperties} onPropertyClick={handleClick} />
     );
-    
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
     // The onPropertyClick handler is set up in useEffect (line 91-94)
@@ -232,10 +221,8 @@ describe('PropertyMap', () => {
   });
 
   it('renders map when onPropertyClick is not provided', () => {
-    const { container } = render(
-      <PropertyMap properties={mockProperties} />
-    );
-    
+    const { container } = render(<PropertyMap properties={mockProperties} />);
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
     // When onPropertyClick is not provided, the if condition on line 91 is false
@@ -247,7 +234,7 @@ describe('PropertyMap', () => {
     const { container } = render(
       <PropertyMap properties={mockProperties} onPropertyClick={handleClick} />
     );
-    
+
     // Verify the component renders successfully with onPropertyClick
     // This ensures the branch at line 93 (if (onPropertyClick)) is taken
     // The useEffect will execute and the branch will be covered
@@ -258,12 +245,12 @@ describe('PropertyMap', () => {
 
   it('returns early from useEffect when mapboxToken is falsy', () => {
     process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = '';
-    
+
     render(<PropertyMap properties={mockProperties} />);
-    
+
     // Should show error message instead of initializing map
     expect(screen.getByText(/Mapbox access token is not configured/i)).toBeInTheDocument();
-    
+
     // Verify map was not initialized (early return in useEffect line 36)
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mapboxgl = require('mapbox-gl');
@@ -275,7 +262,7 @@ describe('PropertyMap', () => {
     const { container } = render(
       <PropertyMap properties={mockProperties} selectedPropertyId={1} />
     );
-    
+
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
   });
@@ -286,7 +273,7 @@ describe('PropertyMap', () => {
       { ...mockProperty, id: 2, property_type: 'house' as const },
       { ...mockProperty, id: 3, property_type: 'land' as const },
     ];
-    
+
     const { container } = render(<PropertyMap properties={properties} />);
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
@@ -298,7 +285,7 @@ describe('PropertyMap', () => {
       { ...mockProperty, id: 2, property_type: 'commercial' as const },
       { ...mockProperty, id: 3, property_type: 'mixed' as const },
     ];
-    
+
     const { container } = render(<PropertyMap properties={properties} />);
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
@@ -309,7 +296,7 @@ describe('PropertyMap', () => {
       ...mockProperty,
       coordinates: [-9.1393, 38.7223] as [number, number],
     };
-    
+
     const { container } = render(<PropertyMap properties={[propertyWithCoords]} />);
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
@@ -318,9 +305,9 @@ describe('PropertyMap', () => {
   it('handles multiple properties with coordinates', () => {
     const properties = [
       { ...mockProperty, id: 1, coordinates: [-9.1393, 38.7223] as [number, number] },
-      { ...mockProperty, id: 2, coordinates: [-8.6100, 41.1579] as [number, number] },
+      { ...mockProperty, id: 2, coordinates: [-8.61, 41.1579] as [number, number] },
     ];
-    
+
     const { container } = render(<PropertyMap properties={properties} />);
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
@@ -331,10 +318,8 @@ describe('PropertyMap', () => {
       ...mockProperty,
       coordinates: [-9.1393, 38.7223] as [number, number],
     };
-    
-    const { container } = render(
-      <PropertyMap properties={[property]} selectedPropertyId={1} />
-    );
+
+    const { container } = render(<PropertyMap properties={[property]} selectedPropertyId={1} />);
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
   });
@@ -344,12 +329,9 @@ describe('PropertyMap', () => {
       ...mockProperty,
       coordinates: [-9.1393, 38.7223] as [number, number],
     };
-    
-    const { container } = render(
-      <PropertyMap properties={[property]} selectedPropertyId={null} />
-    );
+
+    const { container } = render(<PropertyMap properties={[property]} selectedPropertyId={null} />);
     const mapContainer = container.querySelector('[class*="MuiBox-root"]');
     expect(mapContainer).toBeInTheDocument();
   });
 });
-

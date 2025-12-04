@@ -19,7 +19,7 @@ describe('propertyApi', () => {
       const endpoint = propertyApi.endpoints.getProperties;
       expect(endpoint).toBeDefined();
     });
-    
+
     it('can initiate query with page parameter', () => {
       const endpoint = propertyApi.endpoints.getProperties;
       const params: PropertyListParams = { page: 1 };
@@ -101,10 +101,19 @@ describe('propertyApi', () => {
 
     it('provides correct tags for caching', () => {
       const endpoint = propertyApi.endpoints.getProperties;
-      // providesTags might not be directly accessible
-      if (endpoint.providesTags) {
-        if (Array.isArray(endpoint.providesTags)) {
-          expect(endpoint.providesTags).toContain('Property');
+      // providesTags might not be directly accessible on the type
+      const endpointAny = endpoint as unknown as {
+        providesTags?:
+          | string[]
+          | ((
+              result: unknown,
+              error: unknown,
+              arg: unknown
+            ) => Array<{ type: string; id?: number }>);
+      };
+      if (endpointAny.providesTags) {
+        if (Array.isArray(endpointAny.providesTags)) {
+          expect(endpointAny.providesTags).toContain('Property');
         }
       } else {
         // If not accessible, just verify endpoint exists
@@ -118,7 +127,7 @@ describe('propertyApi', () => {
       const endpoint = propertyApi.endpoints.getProperty;
       expect(endpoint).toBeDefined();
     });
-    
+
     it('can initiate query with id', () => {
       const endpoint = propertyApi.endpoints.getProperty;
       const result = endpoint.initiate(1);
@@ -133,7 +142,16 @@ describe('propertyApi', () => {
 
     it('provides correct tags for caching', () => {
       const endpoint = propertyApi.endpoints.getProperty;
-      const providesTags = endpoint.providesTags;
+      const endpointAny = endpoint as unknown as {
+        providesTags?:
+          | string[]
+          | ((
+              result: unknown,
+              error: unknown,
+              arg: unknown
+            ) => Array<{ type: string; id?: number }>);
+      };
+      const providesTags = endpointAny.providesTags;
       if (typeof providesTags === 'function') {
         const tags = providesTags(undefined, undefined, 1);
         expect(tags).toEqual([{ type: 'Property', id: 1 }]);
@@ -142,7 +160,16 @@ describe('propertyApi', () => {
 
     it('provides correct tags for caching with different id', () => {
       const endpoint = propertyApi.endpoints.getProperty;
-      const providesTags = endpoint.providesTags;
+      const endpointAny = endpoint as unknown as {
+        providesTags?:
+          | string[]
+          | ((
+              result: unknown,
+              error: unknown,
+              arg: unknown
+            ) => Array<{ type: string; id?: number }>);
+      };
+      const providesTags = endpointAny.providesTags;
       if (typeof providesTags === 'function') {
         const tags = providesTags(undefined, undefined, 42);
         expect(tags).toEqual([{ type: 'Property', id: 42 }]);
@@ -151,7 +178,16 @@ describe('propertyApi', () => {
 
     it('provides correct tags for caching with result', () => {
       const endpoint = propertyApi.endpoints.getProperty;
-      const providesTags = endpoint.providesTags;
+      const endpointAny = endpoint as unknown as {
+        providesTags?:
+          | string[]
+          | ((
+              result: unknown,
+              error: unknown,
+              arg: unknown
+            ) => Array<{ type: string; id?: number }>);
+      };
+      const providesTags = endpointAny.providesTags;
       if (typeof providesTags === 'function') {
         const mockResult = { id: 5 } as Property;
         const tags = providesTags(mockResult, undefined, 5);
@@ -161,7 +197,16 @@ describe('propertyApi', () => {
 
     it('provides correct tags for caching with error', () => {
       const endpoint = propertyApi.endpoints.getProperty;
-      const providesTags = endpoint.providesTags;
+      const endpointAny = endpoint as unknown as {
+        providesTags?:
+          | string[]
+          | ((
+              result: unknown,
+              error: unknown,
+              arg: unknown
+            ) => Array<{ type: string; id?: number }>);
+      };
+      const providesTags = endpointAny.providesTags;
       if (typeof providesTags === 'function') {
         const mockError = { status: 404 } as { status: number };
         const tags = providesTags(undefined, mockError, 10);
@@ -171,7 +216,16 @@ describe('propertyApi', () => {
 
     it('provides correct tags for caching with null result', () => {
       const endpoint = propertyApi.endpoints.getProperty;
-      const providesTags = endpoint.providesTags;
+      const endpointAny = endpoint as unknown as {
+        providesTags?:
+          | string[]
+          | ((
+              result: unknown,
+              error: unknown,
+              arg: unknown
+            ) => Array<{ type: string; id?: number }>);
+      };
+      const providesTags = endpointAny.providesTags;
       if (typeof providesTags === 'function') {
         const tags = providesTags(null, undefined, 15);
         expect(tags).toEqual([{ type: 'Property', id: 15 }]);
@@ -180,7 +234,16 @@ describe('propertyApi', () => {
 
     it('provides correct tags for caching with undefined result', () => {
       const endpoint = propertyApi.endpoints.getProperty;
-      const providesTags = endpoint.providesTags;
+      const endpointAny = endpoint as unknown as {
+        providesTags?:
+          | string[]
+          | ((
+              result: unknown,
+              error: unknown,
+              arg: unknown
+            ) => Array<{ type: string; id?: number }>);
+      };
+      const providesTags = endpointAny.providesTags;
       if (typeof providesTags === 'function') {
         const tags = providesTags(undefined, undefined, 20);
         expect(tags).toEqual([{ type: 'Property', id: 20 }]);
@@ -213,4 +276,3 @@ describe('propertyApi', () => {
     });
   });
 });
-
