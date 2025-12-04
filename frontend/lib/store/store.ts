@@ -7,6 +7,7 @@ import { authApi } from './api/authApi';
 import { analysisApi } from './api/analysisApi';
 import { contactApi } from './api/contactApi';
 import { portfolioApi } from './api/portfolioApi';
+import { authMiddleware } from './middleware/authMiddleware';
 
 export const makeStore = () => {
   return configureStore({
@@ -25,7 +26,8 @@ export const makeStore = () => {
         .concat(authApi.middleware)
         .concat(analysisApi.middleware)
         .concat(contactApi.middleware)
-        .concat(portfolioApi.middleware),
+        .concat(portfolioApi.middleware)
+        .concat(authMiddleware), // Add auth middleware last to catch all API errors
   });
 };
 
