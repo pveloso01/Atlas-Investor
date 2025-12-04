@@ -198,3 +198,157 @@ class SavedProperty(models.Model):
     def __str__(self) -> str:
         # Django ForeignKey access is dynamic - type checker needs help
         return f"{self.user.email} - {self.property.address}"  # type: ignore[attr-defined]
+
+
+class Feedback(models.Model):
+    """User feedback submissions."""
+
+    RATING_CHOICES = [
+        (1, "Poor"),
+        (2, "Fair"),
+        (3, "Good"),
+        (4, "Great"),
+        (5, "Excellent"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="feedbacks",
+    )
+    rating = models.IntegerField(choices=RATING_CHOICES)
+    comment = models.TextField(blank=True)
+    page_url = models.URLField(max_length=500, blank=True, help_text="Page where feedback was submitted")
+    user_agent = models.CharField(max_length=500, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name_plural = "Feedback"
+
+    def __str__(self) -> str:
+        user_str = self.user.email if self.user else "Anonymous"  # type: ignore[union-attr]
+        return f"Feedback from {user_str} - Rating: {self.rating}"
+
+
+class SupportMessage(models.Model):
+    """Support message submissions."""
+
+    STATUS_CHOICES = [
+        ("new", "New"),
+        ("in_progress", "In Progress"),
+        ("resolved", "Resolved"),
+        ("closed", "Closed"),
+    ]
+
+    PRIORITY_CHOICES = [
+        ("low", "Low"),
+        ("medium", "Medium"),
+        ("high", "High"),
+        ("urgent", "Urgent"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="support_messages",
+    )
+    email = models.EmailField(help_text="Contact email for response")
+    subject = models.CharField(max_length=200, blank=True, default="General Inquiry")
+    message = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default="medium")
+    page_url = models.URLField(max_length=500, blank=True, help_text="Page where message was submitted")
+    user_agent = models.CharField(max_length=500, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name_plural = "Support Messages"
+
+    def __str__(self) -> str:
+        return f"Support: {self.subject} - {self.status}"
+
+
+class ContactRequest(models.Model):
+    """Property contact/inquiry requests."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="contact_requests",
+    )
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="contact_requests",
+    )
+    name = models.CharField(max_length=200)
+    email = models.EmailField()
+    phone = models.CharField(max_length=50, blank=True)
+    message = models.TextField()
+    contacted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name_plural = "Contact Requests"
+
+    def __str__(self) -> str:
+        return f"Contact for {self.property.address} from {self.name}"
+
+
+class Portfolio(models.Model):
+    """User's investment portfolio."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="portfolios",
+    )
+    name = models.CharField(max_length=200, default="My Portfolio")
+    description = models.TextField(blank=True)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.name} - {self.user.email}"  # type: ignore[union-attr]
+
+
+class PortfolioProperty(models.Model):
+    """Properties in a portfolio."""
+
+    portfolio = models.ForeignKey(
+        Portfolio,
+        on_delete=models.CASCADE,
+        related_name="properties",
+    )
+    property = models.ForeignKey(
+        Property,
+        on_delete=models.CASCADE,
+        related_name="in_portfolios",
+    )
+    notes = models.TextField(blank=True)
+    target_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-added_at"]
+        unique_together = ["portfolio", "property"]
+
+    def __str__(self) -> str:
+        return f"{self.property.address} in {self.portfolio.name}"

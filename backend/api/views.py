@@ -3,9 +3,26 @@ from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework import viewsets, filters, status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Property, Region
+from .models import (
+    ContactRequest,
+    Feedback,
+    Portfolio,
+    PortfolioProperty,
+    Property,
+    Region,
+    SavedProperty,
+    SupportMessage,
+)
 from .serializers.property_serializers import PropertySerializer, RegionSerializer
+from .serializers.feedback_serializers import (
+    ContactRequestSerializer,
+    FeedbackSerializer,
+    PortfolioPropertySerializer,
+    PortfolioSerializer,
+    SupportMessageSerializer,
+)
 from .services.property_service import PropertyService
 from .permissions import IsAuthenticatedOrReadOnly as CustomIsAuthenticatedOrReadOnly
 
@@ -105,3 +122,157 @@ class RegionViewSet(viewsets.ReadOnlyModelViewSet):
     ]
     search_fields = ["name", "code"]
     ordering = ["name"]
+
+
+class FeedbackViewSet(viewsets.ModelViewSet):
+    """ViewSet for user feedback."""
+
+    queryset = Feedback.objects.all()  # type: ignore[attr-defined]
+    serializer_class = FeedbackSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_permissions(self):
+        """Allow anyone to create feedback, but restrict other actions."""
+        if self.action == "create":
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        """Limit feedback to current user (staff can see all)."""
+        user = self.request.user
+        if user.is_staff:
+            return Feedback.objects.all()  # type: ignore[attr-defined]
+        if user.is_authenticated:
+            return Feedback.objects.filter(user=user)  # type: ignore[attr-defined]
+        return Feedback.objects.none()  # type: ignore[attr-defined]
+
+
+class SupportMessageViewSet(viewsets.ModelViewSet):
+    """ViewSet for support messages."""
+
+    queryset = SupportMessage.objects.all()  # type: ignore[attr-defined]
+    serializer_class = SupportMessageSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_permissions(self):
+        """Allow anyone to create support messages, but restrict other actions."""
+        if self.action == "create":
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        """Limit support messages to current user (staff can see all)."""
+        user = self.request.user
+        if user.is_staff:
+            return SupportMessage.objects.all()  # type: ignore[attr-defined]
+        if user.is_authenticated:
+            return SupportMessage.objects.filter(user=user)  # type: ignore[attr-defined]
+        return SupportMessage.objects.none()  # type: ignore[attr-defined]
+
+
+class ContactRequestViewSet(viewsets.ModelViewSet):
+    """ViewSet for property contact requests."""
+
+    queryset = ContactRequest.objects.all()  # type: ignore[attr-defined]
+    serializer_class = ContactRequestSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_permissions(self):
+        """Allow anyone to create contact requests, but restrict other actions."""
+        if self.action == "create":
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        """Limit contact requests to current user (staff can see all)."""
+        user = self.request.user
+        if user.is_staff:
+            return ContactRequest.objects.all()  # type: ignore[attr-defined]
+        if user.is_authenticated:
+            return ContactRequest.objects.filter(user=user)  # type: ignore[attr-defined]
+        return ContactRequest.objects.none()  # type: ignore[attr-defined]
+
+
+class PortfolioViewSet(viewsets.ModelViewSet):
+    """ViewSet for user portfolios."""
+
+    queryset = Portfolio.objects.all()  # type: ignore[attr-defined]
+    serializer_class = PortfolioSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        """Limit portfolios to current user."""
+        return Portfolio.objects.filter(user=self.request.user)  # type: ignore[attr-defined]
+
+    @action(detail=True, methods=["post"])
+    def add_property(self, request, pk=None):
+        """Add a property to the portfolio."""
+        portfolio = self.get_object()
+        property_id = request.data.get("property_id")
+        notes = request.data.get("notes", "")
+        target_price = request.data.get("target_price")
+
+        try:
+            property_obj = Property.objects.get(pk=property_id)  # type: ignore[attr-defined]
+        except Property.DoesNotExist:
+            return Response(
+                {"error": "Property not found"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        portfolio_property, created = PortfolioProperty.objects.get_or_create(  # type: ignore[attr-defined]
+            portfolio=portfolio,
+            property=property_obj,
+            defaults={"notes": notes, "target_price": target_price},
+        )
+
+        if not created:
+            return Response(
+                {"error": "Property already in portfolio"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = PortfolioPropertySerializer(portfolio_property)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=["delete"])
+    def remove_property(self, request, pk=None):
+        """Remove a property from the portfolio."""
+        portfolio = self.get_object()
+        property_id = request.data.get("property_id")
+
+        try:
+            portfolio_property = PortfolioProperty.objects.get(  # type: ignore[attr-defined]
+                portfolio=portfolio,
+                property_id=property_id,
+            )
+            portfolio_property.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except PortfolioProperty.DoesNotExist:
+            return Response(
+                {"error": "Property not in portfolio"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+
+class SavedPropertyViewSet(viewsets.ModelViewSet):
+    """ViewSet for saved properties."""
+
+    queryset = SavedProperty.objects.all()  # type: ignore[attr-defined]
+    permission_classes = [IsAuthenticated]
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        """Limit saved properties to current user."""
+        return SavedProperty.objects.filter(user=self.request.user)  # type: ignore[attr-defined]
+
+    def get_serializer_class(self):
+        """Use property serializer for detail views."""
+        from .serializers.property_serializers import SavedPropertySerializer
+
+        return SavedPropertySerializer
+
+    def perform_create(self, serializer):
+        """Set user on create."""
+        serializer.save(user=self.request.user)

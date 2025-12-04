@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Property, Region
+from ..models import Property, Region, SavedProperty
 
 
 class RegionSerializer(serializers.ModelSerializer):
@@ -80,3 +80,20 @@ class PropertySerializer(serializers.ModelSerializer):
         if price_per_sqm:
             return str(price_per_sqm)
         return None
+
+
+class SavedPropertySerializer(serializers.ModelSerializer):
+    """Serializer for saved properties."""
+
+    property_details = PropertySerializer(source="property", read_only=True)
+
+    class Meta:
+        model = SavedProperty
+        fields = [
+            "id",
+            "property",
+            "property_details",
+            "notes",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
