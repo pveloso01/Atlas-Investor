@@ -8,6 +8,8 @@ import NavBar from '@/components/Navigation/NavBar';
 import Footer from '@/components/Layout/Footer';
 import FeedbackButton from '@/components/Feedback/FeedbackButton';
 import SupportWidget from '@/components/Support/SupportWidget';
+import ErrorBoundary from '@/components/Shared/ErrorBoundary';
+import { ToastProvider } from '@/lib/context/ToastContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,11 +29,15 @@ export default function RootLayout({
         <EmotionRegistry>
           <StoreProvider>
             <ThemeProvider>
-              <NavBar />
-              {children}
-              <Footer />
-              <FeedbackButton />
-              <SupportWidget />
+              <ToastProvider>
+                <ErrorBoundary>
+                  <NavBar />
+                  {children}
+                  <Footer />
+                  <FeedbackButton />
+                  <SupportWidget />
+                </ErrorBoundary>
+              </ToastProvider>
             </ThemeProvider>
           </StoreProvider>
         </EmotionRegistry>
