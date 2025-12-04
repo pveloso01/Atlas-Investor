@@ -256,6 +256,29 @@ DJOSER = {
     },
 }
 
+# Redis Cache Configuration
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "SOCKET_CONNECT_TIMEOUT": 5,
+            "SOCKET_TIMEOUT": 5,
+            "CONNECTION_POOL_KWARGS": {"max_connections": 50},
+            "IGNORE_EXCEPTIONS": True,  # Fail gracefully if Redis is unavailable
+        },
+        "KEY_PREFIX": "atlas",
+    }
+}
+
+# Cache timeouts (in seconds)
+CACHE_TTL_ANALYSIS = 60 * 5  # 5 minutes for analysis results
+CACHE_TTL_PROPERTY = 60 * 10  # 10 minutes for property data
+CACHE_TTL_REGION = 60 * 60  # 1 hour for regional statistics
+
 # CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

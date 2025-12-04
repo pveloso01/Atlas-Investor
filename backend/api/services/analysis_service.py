@@ -3,6 +3,11 @@ Investment Analysis Service.
 
 This service provides investment analysis calculations for properties,
 including rental yield, cash flow, ROI, and payback period calculations.
+
+Features:
+- Redis caching with configurable TTL (default 5 minutes)
+- Cache key based on property ID and assumptions hash
+- Graceful fallback when cache is unavailable
 """
 
 import hashlib
@@ -12,11 +17,15 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Optional
 
+from django.conf import settings
 from django.core.cache import cache
 
 from ..models import Property
 
 logger = logging.getLogger(__name__)
+
+# Cache TTL from settings (default 5 minutes)
+ANALYSIS_CACHE_TTL = getattr(settings, "CACHE_TTL_ANALYSIS", 300)
 
 
 @dataclass
@@ -81,24 +90,98 @@ class AnalysisResult:
 
 
 class InvestmentAnalysisService:
-    CACHE_TIMEOUT = 300
+    """
+    Service for performing investment analysis on properties.
+    
+    Uses Redis caching to improve performance for repeated calculations.
+    Cache TTL is configurable via CACHE_TTL_ANALYSIS setting.
+    """
 
-    def analyze_property(self, property: Property, params: Optional[AnalysisParams] = None, use_cache: bool = True) -> AnalysisResult:
+    CACHE_PREFIX = "analysis"
+
+    def analyze_property(
+        self,
+        property: Property,
+        params: Optional[AnalysisParams] = None,
+        use_cache: bool = True,
+    ) -> AnalysisResult:
+        """
+        Analyze a property for investment potential.
+        
+        Args:
+            property: The property to analyze
+            params: Analysis parameters (optional, will estimate if not provided)
+            use_cache: Whether to use Redis caching (default True)
+            
+        Returns:
+            AnalysisResult with all calculated metrics
+        """
         if params is None:
             params = self._estimate_params(property)
 
+        cache_key = self._get_cache_key(property.id, params)
+
         if use_cache:
-            cache_key = self._get_cache_key(property.id, params)
-            cached_result = cache.get(cache_key)
-            if cached_result:
-                return cached_result
+            try:
+                cached_result = cache.get(cache_key)
+                if cached_result:
+                    logger.debug(f"Cache hit for property {property.id}")
+                    return cached_result
+            except Exception as e:
+                logger.warning(f"Cache get failed: {e}")
 
         result = self._calculate_analysis(property, params)
 
         if use_cache:
-            cache.set(cache_key, result, self.CACHE_TIMEOUT)
+            try:
+                cache.set(cache_key, result, ANALYSIS_CACHE_TTL)
+                logger.debug(f"Cached analysis for property {property.id}")
+            except Exception as e:
+                logger.warning(f"Cache set failed: {e}")
 
         return result
+
+    def invalidate_cache(self, property_id: int) -> bool:
+        """
+        Invalidate all cached analysis results for a property.
+        
+        Args:
+            property_id: The ID of the property to invalidate cache for
+            
+        Returns:
+            True if cache was invalidated, False otherwise
+        """
+        try:
+            # Delete all keys matching the property pattern
+            pattern = f"{self.CACHE_PREFIX}:{property_id}:*"
+            cache.delete_pattern(pattern)
+            logger.info(f"Invalidated cache for property {property_id}")
+            return True
+        except Exception as e:
+            logger.warning(f"Cache invalidation failed: {e}")
+            return False
+
+    def get_cache_stats(self) -> dict[str, Any]:
+        """
+        Get cache statistics for monitoring.
+        
+        Returns:
+            Dictionary with cache statistics
+        """
+        try:
+            # This works with django-redis
+            client = cache.client.get_client()
+            info = client.info()
+            return {
+                "connected": True,
+                "used_memory": info.get("used_memory_human", "N/A"),
+                "connected_clients": info.get("connected_clients", 0),
+                "keyspace_hits": info.get("keyspace_hits", 0),
+                "keyspace_misses": info.get("keyspace_misses", 0),
+            }
+        except Exception as e:
+            logger.warning(f"Could not get cache stats: {e}")
+            return {"connected": False, "error": str(e)}
 
     def _estimate_params(self, property: Property) -> AnalysisParams:
         params = AnalysisParams()
@@ -163,9 +246,22 @@ class InvestmentAnalysisService:
         return monthly_payment
 
     def _get_cache_key(self, property_id: int, params: AnalysisParams) -> str:
-        params_str = json.dumps({"monthly_rent": str(params.monthly_rent), "mortgage_rate": str(params.mortgage_rate)}, sort_keys=True)
-        params_hash = hashlib.md5(params_str.encode()).hexdigest()[:8]
-        return f"property_analysis:{property_id}:{params_hash}"
+        """
+        Generate a unique cache key based on property ID and analysis parameters.
+        
+        The key includes a hash of the parameters to ensure different analysis
+        configurations get cached separately.
+        """
+        params_dict = {
+            "monthly_rent": str(params.monthly_rent),
+            "mortgage_rate": str(params.mortgage_rate),
+            "down_payment_percent": str(params.down_payment_percent),
+            "occupancy_rate": str(params.occupancy_rate),
+            "strategy": params.strategy,
+        }
+        params_str = json.dumps(params_dict, sort_keys=True)
+        params_hash = hashlib.md5(params_str.encode()).hexdigest()[:12]
+        return f"{self.CACHE_PREFIX}:{property_id}:{params_hash}"
 
 
 def get_analysis_service() -> InvestmentAnalysisService:
