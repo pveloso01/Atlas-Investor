@@ -1,136 +1,72 @@
+# Dependencies
+node_modules/
+venv/
+.venv/
+env/
+ENV/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.egg-info/
+
+# Testing
+coverage/
+.nyc_output/
+.pytest_cache/
+htmlcov/
+*.cover
+.hypothesis/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Pre-commit
+.secrets.baseline
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-/lib/
-/lib64/
-backend/lib/
-backend/lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual Environment
-venv/
-env/
-ENV/
-.venv
-backend/venv/
-frontend/node_modules/
 
 # Django
-*.log
+*.pot
+*.pyc
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
-/media
-/staticfiles
-/static
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# IDE
-.vscode/*
-!.vscode/settings.json
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# React
-/build
-/dist
-/.pnp
-.pnp.js
-
-# Testing
-.coverage
-.pytest_cache/
-htmlcov/
-.tox/
-.hypothesis/
-*.cover
-.nyc_output
 
 # TypeScript
 *.tsbuildinfo
 
-# Docker
-.dockerignore
-
-# Database
-*.db
-*.sqlite
-
-# Logs
-logs/
-*.log
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Temporary files
-*.tmp
-*.temp
-.cache/
-
-# Secrets
-secrets/
-*.pem
-*.key
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
 # Coverage reports
 coverage/
-.coverage.*
-htmlcov/
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# Poetry
-poetry.lock
-
-# Backup files
-*.bak
-*.backup
-
+.nyc_output/

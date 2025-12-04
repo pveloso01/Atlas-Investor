@@ -1,0 +1,150 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running comprehensive pre-commit checks..."
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Check if there are any staged files
+if [ -z "$STAGED_FILES" ]; then
+  echo "No staged files to check"
+  exit 0
+fi
+
+ERRORS=0
+
+# Frontend checks
+FRONTEND_FILES=$(echo "$STAGED_FILES" | grep "^frontend/" || true)
+if [ -n "$FRONTEND_FILES" ]; then
+  echo ""
+  echo "📦 ========== FRONTEND CHECKS =========="
+  cd frontend || exit 1
+  
+  # Run lint-staged for frontend files (linting and formatting)
+  echo "🔧 Running lint-staged (ESLint + Prettier)..."
+  npx lint-staged || {
+    echo "❌ lint-staged failed"
+    ERRORS=$((ERRORS + 1))
+  }
+  
+  # Type checking
+  echo "🔷 TypeScript type checking..."
+  npm run type-check 2>&1 || {
+    echo "❌ TypeScript type check failed"
+    ERRORS=$((ERRORS + 1))
+  }
+  
+  # Run tests
+  echo "🧪 Running tests..."
+  npm test -- --passWithNoTests --silent 2>&1 || {
+    echo "❌ Tests failed"
+    ERRORS=$((ERRORS + 1))
+  }
+  
+  # Check coverage
+  echo "📊 Checking test coverage..."
+  npm run test:coverage > /tmp/coverage-output.txt 2>&1
+  if [ -f "coverage/coverage-summary.json" ]; then
+    COVERAGE=$(node -e "try { const fs=require('fs'); const data=JSON.parse(fs.readFileSync('coverage/coverage-summary.json')); console.log(data.total.statements.pct.toFixed(2)); } catch(e) { console.log('0'); }" 2>/dev/null || echo "0")
+    if [ -n "$COVERAGE" ] && [ "$COVERAGE" != "0" ]; then
+      # Use awk for floating point comparison
+      COVERAGE_CHECK=$(echo "$COVERAGE" | awk '{if ($1 < 80) print "fail"; else print "pass"}')
+      if [ "$COVERAGE_CHECK" = "fail" ]; then
+        echo "❌ Coverage is below 80%: ${COVERAGE}%"
+        ERRORS=$((ERRORS + 1))
+      else
+        echo "✅ Coverage: ${COVERAGE}%"
+      fi
+    else
+      echo "⚠️  Could not determine coverage (non-blocking)"
+    fi
+  else
+    echo "⚠️  Coverage file not found (non-blocking)"
+  fi
+  
+  # Security audit
+  echo "🔒 Security audit (npm audit)..."
+  npm audit --audit-level=moderate > /dev/null 2>&1 || {
+    echo "⚠️  Security vulnerabilities found (check with 'npm audit')"
+  }
+  
+  # Build check
+  echo "🏗️  Build verification..."
+  npm run build > /tmp/build-output.txt 2>&1 || {
+    echo "❌ Build failed"
+    ERRORS=$((ERRORS + 1))
+  }
+  
+  cd ..
+fi
+
+# Backend checks
+BACKEND_FILES=$(echo "$STAGED_FILES" | grep "^backend/" || true)
+if [ -n "$BACKEND_FILES" ]; then
+  echo ""
+  echo "🐍 ========== BACKEND CHECKS =========="
+  cd backend || exit 1
+  
+  # Activate virtual environment if it exists
+  if [ -d "venv" ]; then
+    source venv/bin/activate
+  elif [ -d ".venv" ]; then
+    source .venv/bin/activate
+  fi
+  
+  # Black formatting check
+  echo "🎨 Code formatting check (Black)..."
+  black --check . > /tmp/black-output.txt 2>&1 || {
+    echo "❌ Code formatting check failed. Run 'black .' to fix"
+    cat /tmp/black-output.txt | head -10
+    ERRORS=$((ERRORS + 1))
+  }
+  
+  # Flake8 linting
+  echo "🔍 Linting (flake8)..."
+  flake8 . > /tmp/flake8-output.txt 2>&1 || {
+    echo "❌ Linting failed"
+    cat /tmp/flake8-output.txt | head -20
+    ERRORS=$((ERRORS + 1))
+  }
+  
+  # Type checking with mypy
+  echo "🔷 Type checking (mypy)..."
+  mypy . --ignore-missing-imports > /tmp/mypy-output.txt 2>&1 || {
+    echo "⚠️  Type checking found issues (non-blocking)"
+    cat /tmp/mypy-output.txt | head -10
+  }
+  
+  # Run tests
+  echo "🧪 Running tests..."
+  python manage.py test --keepdb > /tmp/pytest-output.txt 2>&1 || {
+    echo "❌ Tests failed"
+    cat /tmp/pytest-output.txt | tail -30
+    ERRORS=$((ERRORS + 1))
+  }
+  
+  # Security check with bandit
+  echo "🔒 Security scan (bandit)..."
+  bandit -r . -x venv,migrations,__pycache__,.venv -ll > /tmp/bandit-output.txt 2>&1 || {
+    echo "⚠️  Security issues found (check /tmp/bandit-output.txt)"
+    cat /tmp/bandit-output.txt | grep -E "HIGH|MEDIUM" | head -5 || true
+  }
+  
+  # Dependency security check
+  echo "🔐 Dependency security check (safety)..."
+  safety check --json > /tmp/safety-output.json 2>&1 || {
+    echo "⚠️  Dependency vulnerabilities found (check with 'safety check')"
+  }
+  
+  cd ..
+fi
+
+echo ""
+if [ $ERRORS -eq 0 ]; then
+  echo "✅ All pre-commit checks passed!"
+  exit 0
+else
+  echo "❌ Pre-commit checks failed with $ERRORS error(s)"
+  exit 1
+fi
