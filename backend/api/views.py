@@ -18,13 +18,18 @@ from .models import (
 from .serializers.property_serializers import PropertySerializer, RegionSerializer
 from .serializers.feedback_serializers import (
     FeedbackSerializer,
-    PortfolioPropertySerializer,
-    PortfolioSerializer,
     SupportMessageSerializer,
 )
 from .serializers.contact_serializers import (
     ContactRequestSerializer,
     ContactRequestCreateSerializer,
+)
+from .serializers.portfolio_serializers import (
+    PortfolioListSerializer,
+    PortfolioDetailSerializer,
+    PortfolioCreateUpdateSerializer,
+    PortfolioPropertyDetailSerializer,
+    AddPropertyToPortfolioSerializer,
 )
 from .services.property_service import PropertyService
 from .permissions import IsAuthenticatedOrReadOnly as CustomIsAuthenticatedOrReadOnly
@@ -299,32 +304,68 @@ Message:
 
 
 class PortfolioViewSet(viewsets.ModelViewSet):
-    """ViewSet for user portfolios."""
+    """ViewSet for user portfolios with full CRUD and property management."""
 
     queryset = Portfolio.objects.all()  # type: ignore[attr-defined]
-    serializer_class = PortfolioSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = StandardResultsSetPagination
 
+    def get_serializer_class(self):
+        """Use different serializers based on action."""
+        if self.action == "list":
+            return PortfolioListSerializer
+        if self.action in ["create", "update", "partial_update"]:
+            return PortfolioCreateUpdateSerializer
+        if self.action == "add_property":
+            return AddPropertyToPortfolioSerializer
+        return PortfolioDetailSerializer
+
     def get_queryset(self):
-        """Limit portfolios to current user."""
-        return Portfolio.objects.filter(user=self.request.user)  # type: ignore[attr-defined]
+        """Limit portfolios to current user with optimized queries."""
+        return Portfolio.objects.filter(  # type: ignore[attr-defined]
+            user=self.request.user
+        ).prefetch_related("properties__property__region")
+
+    def perform_create(self, serializer):
+        """Create portfolio and handle default portfolio creation."""
+        portfolio = serializer.save()
+        
+        # If this is the user's first portfolio, make it default
+        user_portfolio_count = Portfolio.objects.filter(user=self.request.user).count()  # type: ignore[attr-defined]
+        if user_portfolio_count == 1:
+            portfolio.is_default = True
+            portfolio.save()
+
+    @action(detail=False, methods=["get"])
+    def default(self, request):
+        """Get user's default portfolio, creating one if none exists."""
+        portfolio = Portfolio.objects.filter(  # type: ignore[attr-defined]
+            user=request.user, is_default=True
+        ).first()
+        
+        if not portfolio:
+            # Create default portfolio if none exists
+            portfolio = Portfolio.objects.create(  # type: ignore[attr-defined]
+                user=request.user,
+                name="My Portfolio",
+                is_default=True,
+            )
+        
+        serializer = PortfolioDetailSerializer(portfolio)
+        return Response(serializer.data)
 
     @action(detail=True, methods=["post"])
     def add_property(self, request, pk=None):
         """Add a property to the portfolio."""
         portfolio = self.get_object()
-        property_id = request.data.get("property_id")
-        notes = request.data.get("notes", "")
-        target_price = request.data.get("target_price")
+        serializer = AddPropertyToPortfolioSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        property_id = serializer.validated_data["property_id"]
+        notes = serializer.validated_data.get("notes", "")
+        target_price = serializer.validated_data.get("target_price")
 
-        try:
-            property_obj = Property.objects.get(pk=property_id)  # type: ignore[attr-defined]
-        except Property.DoesNotExist:
-            return Response(
-                {"error": "Property not found"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+        property_obj = Property.objects.get(pk=property_id)  # type: ignore[attr-defined]
 
         portfolio_property, created = PortfolioProperty.objects.get_or_create(  # type: ignore[attr-defined]
             portfolio=portfolio,
@@ -338,14 +379,20 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = PortfolioPropertySerializer(portfolio_property)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        response_serializer = PortfolioPropertyDetailSerializer(portfolio_property)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=["delete"])
+    @action(detail=True, methods=["post"], url_path="remove-property")
     def remove_property(self, request, pk=None):
         """Remove a property from the portfolio."""
         portfolio = self.get_object()
         property_id = request.data.get("property_id")
+
+        if not property_id:
+            return Response(
+                {"error": "property_id is required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             portfolio_property = PortfolioProperty.objects.get(  # type: ignore[attr-defined]
@@ -353,12 +400,42 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                 property_id=property_id,
             )
             portfolio_property.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {"message": "Property removed from portfolio"},
+                status=status.HTTP_200_OK,
+            )
         except PortfolioProperty.DoesNotExist:
             return Response(
                 {"error": "Property not in portfolio"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+    @action(detail=True, methods=["patch"], url_path="update-property/(?P<property_id>[^/.]+)")
+    def update_property(self, request, pk=None, property_id=None):
+        """Update notes or target price for a property in the portfolio."""
+        portfolio = self.get_object()
+
+        try:
+            portfolio_property = PortfolioProperty.objects.get(  # type: ignore[attr-defined]
+                portfolio=portfolio,
+                property_id=property_id,
+            )
+        except PortfolioProperty.DoesNotExist:
+            return Response(
+                {"error": "Property not in portfolio"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Update fields if provided
+        if "notes" in request.data:
+            portfolio_property.notes = request.data["notes"]
+        if "target_price" in request.data:
+            portfolio_property.target_price = request.data["target_price"]
+        
+        portfolio_property.save()
+        
+        serializer = PortfolioPropertyDetailSerializer(portfolio_property)
+        return Response(serializer.data)
 
 
 class SavedPropertyViewSet(viewsets.ModelViewSet):
