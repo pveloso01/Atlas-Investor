@@ -120,10 +120,35 @@ baseQuery: fetchBaseQuery({
 
 ### 401 Response Handling
 
-When a 401 (Unauthorized) response is received:
-1. User is redirected to `/login` page
-2. Token is cleared from `localStorage`
-3. Error message is displayed
+The application includes a custom Redux middleware (`authMiddleware`) that intercepts all API responses:
+
+**When a 401 (Unauthorized) response is received:**
+1. Auth tokens are cleared from `localStorage`
+2. Current URL is saved to `sessionStorage` (for post-login redirect)
+3. User is automatically redirected to `/login` page
+4. After successful login, user is redirected back to original page
+
+**Implementation:**
+```typescript
+// frontend/lib/store/middleware/authMiddleware.ts
+export const authMiddleware: Middleware = () => (next) => (action) => {
+  if (isRejectedWithValue(action) && action.payload?.status === 401) {
+    localStorage.removeItem('authToken');
+    sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
+    window.location.href = '/login';
+  }
+  return next(action);
+};
+```
+
+**Configuration:**
+```typescript
+// frontend/lib/store/store.ts
+middleware: (getDefaultMiddleware) =>
+  getDefaultMiddleware()
+    .concat(/* ...API middlewares... */)
+    .concat(authMiddleware), // Add last to catch all API errors
+```
 
 ## Security Best Practices
 
@@ -136,6 +161,9 @@ When a 401 (Unauthorized) response is received:
 ✅ CSRF protection for state-changing operations
 ✅ Permission classes on all sensitive endpoints
 ✅ User-scoped querysets (users only see their own data)
+✅ Automatic 401 handling with redirect to login
+✅ Token storage in httpOnly context (localStorage with plans for httpOnly cookies)
+✅ Comprehensive permission tests (27 tests covering all scenarios)
 
 ### Recommendations for Production
 
