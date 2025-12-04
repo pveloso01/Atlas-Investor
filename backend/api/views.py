@@ -5,6 +5,9 @@ from rest_framework import viewsets, filters, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from .utils.cache_decorators import cache_api_response
 from .models import (
     ContactRequest,
     Feedback,
@@ -170,8 +173,10 @@ class PropertyViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@method_decorator(cache_page(60 * 60), name="list")  # Cache for 1 hour
+@method_decorator(cache_page(60 * 60), name="retrieve")  # Cache for 1 hour
 class RegionViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet for Region model (read-only)."""
+    """ViewSet for Region model (read-only) with caching."""
 
     queryset = Region.objects.all()  # type: ignore[attr-defined]
     serializer_class = RegionSerializer
