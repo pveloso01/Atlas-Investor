@@ -28,6 +28,7 @@ jest.mock('mapbox-gl', () => ({
     setDOMContent: jest.fn().mockReturnThis(),
   })),
   NavigationControl: jest.fn(),
+  GeolocateControl: jest.fn(),
   LngLatBounds: jest.fn().mockImplementation(() => ({
     extend: jest.fn(),
   })),
@@ -268,6 +269,87 @@ describe('PropertyMap', () => {
     const mapboxgl = require('mapbox-gl');
     // The map should not be created when token is missing
     expect(mapboxgl.Map).not.toHaveBeenCalled();
+  });
+
+  it('handles selected property correctly', () => {
+    const { container } = render(
+      <PropertyMap properties={mockProperties} selectedPropertyId={1} />
+    );
+    
+    const mapContainer = container.querySelector('[class*="MuiBox-root"]');
+    expect(mapContainer).toBeInTheDocument();
+  });
+
+  it('handles different property types', () => {
+    const properties = [
+      { ...mockProperty, id: 1, property_type: 'apartment' as const },
+      { ...mockProperty, id: 2, property_type: 'house' as const },
+      { ...mockProperty, id: 3, property_type: 'land' as const },
+    ];
+    
+    const { container } = render(<PropertyMap properties={properties} />);
+    const mapContainer = container.querySelector('[class*="MuiBox-root"]');
+    expect(mapContainer).toBeInTheDocument();
+  });
+
+  it('handles properties with all property types', () => {
+    const properties = [
+      { ...mockProperty, id: 1, property_type: 'apartment' as const },
+      { ...mockProperty, id: 2, property_type: 'commercial' as const },
+      { ...mockProperty, id: 3, property_type: 'mixed' as const },
+    ];
+    
+    const { container } = render(<PropertyMap properties={properties} />);
+    const mapContainer = container.querySelector('[class*="MuiBox-root"]');
+    expect(mapContainer).toBeInTheDocument();
+  });
+
+  it('handles properties with coordinates array', () => {
+    const propertyWithCoords = {
+      ...mockProperty,
+      coordinates: [-9.1393, 38.7223] as [number, number],
+    };
+    
+    const { container } = render(<PropertyMap properties={[propertyWithCoords]} />);
+    const mapContainer = container.querySelector('[class*="MuiBox-root"]');
+    expect(mapContainer).toBeInTheDocument();
+  });
+
+  it('handles multiple properties with coordinates', () => {
+    const properties = [
+      { ...mockProperty, id: 1, coordinates: [-9.1393, 38.7223] as [number, number] },
+      { ...mockProperty, id: 2, coordinates: [-8.6100, 41.1579] as [number, number] },
+    ];
+    
+    const { container } = render(<PropertyMap properties={properties} />);
+    const mapContainer = container.querySelector('[class*="MuiBox-root"]');
+    expect(mapContainer).toBeInTheDocument();
+  });
+
+  it('handles property with selectedPropertyId', () => {
+    const property = {
+      ...mockProperty,
+      coordinates: [-9.1393, 38.7223] as [number, number],
+    };
+    
+    const { container } = render(
+      <PropertyMap properties={[property]} selectedPropertyId={1} />
+    );
+    const mapContainer = container.querySelector('[class*="MuiBox-root"]');
+    expect(mapContainer).toBeInTheDocument();
+  });
+
+  it('handles property without selectedPropertyId', () => {
+    const property = {
+      ...mockProperty,
+      coordinates: [-9.1393, 38.7223] as [number, number],
+    };
+    
+    const { container } = render(
+      <PropertyMap properties={[property]} selectedPropertyId={null} />
+    );
+    const mapContainer = container.querySelector('[class*="MuiBox-root"]');
+    expect(mapContainer).toBeInTheDocument();
   });
 });
 
