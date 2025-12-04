@@ -68,11 +68,35 @@ export default function RegisterPage() {
     return (
       <Container maxWidth="sm" sx={{ py: 8 }}>
         <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="h4" gutterBottom color="primary">
-            Registration Successful!
+          <Box
+            sx={{
+              width: 80,
+              height: 80,
+              borderRadius: '50%',
+              backgroundColor: colors.success.light + '30',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
+              mb: 3,
+            }}
+          >
+            <Typography variant="h3">📧</Typography>
+          </Box>
+          <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: colors.success.main }}>
+            Check Your Email!
           </Typography>
-          <Typography variant="body1" sx={{ mb: 3 }}>
-            Please check your email to activate your account.
+          <Typography variant="body1" sx={{ mb: 2, color: colors.neutral.gray700 }}>
+            We&apos;ve sent an activation link to <strong>{formData.email}</strong>
+          </Typography>
+          <Alert severity="info" sx={{ mb: 3, textAlign: 'left' }}>
+            <Typography variant="body2">
+              Click the link in the email to activate your account. 
+              The link will expire in 24 hours.
+            </Typography>
+          </Alert>
+          <Typography variant="body2" sx={{ mb: 3, color: colors.neutral.gray600 }}>
+            Didn&apos;t receive the email? Check your spam folder or try registering again.
           </Typography>
           <Button
             variant="contained"
