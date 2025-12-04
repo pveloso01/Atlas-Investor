@@ -105,6 +105,29 @@ class PropertyViewSet(viewsets.ModelViewSet):
 
         return response
 
+    @action(detail=True, methods=["post"])
+    def analyze(self, request, pk=None):
+        """
+        Analyze investment potential of the property.
+
+        Accepts optional parameters for customizing the analysis.
+        Returns comprehensive investment metrics.
+        """
+        from .services.analysis_service import AnalysisParams, get_analysis_service
+
+        property_obj = self.get_object()
+        analysis_service = get_analysis_service()
+
+        # Parse analysis parameters from request
+        params = None
+        if request.data:
+            params = AnalysisParams.from_dict(request.data)
+
+        # Perform analysis
+        result = analysis_service.analyze_property(property_obj, params)
+
+        return Response(result.to_dict(), status=status.HTTP_200_OK)
+
     @action(detail=False, methods=["get"])
     def price_range(self, request):
         """
