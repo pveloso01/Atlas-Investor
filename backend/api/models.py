@@ -141,6 +141,13 @@ class Property(models.Model):
     class Meta:
         ordering = ["-created_at"]
         verbose_name_plural = "Properties"
+        indexes = [
+            models.Index(fields=["property_type", "listing_status"]),
+            models.Index(fields=["price", "size_sqm"]),
+            models.Index(fields=["region", "property_type"]),
+            models.Index(fields=["listing_status", "created_at"]),
+            models.Index(fields=["bedrooms", "bathrooms"]),
+        ]
 
     def __str__(self) -> str:
         return f"{self.address} - €{self.price}"
@@ -194,6 +201,9 @@ class SavedProperty(models.Model):
     class Meta:
         ordering = ["-created_at"]
         unique_together = ["user", "property"]
+        indexes = [
+            models.Index(fields=["user", "created_at"]),
+        ]
 
     def __str__(self) -> str:
         # Django ForeignKey access is dynamic - type checker needs help
@@ -303,6 +313,10 @@ class ContactRequest(models.Model):
     class Meta:
         ordering = ["-created_at"]
         verbose_name_plural = "Contact Requests"
+        indexes = [
+            models.Index(fields=["property", "contacted"]),
+            models.Index(fields=["user", "created_at"]),
+        ]
 
     def __str__(self) -> str:
         return f"Contact for {self.property.address} from {self.name}"
@@ -324,6 +338,10 @@ class Portfolio(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user", "is_default"]),
+            models.Index(fields=["user", "created_at"]),
+        ]
 
     def __str__(self) -> str:
         return f"{self.name} - {self.user.email}"  # type: ignore[union-attr]
@@ -349,6 +367,9 @@ class PortfolioProperty(models.Model):
     class Meta:
         ordering = ["-added_at"]
         unique_together = ["portfolio", "property"]
+        indexes = [
+            models.Index(fields=["portfolio", "added_at"]),
+        ]
 
     def __str__(self) -> str:
         return f"{self.property.address} in {self.portfolio.name}"

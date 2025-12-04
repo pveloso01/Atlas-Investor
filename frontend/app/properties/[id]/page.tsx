@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Typography,
@@ -19,16 +20,23 @@ import { useGetPropertyQuery } from '@/lib/store/api/propertyApi';
 import type { Property } from '@/types/property';
 import InvestmentMetrics from '@/components/PropertyDetails/InvestmentMetrics';
 import ROICalculator from '@/components/PropertyDetails/ROICalculator';
-import PropertyCharts from '@/components/PropertyDetails/PropertyCharts';
 import ZoningInfo from '@/components/PropertyDetails/ZoningInfo';
 import MarketComparison from '@/components/PropertyDetails/MarketComparison';
-import ScenarioComparison from '@/components/PropertyDetails/ScenarioComparison';
 import PropertyActions from '@/components/PropertyDetails/PropertyActions';
 import AnalysisPanel from '@/components/PropertyDetails/AnalysisPanel';
 import LoadingSpinner from '@/components/Shared/LoadingSpinner';
 import ErrorMessage from '@/components/Shared/ErrorMessage';
 import { PropertyDetailSkeleton } from '@/components/Shared/SkeletonLoader';
 import { colors } from '@/lib/theme/colors';
+
+// Lazy load chart components (heavy dependencies)
+const PropertyCharts = dynamic(() => import('@/components/PropertyDetails/PropertyCharts'), {
+  loading: () => <Box sx={{ py: 4, textAlign: 'center' }}><CircularProgress size={24} /></Box>,
+});
+
+const ScenarioComparison = dynamic(() => import('@/components/PropertyDetails/ScenarioComparison'), {
+  loading: () => <Box sx={{ py: 4, textAlign: 'center' }}><CircularProgress size={24} /></Box>,
+});
 
 const formatPrice = (price: string | number) => {
   const numPrice = typeof price === 'string' ? parseFloat(price) : price;

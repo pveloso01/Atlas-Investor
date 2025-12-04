@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { Box, Container, Typography, Paper } from '@mui/material';
 import { useGetPropertiesQuery } from '@/lib/store/api/propertyApi';
-import PropertyMap from '@/components/PropertyMap';
 import PropertyCard from '@/components/PropertyCard';
 import FilterPanel, { FilterState } from '@/components/Dashboard/FilterPanel';
 import SummaryCards from '@/components/Dashboard/SummaryCards';
@@ -14,6 +14,12 @@ import { ListItemSkeleton } from '@/components/Shared/SkeletonLoader';
 import { Property } from '@/types/property';
 import { useRouter } from 'next/navigation';
 import { colors } from '@/lib/theme/colors';
+
+// Lazy load PropertyMap (heavy component with Mapbox)
+const PropertyMap = dynamic(() => import('@/components/PropertyMap'), {
+  loading: () => <LoadingSpinner message="Loading map..." />,
+  ssr: false,
+});
 
 const defaultFilters: FilterState = {
   search: '',
