@@ -24,6 +24,7 @@ import ZoningInfo from '@/components/PropertyDetails/ZoningInfo';
 import MarketComparison from '@/components/PropertyDetails/MarketComparison';
 import ScenarioComparison from '@/components/PropertyDetails/ScenarioComparison';
 import PropertyActions from '@/components/PropertyDetails/PropertyActions';
+import AnalysisPanel from '@/components/PropertyDetails/AnalysisPanel';
 import { colors } from '@/lib/theme/colors';
 
 const formatPrice = (price: string | number) => {
@@ -243,6 +244,11 @@ export default function PropertyDetailPage() {
 
           {/* Investment Metrics */}
           <InvestmentMetrics />
+
+          {/* Investment Analysis Panel */}
+          <Box sx={{ mb: 4 }}>
+            <AnalysisPanel property={typedProperty} />
+          </Box>
 
           {/* ROI Calculator */}
           <ROICalculator propertyPrice={parseFloat(typedProperty.price)} />
