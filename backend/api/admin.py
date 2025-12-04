@@ -34,9 +34,7 @@ class RegionAdmin(admin.ModelAdmin):
         return obj.property_set.count()  # type: ignore[attr-defined]
 
     property_count.short_description = "Properties"  # type: ignore[attr-defined]
-    property_count.admin_order_field = (  # type: ignore[attr-defined]
-        "property_count_annotation"
-    )
+    property_count.admin_order_field = "property_count_annotation"  # type: ignore[attr-defined]
 
 
 @admin.register(Property)
@@ -149,9 +147,7 @@ class PropertyAdmin(admin.ModelAdmin):
         return obj.saved_by.count()  # type: ignore[attr-defined]
 
     saved_count.short_description = "Saved By"  # type: ignore[attr-defined]
-    saved_count.admin_order_field = (  # type: ignore[attr-defined]
-        "saved_count_annotation"
-    )
+    saved_count.admin_order_field = "saved_count_annotation"  # type: ignore[attr-defined]
 
 
 @admin.register(SavedProperty)

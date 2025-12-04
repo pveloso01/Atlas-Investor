@@ -22,15 +22,9 @@ class Region(models.Model):
 
     name = models.CharField(max_length=100, unique=True)
     code = models.CharField(max_length=10, unique=True)
-    avg_price_per_sqm = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True
-    )
-    avg_rent = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True
-    )
-    avg_yield = models.DecimalField(
-        max_digits=5, decimal_places=2, null=True, blank=True
-    )
+    avg_price_per_sqm = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    avg_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    avg_yield = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -97,26 +91,16 @@ class Property(models.Model):
     # Property Details
     property_type = models.CharField(max_length=20, choices=PROPERTY_TYPES)
     bedrooms = models.IntegerField(null=True, blank=True)
-    bathrooms = models.DecimalField(
-        max_digits=3, decimal_places=1, null=True, blank=True
-    )
-    year_built = models.IntegerField(
-        null=True, blank=True, help_text="Year the property was built"
-    )
-    condition = models.CharField(
-        max_length=20, choices=CONDITION_CHOICES, null=True, blank=True
-    )
+    bathrooms = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
+    year_built = models.IntegerField(null=True, blank=True, help_text="Year the property was built")
+    condition = models.CharField(max_length=20, choices=CONDITION_CHOICES, null=True, blank=True)
 
     # Apartment-specific fields
     floor_number = models.IntegerField(
         null=True, blank=True, help_text="Floor number (for apartments)"
     )
-    total_floors = models.IntegerField(
-        null=True, blank=True, help_text="Total floors in building"
-    )
-    has_elevator = models.BooleanField(
-        null=True, blank=True, help_text="Building has elevator"
-    )
+    total_floors = models.IntegerField(null=True, blank=True, help_text="Total floors in building")
+    has_elevator = models.BooleanField(null=True, blank=True, help_text="Building has elevator")
 
     # Features
     parking_spaces = models.IntegerField(
@@ -135,12 +119,8 @@ class Property(models.Model):
     )
 
     # Listing Information
-    listing_status = models.CharField(
-        max_length=20, choices=LISTING_STATUS, default="active"
-    )
-    source_url = models.URLField(
-        max_length=500, blank=True, help_text="URL to original listing"
-    )
+    listing_status = models.CharField(max_length=20, choices=LISTING_STATUS, default="active")
+    source_url = models.URLField(max_length=500, blank=True, help_text="URL to original listing")
     last_synced_at = models.DateTimeField(
         null=True, blank=True, help_text="Last time data was synced from source"
     )
@@ -193,10 +173,7 @@ class Property(models.Model):
             ]  # type: ignore[attr-defined]
 
         # Handle JSONField (already a list [longitude, latitude])
-        if (
-            isinstance(self.coordinates, (list, tuple))
-            and len(self.coordinates) >= 2
-        ):
+        if isinstance(self.coordinates, (list, tuple)) and len(self.coordinates) >= 2:
             return [float(self.coordinates[0]), float(self.coordinates[1])]
 
         return None
@@ -210,9 +187,7 @@ class SavedProperty(models.Model):
         on_delete=models.CASCADE,
         related_name="saved_properties",
     )
-    property = models.ForeignKey(
-        Property, on_delete=models.CASCADE, related_name="saved_by"
-    )
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name="saved_by")
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -222,6 +197,4 @@ class SavedProperty(models.Model):
 
     def __str__(self) -> str:
         # Django ForeignKey access is dynamic - type checker needs help
-        return (
-            f"{self.user.email} - {self.property.address}"  # type: ignore[attr-defined]
-        )
+        return f"{self.user.email} - {self.property.address}"  # type: ignore[attr-defined]

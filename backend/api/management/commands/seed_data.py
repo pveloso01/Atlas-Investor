@@ -72,9 +72,7 @@ class Command(BaseCommand):
         regions = {}
         for region_data in regions_data:
             region, created = (  # type: ignore[attr-defined]
-                Region.objects.get_or_create(
-                    code=region_data["code"], defaults=region_data
-                )
+                Region.objects.get_or_create(code=region_data["code"], defaults=region_data)
             )
             regions[region_data["code"]] = region
             if created:
@@ -128,8 +126,7 @@ class Command(BaseCommand):
                 "has_balcony": has_balcony,
                 "has_terrace": has_terrace,
                 "listing_status": listing_status,
-                "source_url": source_url
-                or f"https://example.com/listings/{external_id.lower()}",
+                "source_url": source_url or f"https://example.com/listings/{external_id.lower()}",
                 "images": [
                     f"https://example.com/images/{external_id.lower()}-1.jpg",
                     f"https://example.com/images/{external_id.lower()}-2.jpg",
@@ -579,9 +576,7 @@ class Command(BaseCommand):
                 address = property_obj.address
                 price = property_obj.price
                 self.stdout.write(  # type: ignore[attr-defined]
-                    self.style.SUCCESS(
-                        f"  ✓ Created property: {address} - €{price:,.0f}"
-                    )
+                    self.style.SUCCESS(f"  ✓ Created property: {address} - €{price:,.0f}")
                 )
             else:
                 self.stdout.write(

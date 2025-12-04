@@ -71,16 +71,8 @@ class PropertyViewSet(viewsets.ModelViewSet):
         max_price = request.query_params.get("max_price")
 
         try:
-            min_price = (
-                Decimal(str(min_price))
-                if min_price and str(min_price).strip()
-                else None
-            )
-            max_price = (
-                Decimal(str(max_price))
-                if max_price and str(max_price).strip()
-                else None
-            )
+            min_price = Decimal(str(min_price)) if min_price and str(min_price).strip() else None
+            max_price = Decimal(str(max_price)) if max_price and str(max_price).strip() else None
         except (ValueError, TypeError, InvalidOperation):
             return Response(
                 {"error": "Invalid price parameters"},

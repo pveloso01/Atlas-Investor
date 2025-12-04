@@ -35,9 +35,7 @@ DEBUG = os.getenv("DEBUG", "True").lower() not in ("false", "0", "no", "off")
 # require explicit setting for production
 allowed_hosts_env = os.getenv("ALLOWED_HOSTS", "")
 if allowed_hosts_env:
-    ALLOWED_HOSTS = [
-        host.strip() for host in allowed_hosts_env.split(",") if host.strip()
-    ]
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(",") if host.strip()]
 elif DEBUG:
     # In development mode, allow localhost and common development hosts
     ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0"]
@@ -174,10 +172,7 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "UserAttributeSimilarityValidator"
-        ),
+        "NAME": ("django.contrib.auth.password_validation." "UserAttributeSimilarityValidator"),
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",

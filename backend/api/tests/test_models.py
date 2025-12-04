@@ -238,15 +238,11 @@ class RegionModelTest(TestCase):
         """Test Region unique constraints."""
         # Test unique name
         with self.assertRaises(Exception):  # IntegrityError
-            Region.objects.create(  # type: ignore[attr-defined]
-                name="Porto", code="DIFF"
-            )
+            Region.objects.create(name="Porto", code="DIFF")  # type: ignore[attr-defined]
 
         # Test unique code
         with self.assertRaises(Exception):  # IntegrityError
-            Region.objects.create(  # type: ignore[attr-defined]
-                name="Different", code="OPO"
-            )
+            Region.objects.create(name="Different", code="OPO")  # type: ignore[attr-defined]
 
 
 class SavedPropertyModelTest(TestCase):

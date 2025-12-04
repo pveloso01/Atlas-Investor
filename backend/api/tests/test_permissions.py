@@ -89,9 +89,7 @@ class IsAuthenticatedOrReadOnlyTest(TestCase):
             view = None
             has_permission = self.permission.has_permission(request, view)
 
-            self.assertFalse(
-                has_permission, f"Method {method} should require authentication"
-            )
+            self.assertFalse(has_permission, f"Method {method} should require authentication")
 
     def test_user_not_authenticated(self):
         """Test permission with user that is not authenticated."""
@@ -143,9 +141,7 @@ class IsOwnerOrReadOnlyTest(TestCase):
         request = self.factory.get("/api/object/")
         request.user = self.owner
 
-        has_permission = self.permission.has_object_permission(
-            request, None, self.owner_object
-        )
+        has_permission = self.permission.has_object_permission(request, None, self.owner_object)
 
         self.assertTrue(has_permission)
 
@@ -154,9 +150,7 @@ class IsOwnerOrReadOnlyTest(TestCase):
         request = self.factory.get("/api/object/")
         request.user = self.other_user
 
-        has_permission = self.permission.has_object_permission(
-            request, None, self.owner_object
-        )
+        has_permission = self.permission.has_object_permission(request, None, self.owner_object)
 
         self.assertTrue(has_permission)
 
@@ -165,9 +159,7 @@ class IsOwnerOrReadOnlyTest(TestCase):
         request = self.factory.get("/api/object/")
         request.user = None
 
-        has_permission = self.permission.has_object_permission(
-            request, None, self.owner_object
-        )
+        has_permission = self.permission.has_object_permission(request, None, self.owner_object)
 
         self.assertTrue(has_permission)
 
@@ -176,9 +168,7 @@ class IsOwnerOrReadOnlyTest(TestCase):
         request = self.factory.patch("/api/object/")
         request.user = self.owner
 
-        has_permission = self.permission.has_object_permission(
-            request, None, self.owner_object
-        )
+        has_permission = self.permission.has_object_permission(request, None, self.owner_object)
 
         self.assertTrue(has_permission)
 
@@ -187,9 +177,7 @@ class IsOwnerOrReadOnlyTest(TestCase):
         request = self.factory.patch("/api/object/")
         request.user = self.other_user
 
-        has_permission = self.permission.has_object_permission(
-            request, None, self.owner_object
-        )
+        has_permission = self.permission.has_object_permission(request, None, self.owner_object)
 
         self.assertFalse(has_permission)
 
@@ -198,9 +186,7 @@ class IsOwnerOrReadOnlyTest(TestCase):
         request = self.factory.patch("/api/object/")
         request.user = None
 
-        has_permission = self.permission.has_object_permission(
-            request, None, self.owner_object
-        )
+        has_permission = self.permission.has_object_permission(request, None, self.owner_object)
 
         self.assertFalse(has_permission)
 
@@ -212,9 +198,7 @@ class IsOwnerOrReadOnlyTest(TestCase):
             request = getattr(self.factory, method.lower())("/api/object/")
             request.user = self.other_user
 
-            has_permission = self.permission.has_object_permission(
-                request, None, self.owner_object
-            )
+            has_permission = self.permission.has_object_permission(request, None, self.owner_object)
 
             self.assertTrue(has_permission, f"Method {method} should be allowed")
 
@@ -226,10 +210,6 @@ class IsOwnerOrReadOnlyTest(TestCase):
             request = getattr(self.factory, method.lower())("/api/object/")
             request.user = self.other_user
 
-            has_permission = self.permission.has_object_permission(
-                request, None, self.owner_object
-            )
+            has_permission = self.permission.has_object_permission(request, None, self.owner_object)
 
-            self.assertFalse(
-                has_permission, f"Method {method} should require ownership"
-            )
+            self.assertFalse(has_permission, f"Method {method} should require ownership")

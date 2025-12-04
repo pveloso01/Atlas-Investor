@@ -38,9 +38,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password_retype"]:
-            raise serializers.ValidationError(
-                {"password": "Password fields didn't match."}
-            )
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
         return attrs
 
     def create(self, validated_data):

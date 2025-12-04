@@ -40,9 +40,7 @@ class SeedDataCommandTest(TestCase):
     def test_seed_data_clear_flag(self):
         """Test that --clear flag removes existing data."""
         # Create some existing data
-        Region.objects.create(  # type: ignore[attr-defined]
-            name="Existing", code="EXIST"
-        )
+        Region.objects.create(name="Existing", code="EXIST")  # type: ignore[attr-defined]
         Property.objects.create(  # type: ignore[attr-defined]
             external_id="EXIST-001",
             address="Existing Property",

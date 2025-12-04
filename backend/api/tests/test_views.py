@@ -384,8 +384,7 @@ class RegionViewSetTest(TestCase):
         self.assertEqual(
             len(results),
             1,
-            f"Expected 1 result, got {len(results)}: "
-            f"{[r.get('name') for r in results]}",
+            f"Expected 1 result, got {len(results)}: " f"{[r.get('name') for r in results]}",
         )
         self.assertEqual(results[0]["name"], "Lisbon")
 
@@ -521,9 +520,7 @@ class RegionViewSetTest(TestCase):
         """Test price_range action with TypeError to cover line 60."""
         url = "/api/properties/price_range/"
         # Pass None explicitly to trigger TypeError in str() conversion
-        response = self.client.get(
-            url, {"min_price": "invalid", "max_price": "also_invalid"}
-        )
+        response = self.client.get(url, {"min_price": "invalid", "max_price": "also_invalid"})
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)

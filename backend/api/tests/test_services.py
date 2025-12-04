@@ -38,23 +38,17 @@ class PropertyServiceTest(TestCase):
 
     def test_calculate_price_per_sqm(self):
         """Test calculate_price_per_sqm method."""
-        result = PropertyService.calculate_price_per_sqm(
-            Decimal("300000.00"), Decimal("100.00")
-        )
+        result = PropertyService.calculate_price_per_sqm(Decimal("300000.00"), Decimal("100.00"))
         self.assertEqual(result, Decimal("3000.00"))
 
     def test_calculate_price_per_sqm_zero_size(self):
         """Test calculate_price_per_sqm with zero size."""
-        result = PropertyService.calculate_price_per_sqm(
-            Decimal("300000.00"), Decimal("0.00")
-        )
+        result = PropertyService.calculate_price_per_sqm(Decimal("300000.00"), Decimal("0.00"))
         self.assertIsNone(result)
 
     def test_calculate_price_per_sqm_negative_size(self):
         """Test calculate_price_per_sqm with negative size."""
-        result = PropertyService.calculate_price_per_sqm(
-            Decimal("300000.00"), Decimal("-10.00")
-        )
+        result = PropertyService.calculate_price_per_sqm(Decimal("300000.00"), Decimal("-10.00"))
         self.assertIsNone(result)
 
     def test_calculate_price_per_sqm_none_size(self):
@@ -66,9 +60,7 @@ class PropertyServiceTest(TestCase):
 
     def test_calculate_price_per_sqm_zero_price(self):
         """Test calculate_price_per_sqm with zero price."""
-        result = PropertyService.calculate_price_per_sqm(
-            Decimal("0.00"), Decimal("100.00")
-        )
+        result = PropertyService.calculate_price_per_sqm(Decimal("0.00"), Decimal("100.00"))
         self.assertEqual(result, Decimal("0.00"))
 
     def test_calculate_yield(self):
@@ -84,9 +76,7 @@ class PropertyServiceTest(TestCase):
 
     def test_calculate_yield_negative_price(self):
         """Test calculate_yield with negative price."""
-        result = PropertyService.calculate_yield(
-            Decimal("-100000.00"), Decimal("12000.00")
-        )
+        result = PropertyService.calculate_yield(Decimal("-100000.00"), Decimal("12000.00"))
         self.assertIsNone(result)
 
     def test_calculate_yield_none_rent(self):
@@ -141,9 +131,7 @@ class PropertyServiceTest(TestCase):
 
     def test_get_properties_by_region_empty(self):
         """Test get_properties_by_region with region that has no properties."""
-        region2 = Region.objects.create(  # type: ignore[attr-defined]
-            name="Porto", code="OPO"
-        )
+        region2 = Region.objects.create(name="Porto", code="OPO")  # type: ignore[attr-defined]
         properties = PropertyService.get_properties_by_region(region2)
         self.assertEqual(properties.count(), 0)
 
@@ -160,15 +148,11 @@ class PropertyServiceTest(TestCase):
         )
 
         # Test min_price filter
-        properties = PropertyService.get_properties_in_price_range(
-            min_price=Decimal("250000.00")
-        )
+        properties = PropertyService.get_properties_in_price_range(min_price=Decimal("250000.00"))
         self.assertEqual(properties.count(), 2)
 
         # Test max_price filter
-        properties = PropertyService.get_properties_in_price_range(
-            max_price=Decimal("350000.00")
-        )
+        properties = PropertyService.get_properties_in_price_range(max_price=Decimal("350000.00"))
         self.assertEqual(properties.count(), 1)
 
         # Test range filter
@@ -306,19 +290,13 @@ class PropertyServiceTest(TestCase):
 
     def test_calculate_price_per_sqm_with_zero_price(self):
         """Test calculate_price_per_sqm with zero price."""
-        result = PropertyService.calculate_price_per_sqm(
-            Decimal("0.00"), Decimal("100.00")
-        )
+        result = PropertyService.calculate_price_per_sqm(Decimal("0.00"), Decimal("100.00"))
         self.assertEqual(result, Decimal("0.00"))
 
     def test_calculate_price_per_sqm_with_negative_price(self):
         """Test calculate_price_per_sqm with negative price."""
-        result = PropertyService.calculate_price_per_sqm(
-            Decimal("-100000.00"), Decimal("100.00")
-        )
-        self.assertEqual(
-            result, Decimal("-1000.00")
-        )  # Division still works with negative
+        result = PropertyService.calculate_price_per_sqm(Decimal("-100000.00"), Decimal("100.00"))
+        self.assertEqual(result, Decimal("-1000.00"))  # Division still works with negative
 
     def test_calculate_yield_with_none_price(self):
         """Test calculate_yield with None price."""
@@ -332,9 +310,7 @@ class PropertyServiceTest(TestCase):
 
     def test_calculate_yield_with_negative_price(self):
         """Test calculate_yield with negative price."""
-        result = PropertyService.calculate_yield(
-            Decimal("-100000.00"), Decimal("12000.00")
-        )
+        result = PropertyService.calculate_yield(Decimal("-100000.00"), Decimal("12000.00"))
         self.assertIsNone(result)
 
     def test_calculate_yield_with_none_annual_rent(self):
@@ -404,17 +380,13 @@ class PropertyServiceTest(TestCase):
     def test_calculate_price_per_sqm_with_truthy_size(self):
         """Test calculate_price_per_sqm when size_sqm is truthy and > 0."""
         # This covers line 19-20: if size_sqm and size_sqm > 0
-        result = PropertyService.calculate_price_per_sqm(
-            Decimal("300000.00"), Decimal("100.00")
-        )
+        result = PropertyService.calculate_price_per_sqm(Decimal("300000.00"), Decimal("100.00"))
         self.assertEqual(result, Decimal("3000.00"))
 
     def test_calculate_yield_with_all_conditions_true(self):
         """Test calculate_yield when price > 0 and annual_rent is truthy."""
         # This covers line 26-27: if price and price > 0 and annual_rent
-        result = PropertyService.calculate_yield(
-            Decimal("300000.00"), Decimal("12000.00")
-        )
+        result = PropertyService.calculate_yield(Decimal("300000.00"), Decimal("12000.00"))
         self.assertEqual(result, Decimal("4.00"))
 
     def test_normalize_coordinates_with_list_branch(self):
@@ -449,9 +421,7 @@ class PropertyServiceTest(TestCase):
             region=self.region,
         )
 
-        properties = PropertyService.get_properties_in_price_range(
-            min_price=Decimal("250000.00")
-        )
+        properties = PropertyService.get_properties_in_price_range(min_price=Decimal("250000.00"))
         self.assertEqual(properties.count(), 1)
 
     def test_get_properties_in_price_range_max_price_filter(self):
@@ -466,9 +436,7 @@ class PropertyServiceTest(TestCase):
             region=self.region,
         )
 
-        properties = PropertyService.get_properties_in_price_range(
-            max_price=Decimal("350000.00")
-        )
+        properties = PropertyService.get_properties_in_price_range(max_price=Decimal("350000.00"))
         self.assertEqual(properties.count(), 1)
 
     def test_compare_to_region_average_no_region_branch(self):

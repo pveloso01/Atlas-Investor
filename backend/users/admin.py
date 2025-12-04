@@ -45,9 +45,7 @@ class CustomUserAdmin(UserAdmin):
     def get_queryset(self, request):
         """Annotate queryset with saved properties count for ordering."""
         queryset = super().get_queryset(request)
-        return queryset.annotate(
-            saved_properties_count_annotated=Count("saved_properties")
-        )
+        return queryset.annotate(saved_properties_count_annotated=Count("saved_properties"))
 
     def saved_properties_count(self, obj):
         """Display count of saved properties."""
@@ -64,9 +62,7 @@ class CustomUserAdmin(UserAdmin):
             )
         return 0
 
-    saved_properties_count.short_description = (  # type: ignore[attr-defined]
-        "Saved Properties"
-    )
+    saved_properties_count.short_description = "Saved Properties"  # type: ignore[attr-defined]
     saved_properties_count.admin_order_field = (  # type: ignore[attr-defined]
         "saved_properties_count_annotated"
     )

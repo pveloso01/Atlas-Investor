@@ -247,9 +247,7 @@ class PropertySerializerTest(TestCase):
 
         for field in expected_fields:
             if field not in write_only_fields:
-                self.assertIn(
-                    field, data, f"Field '{field}' missing from serializer data"
-                )
+                self.assertIn(field, data, f"Field '{field}' missing from serializer data")
 
     def test_property_serializer_with_optional_fields(self):
         """Test PropertySerializer with optional fields set to None."""

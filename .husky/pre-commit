@@ -88,9 +88,9 @@ if [ -n "$BACKEND_FILES" ]; then
   
   # Activate virtual environment if it exists
   if [ -d "venv" ]; then
-    source venv/bin/activate
+    . venv/bin/activate
   elif [ -d ".venv" ]; then
-    source .venv/bin/activate
+    . .venv/bin/activate
   fi
   
   # Black formatting check
