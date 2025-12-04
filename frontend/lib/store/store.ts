@@ -6,6 +6,7 @@ import { feedbackApi } from './api/feedbackApi';
 import { authApi } from './api/authApi';
 import { analysisApi } from './api/analysisApi';
 import { contactApi } from './api/contactApi';
+import { portfolioApi } from './api/portfolioApi';
 
 export const makeStore = () => {
   return configureStore({
@@ -15,6 +16,7 @@ export const makeStore = () => {
       [authApi.reducerPath]: authApi.reducer,
       [analysisApi.reducerPath]: analysisApi.reducer,
       [contactApi.reducerPath]: contactApi.reducer,
+      [portfolioApi.reducerPath]: portfolioApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
@@ -22,7 +24,8 @@ export const makeStore = () => {
         .concat(feedbackApi.middleware)
         .concat(authApi.middleware)
         .concat(analysisApi.middleware)
-        .concat(contactApi.middleware),
+        .concat(contactApi.middleware)
+        .concat(portfolioApi.middleware),
   });
 };
 
