@@ -17,11 +17,14 @@ from .models import (
 )
 from .serializers.property_serializers import PropertySerializer, RegionSerializer
 from .serializers.feedback_serializers import (
-    ContactRequestSerializer,
     FeedbackSerializer,
     PortfolioPropertySerializer,
     PortfolioSerializer,
     SupportMessageSerializer,
+)
+from .serializers.contact_serializers import (
+    ContactRequestSerializer,
+    ContactRequestCreateSerializer,
 )
 from .services.property_service import PropertyService
 from .permissions import IsAuthenticatedOrReadOnly as CustomIsAuthenticatedOrReadOnly
@@ -236,6 +239,12 @@ class ContactRequestViewSet(viewsets.ModelViewSet):
             return [AllowAny()]
         return [IsAuthenticated()]
 
+    def get_serializer_class(self):
+        """Use different serializers for create vs other actions."""
+        if self.action == "create":
+            return ContactRequestCreateSerializer
+        return ContactRequestSerializer
+
     def get_queryset(self):
         """Limit contact requests to current user (staff can see all)."""
         user = self.request.user
@@ -244,6 +253,49 @@ class ContactRequestViewSet(viewsets.ModelViewSet):
         if user.is_authenticated:
             return ContactRequest.objects.filter(user=user)  # type: ignore[attr-defined]
         return ContactRequest.objects.none()  # type: ignore[attr-defined]
+
+    def perform_create(self, serializer):
+        """Create contact request and send notification email."""
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        contact_request = serializer.save()
+
+        # Log the contact request (in production, send actual email)
+        logger.info(
+            f"New contact request for property {contact_request.property_id} "
+            f"from {contact_request.name} ({contact_request.email})"
+        )
+
+        # Send email notification (console in dev)
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+
+            property_obj = contact_request.property
+            send_mail(
+                subject=f"New Inquiry for Property: {property_obj.address}",
+                message=f"""
+New property inquiry received:
+
+Property: {property_obj.address}
+Price: €{property_obj.price:,.0f}
+
+Contact Details:
+Name: {contact_request.name}
+Email: {contact_request.email}
+Phone: {contact_request.phone or 'Not provided'}
+
+Message:
+{contact_request.message}
+                """.strip(),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=["inquiries@atlasinvestor.com"],
+                fail_silently=True,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to send contact notification email: {e}")
 
 
 class PortfolioViewSet(viewsets.ModelViewSet):
