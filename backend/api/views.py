@@ -75,6 +75,36 @@ class PropertyViewSet(viewsets.ModelViewSet):
         comparison = PropertyService.compare_to_region_average(property_obj)
         return Response(comparison, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["get"])
+    def report(self, request, pk=None):
+        """
+        Generate a PDF report for the property.
+
+        Returns a PDF file download.
+        """
+        from django.http import HttpResponse
+
+        from .services.pdf_service import get_pdf_service
+
+        property_obj = self.get_object()
+        pdf_service = get_pdf_service()
+
+        # Generate the PDF
+        pdf_bytes = pdf_service.generate_property_report(property_obj)
+
+        if pdf_bytes is None:
+            return Response(
+                {"error": "Failed to generate PDF report"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        # Create response with PDF
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        filename = f"property_report_{property_obj.id}.pdf"
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+        return response
+
     @action(detail=False, methods=["get"])
     def price_range(self, request):
         """
