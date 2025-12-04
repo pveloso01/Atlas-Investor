@@ -8,6 +8,9 @@ import PropertyCard from '@/components/PropertyCard';
 import FilterPanel, { FilterState } from '@/components/Dashboard/FilterPanel';
 import SummaryCards from '@/components/Dashboard/SummaryCards';
 import InsightsCarousel from '@/components/Dashboard/InsightsCarousel';
+import LoadingSpinner from '@/components/Shared/LoadingSpinner';
+import ErrorMessage from '@/components/Shared/ErrorMessage';
+import { ListItemSkeleton } from '@/components/Shared/SkeletonLoader';
 import { Property } from '@/types/property';
 import { useRouter } from 'next/navigation';
 import { colors } from '@/lib/theme/colors';
@@ -49,7 +52,7 @@ export default function DashboardPage() {
   if (filters.minPrice > 0) queryParams.min_price = filters.minPrice;
   if (filters.maxPrice < 2000000) queryParams.max_price = filters.maxPrice;
 
-  const { data, isLoading } = useGetPropertiesQuery(queryParams);
+  const { data, isLoading, isError, error, refetch } = useGetPropertiesQuery(queryParams);
 
   // Filter properties client-side for ROI/Yield (since backend may not support these)
   const filteredProperties =
@@ -193,7 +196,19 @@ export default function DashboardPage() {
             </Typography>
 
             {isLoading ? (
-              <Box sx={{ textAlign: 'center', py: 4 }}>Loading properties...</Box>
+              <Box>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <ListItemSkeleton key={index} />
+                ))}
+              </Box>
+            ) : isError ? (
+              <ErrorMessage
+                title="Failed to load properties"
+                message="There was an error loading the properties. Please try again."
+                error={error}
+                onRetry={refetch}
+                variant="alert"
+              />
             ) : filteredProperties.length === 0 ? (
               <Box sx={{ textAlign: 'center', py: 4, color: colors.neutral.gray500 }}>
                 No properties found. Try adjusting your filters.
