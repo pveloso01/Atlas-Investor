@@ -3,17 +3,20 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { propertyApi } from './api/propertyApi';
 import { feedbackApi } from './api/feedbackApi';
+import { authApi } from './api/authApi';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       [propertyApi.reducerPath]: propertyApi.reducer,
       [feedbackApi.reducerPath]: feedbackApi.reducer,
+      [authApi.reducerPath]: authApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
         .concat(propertyApi.middleware)
-        .concat(feedbackApi.middleware),
+        .concat(feedbackApi.middleware)
+        .concat(authApi.middleware),
   });
 };
 
