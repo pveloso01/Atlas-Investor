@@ -4,6 +4,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { propertyApi } from './api/propertyApi';
 import { feedbackApi } from './api/feedbackApi';
 import { authApi } from './api/authApi';
+import { analysisApi } from './api/analysisApi';
 
 export const makeStore = () => {
   return configureStore({
@@ -11,12 +12,14 @@ export const makeStore = () => {
       [propertyApi.reducerPath]: propertyApi.reducer,
       [feedbackApi.reducerPath]: feedbackApi.reducer,
       [authApi.reducerPath]: authApi.reducer,
+      [analysisApi.reducerPath]: analysisApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
         .concat(propertyApi.middleware)
         .concat(feedbackApi.middleware)
-        .concat(authApi.middleware),
+        .concat(authApi.middleware)
+        .concat(analysisApi.middleware),
   });
 };
 
