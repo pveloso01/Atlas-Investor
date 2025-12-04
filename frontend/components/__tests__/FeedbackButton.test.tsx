@@ -3,6 +3,24 @@ import { render, screen, waitFor, fireEvent } from '@/__tests__/utils/test-utils
 import FeedbackButton from '../Feedback/FeedbackButton';
 import userEvent from '@testing-library/user-event';
 
+// Mock the feedback API - need to mock the entire module including the api object
+jest.mock('@/lib/store/api/feedbackApi', () => {
+  const mockMutation = jest.fn().mockReturnValue({ unwrap: () => Promise.resolve({ id: 1 }) });
+  return {
+    feedbackApi: {
+      reducerPath: 'feedbackApi',
+      reducer: (state = {}) => state,
+      middleware: () => (next: (action: unknown) => unknown) => (action: unknown) => next(action),
+    },
+    useSubmitFeedbackMutation: () => [mockMutation, { isLoading: false }],
+    useGetFeedbackQuery: () => ({ data: [], isLoading: false }),
+    useSubmitSupportMessageMutation: () => [mockMutation, { isLoading: false }],
+    useGetSupportMessagesQuery: () => ({ data: [], isLoading: false }),
+    useSubmitContactRequestMutation: () => [mockMutation, { isLoading: false }],
+    useGetContactRequestsQuery: () => ({ data: [], isLoading: false }),
+  };
+});
+
 describe('FeedbackButton', () => {
   it('renders feedback button', () => {
     render(<FeedbackButton />);
@@ -154,7 +172,6 @@ describe('FeedbackButton', () => {
 
   it('submits feedback when send button is clicked', async () => {
     const user = userEvent.setup();
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
     render(<FeedbackButton />);
     const feedbackButton = screen.getByRole('button', { name: /feedback/i });
     await user.click(feedbackButton);
@@ -179,8 +196,10 @@ describe('FeedbackButton', () => {
     const submitButton = screen.getByRole('button', { name: /submit feedback/i });
     await user.click(submitButton);
 
-    expect(consoleSpy).toHaveBeenCalledWith('Submitting feedback:', expect.any(Object));
-    consoleSpy.mockRestore();
+    // After submitting, the dialog should close (snackbar shows success)
+    await waitFor(() => {
+      expect(screen.queryByText('Share Your Feedback')).not.toBeInTheDocument();
+    });
   });
 
   it('closes dialog after submitting feedback', async () => {
