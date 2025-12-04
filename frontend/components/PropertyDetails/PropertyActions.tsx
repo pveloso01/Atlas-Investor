@@ -27,9 +27,22 @@ import {
   Send as SendIcon,
   CheckCircle,
 } from '@mui/icons-material';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  InputAdornment,
+} from '@mui/material';
+import { Euro } from '@mui/icons-material';
 import { colors } from '@/lib/theme/colors';
 import { Property } from '@/types/property';
 import { useSubmitContactRequestMutation } from '@/lib/store/api/contactApi';
+import {
+  useGetPortfoliosQuery,
+  useAddPropertyToPortfolioMutation,
+  useCreatePortfolioMutation,
+} from '@/lib/store/api/portfolioApi';
 
 interface PropertyActionsProps {
   property: Property;
@@ -53,9 +66,15 @@ export default function PropertyActions({ property }: PropertyActionsProps) {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [investDialogOpen, setInvestDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [portfolioDialogOpen, setPortfolioDialogOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [contactForm, setContactForm] = useState<ContactFormData>(initialContactForm);
   const [formErrors, setFormErrors] = useState<Partial<ContactFormData>>({});
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | ''>('');
+  const [newPortfolioName, setNewPortfolioName] = useState('');
+  const [propertyNotes, setPropertyNotes] = useState('');
+  const [targetPrice, setTargetPrice] = useState('');
+  const [isCreatingNewPortfolio, setIsCreatingNewPortfolio] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
     open: false,
     message: '',
@@ -63,6 +82,9 @@ export default function PropertyActions({ property }: PropertyActionsProps) {
   });
 
   const [submitContactRequest, { isLoading: isSubmittingContact }] = useSubmitContactRequestMutation();
+  const { data: portfolios } = useGetPortfoliosQuery();
+  const [addPropertyToPortfolio, { isLoading: isAddingToPortfolio }] = useAddPropertyToPortfolioMutation();
+  const [createPortfolio, { isLoading: isCreatingPortfolio }] = useCreatePortfolioMutation();
 
   const handleSave = () => {
     setIsSaved(true);
@@ -148,8 +170,67 @@ export default function PropertyActions({ property }: PropertyActionsProps) {
   };
 
   const handleAddToPortfolio = () => {
-    // TODO: Implement add to portfolio
-    setSaveDialogOpen(true);
+    // Pre-select default portfolio if available
+    const defaultPortfolio = portfolios?.find(p => p.is_default);
+    if (defaultPortfolio) {
+      setSelectedPortfolioId(defaultPortfolio.id);
+    } else if (portfolios && portfolios.length > 0) {
+      setSelectedPortfolioId(portfolios[0].id);
+    } else {
+      setSelectedPortfolioId('');
+      setIsCreatingNewPortfolio(true);
+    }
+    setPropertyNotes('');
+    setTargetPrice('');
+    setPortfolioDialogOpen(true);
+  };
+
+  const handleAddToPortfolioSubmit = async () => {
+    try {
+      let portfolioId = selectedPortfolioId;
+
+      // Create new portfolio if needed
+      if (isCreatingNewPortfolio && newPortfolioName.trim()) {
+        const newPortfolio = await createPortfolio({
+          name: newPortfolioName.trim(),
+        }).unwrap();
+        portfolioId = newPortfolio.id;
+      }
+
+      if (!portfolioId) {
+        setSnackbar({
+          open: true,
+          message: 'Please select or create a portfolio',
+          severity: 'error',
+        });
+        return;
+      }
+
+      await addPropertyToPortfolio({
+        portfolioId: portfolioId as number,
+        property_id: property.id,
+        notes: propertyNotes.trim() || undefined,
+        target_price: targetPrice ? parseFloat(targetPrice) : undefined,
+      }).unwrap();
+
+      setPortfolioDialogOpen(false);
+      setNewPortfolioName('');
+      setIsCreatingNewPortfolio(false);
+      setSnackbar({
+        open: true,
+        message: 'Property added to portfolio!',
+        severity: 'success',
+      });
+    } catch (error: unknown) {
+      const errorMessage = error && typeof error === 'object' && 'data' in error
+        ? (error.data as { error?: string })?.error || 'Failed to add property'
+        : 'Failed to add property to portfolio';
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: 'error',
+      });
+    }
   };
 
   const handleInvest = () => {
@@ -369,6 +450,122 @@ export default function PropertyActions({ property }: PropertyActionsProps) {
             }}
           >
             {isSubmittingContact ? 'Sending...' : 'Send Inquiry'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add to Portfolio Dialog */}
+      <Dialog open={portfolioDialogOpen} onClose={() => setPortfolioDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              Add to Portfolio
+            </Typography>
+            <IconButton onClick={() => setPortfolioDialogOpen(false)} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mb: 3, p: 2, backgroundColor: colors.neutral.gray50, borderRadius: 1 }}>
+            <Typography variant="body2" sx={{ color: colors.neutral.gray600, mb: 0.5 }}>
+              Property
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: 600 }}>
+              {property.address}
+            </Typography>
+            <Typography variant="body2" sx={{ color: colors.primary.main, fontWeight: 600, mt: 0.5 }}>
+              {formatPrice(property.price)}
+            </Typography>
+          </Box>
+
+          {portfolios && portfolios.length > 0 && !isCreatingNewPortfolio ? (
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Select Portfolio</InputLabel>
+              <Select
+                value={selectedPortfolioId}
+                label="Select Portfolio"
+                onChange={(e) => setSelectedPortfolioId(e.target.value as number)}
+              >
+                {portfolios.map((portfolio) => (
+                  <MenuItem key={portfolio.id} value={portfolio.id}>
+                    {portfolio.name} ({portfolio.property_count} properties)
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : (
+            <TextField
+              fullWidth
+              label="New Portfolio Name"
+              value={newPortfolioName}
+              onChange={(e) => setNewPortfolioName(e.target.value)}
+              sx={{ mb: 2 }}
+              placeholder="e.g., Lisbon Investments"
+            />
+          )}
+
+          {portfolios && portfolios.length > 0 && (
+            <Button
+              size="small"
+              onClick={() => {
+                setIsCreatingNewPortfolio(!isCreatingNewPortfolio);
+                if (!isCreatingNewPortfolio) {
+                  setSelectedPortfolioId('');
+                }
+              }}
+              sx={{ mb: 2 }}
+            >
+              {isCreatingNewPortfolio ? 'Select existing portfolio' : '+ Create new portfolio'}
+            </Button>
+          )}
+
+          <TextField
+            fullWidth
+            label="Notes (optional)"
+            multiline
+            rows={2}
+            value={propertyNotes}
+            onChange={(e) => setPropertyNotes(e.target.value)}
+            placeholder="Add notes about this property..."
+            sx={{ mb: 2 }}
+          />
+
+          <TextField
+            fullWidth
+            label="Target Price (optional)"
+            type="number"
+            value={targetPrice}
+            onChange={(e) => setTargetPrice(e.target.value)}
+            placeholder="Enter your target purchase price"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Euro sx={{ color: colors.neutral.gray400 }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          <Alert severity="info" sx={{ mt: 2 }}>
+            Track this property in your portfolio to monitor price changes.
+          </Alert>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setPortfolioDialogOpen(false)} disabled={isAddingToPortfolio || isCreatingPortfolio}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleAddToPortfolioSubmit}
+            disabled={isAddingToPortfolio || isCreatingPortfolio || (!selectedPortfolioId && !newPortfolioName.trim())}
+            startIcon={(isAddingToPortfolio || isCreatingPortfolio) ? <CircularProgress size={20} color="inherit" /> : <AddIcon />}
+            sx={{
+              backgroundColor: colors.primary.main,
+              '&:hover': { backgroundColor: colors.primary.dark },
+            }}
+          >
+            {isAddingToPortfolio || isCreatingPortfolio ? 'Adding...' : 'Add to Portfolio'}
           </Button>
         </DialogActions>
       </Dialog>
