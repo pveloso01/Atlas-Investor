@@ -12,9 +12,19 @@ import {
   Divider,
   Button,
   Paper,
+  Grid,
 } from '@mui/material';
 import { Bed, Bathtub, SquareFoot, LocationOn, Euro, ArrowBack } from '@mui/icons-material';
 import { useGetPropertyQuery } from '@/lib/store/api/propertyApi';
+import type { Property } from '@/types/property';
+import InvestmentMetrics from '@/components/PropertyDetails/InvestmentMetrics';
+import ROICalculator from '@/components/PropertyDetails/ROICalculator';
+import PropertyCharts from '@/components/PropertyDetails/PropertyCharts';
+import ZoningInfo from '@/components/PropertyDetails/ZoningInfo';
+import MarketComparison from '@/components/PropertyDetails/MarketComparison';
+import ScenarioComparison from '@/components/PropertyDetails/ScenarioComparison';
+import PropertyActions from '@/components/PropertyDetails/PropertyActions';
+import { colors } from '@/lib/theme/colors';
 
 const formatPrice = (price: string | number) => {
   const numPrice = typeof price === 'string' ? parseFloat(price) : price;
@@ -51,6 +61,9 @@ export default function PropertyDetailPage() {
   const propertyId = parseInt(params.id as string, 10);
 
   const { data: property, error, isLoading } = useGetPropertyQuery(propertyId);
+  
+  // Type assertion to help TypeScript inference
+  const typedProperty = property as Property | undefined;
 
   if (isLoading) {
     return (
@@ -88,7 +101,7 @@ export default function PropertyDetailPage() {
     );
   }
 
-  if (!property) {
+  if (!typedProperty) {
     return (
       <Container maxWidth="lg" className="py-8">
         <Alert severity="warning" className="mb-8">
@@ -108,7 +121,7 @@ export default function PropertyDetailPage() {
   }
 
   return (
-    <Container maxWidth="lg" className="py-8">
+    <Container maxWidth="xl" className="py-8">
       <Button
         startIcon={<ArrowBack />}
         onClick={() => router.push('/properties')}
@@ -118,119 +131,140 @@ export default function PropertyDetailPage() {
         Back to Properties
       </Button>
 
-      <Paper sx={{ p: 4, mt: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" component="h1">
-            Property Details
-          </Typography>
-          <Chip
-            label={getPropertyTypeLabel(property.property_type)}
-            color="primary"
-            variant="outlined"
-          />
-        </Box>
-
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }} component="div">
-          {/* Price Section */}
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Euro color="primary" />
-              <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                {formatPrice(property.price)}
-              </Typography>
-            </Box>
-            <Typography variant="body2" color="text.secondary">
-              {formatPricePerSqm(property.price, property.size_sqm)} per m²
-            </Typography>
-          </Box>
-
-          <Divider />
-
-          {/* Address */}
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'start', gap: 1 }}>
-              <LocationOn color="action" />
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary">
-                  Address
-                </Typography>
-                <Typography variant="body1">{property.address}</Typography>
-                {property.region ? (
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    {property.region.name}
-                  </Typography>
-                ) : null}
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Property Details */}
-          <div>
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-              Property Details
-            </Typography>
-            <div style={{ display: 'flex', flexDirection: 'row', gap: '24px', flexWrap: 'wrap' }}>
-              {property.bedrooms != null ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Bed color="action" />
-                  <Typography variant="body1">
-                    <strong>{property.bedrooms}</strong> Bedroom{property.bedrooms !== 1 ? 's' : ''}
-                  </Typography>
-                </Box>
-              ) : null}
-              {property.bathrooms ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Bathtub color="action" />
-                  <Typography variant="body1">
-                    <strong>{property.bathrooms}</strong> Bathroom{parseFloat(String(property.bathrooms)) !== 1 ? 's' : ''}
-                  </Typography>
-                </Box>
-              ) : null}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <SquareFoot color="action" />
-                <Typography variant="body1">
-                  <strong>{property.size_sqm}</strong> m²
-                </Typography>
-              </Box>
-            </div>
-          </div>
-
-          {/* Coordinates */}
-          {property.coordinates ? (
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                Location
-              </Typography>
-              <Typography variant="body2">
-                Latitude: {property.coordinates[1]}, Longitude: {property.coordinates[0]}
-              </Typography>
-            </Box>
-          ) : null}
-
-          {/* External ID */}
-          {property.external_id ? (
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                Reference
-              </Typography>
-              <Typography variant="body2">{property.external_id}</Typography>
-            </Box>
-          ) : null}
-
-          {/* Raw Data Description */}
-          {property.raw_data?.description ? (
+      <Grid container spacing={4}>
+        {/* Main Content */}
+        <Grid size={{ xs: 12, lg: 8 }}>
+          {/* Header Section */}
+          <Paper sx={{ p: 4, mb: 4, border: `1px solid ${colors.neutral.gray200}` }}>
             <>
-              <Divider />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
               <Box>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
-                  Description
+                <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
+                  {typedProperty.bedrooms ? `${typedProperty.bedrooms}-Bed ` : ''}
+                  {getPropertyTypeLabel(typedProperty.property_type)} in{' '}
+                  {typedProperty.region?.name || 'Portugal'}
                 </Typography>
-                <Typography variant="body1">{String(property.raw_data.description || '')}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                  <LocationOn sx={{ color: colors.neutral.gray600, fontSize: 20 }} />
+                  <Typography variant="body1" sx={{ color: colors.neutral.gray600 }}>
+                    {typedProperty.address}
+                  </Typography>
+                </Box>
               </Box>
+              <Chip
+                label={getPropertyTypeLabel(typedProperty.property_type)}
+                color="primary"
+                variant="outlined"
+                sx={{ fontSize: '0.9rem', fontWeight: 600 }}
+              />
+            </Box>
+
+            {/* Price */}
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Euro sx={{ color: colors.primary.main, fontSize: 32 }} />
+                <Typography variant="h3" component="div" sx={{ fontWeight: 700, color: colors.primary.main }}>
+                  {formatPrice(typedProperty.price)}
+                </Typography>
+              </Box>
+              <Typography variant="body1" sx={{ color: colors.neutral.gray600 }}>
+                {formatPricePerSqm(typedProperty.price, typedProperty.size_sqm)} per m²
+              </Typography>
+            </Box>
+
+            {/* Property Images Placeholder */}
+            <Box
+              sx={{
+                width: '100%',
+                height: 400,
+                backgroundColor: colors.neutral.gray200,
+                borderRadius: 2,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mb: 3,
+              }}
+            >
+              <Typography variant="body1" sx={{ color: colors.neutral.gray500 }}>
+                Property Images Carousel (Placeholder)
+              </Typography>
+            </Box>
+
+            {/* Temporarily commented out due to TypeScript issue */}
+            {/* {mapSection} */}
+
+            {/* Property Details */}
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                Property Details
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                {typedProperty.bedrooms != null && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Bed sx={{ color: colors.primary.main }} />
+                    <Typography variant="body1">
+                      <strong>{typedProperty.bedrooms}</strong> Bedroom{typedProperty.bedrooms !== 1 ? 's' : ''}
+                    </Typography>
+                  </Box>
+                )}
+                {typedProperty.bathrooms && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Bathtub sx={{ color: colors.primary.main }} />
+                    <Typography variant="body1">
+                      <strong>{typedProperty.bathrooms}</strong> Bathroom{parseFloat(String(typedProperty.bathrooms)) !== 1 ? 's' : ''}
+                    </Typography>
+                  </Box>
+                )}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <SquareFoot sx={{ color: colors.primary.main }} />
+                  <Typography variant="body1">
+                    <strong>{typedProperty.size_sqm}</strong> m²
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Description */}
+            {typedProperty.raw_data?.description && (
+              <>
+                <Divider sx={{ my: 3 }} />
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                    Description
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: colors.neutral.gray700, lineHeight: 1.7 }}>
+                    {String(typedProperty.raw_data.description || '')}
+                  </Typography>
+                </Box>
+              </>
+            )}
             </>
-          ) : null}
-        </Box>
-      </Paper>
+          </Paper>
+
+          {/* Investment Metrics */}
+          <InvestmentMetrics />
+
+          {/* ROI Calculator */}
+          <ROICalculator propertyPrice={parseFloat(typedProperty.price)} />
+
+          {/* Charts */}
+          <PropertyCharts propertyYield={5.2} marketAverageYield={4.8} />
+
+          {/* Zoning Info */}
+          <ZoningInfo />
+
+          {/* Market Comparison */}
+          <MarketComparison propertyYield={5.2} percentileRank={85} />
+
+          {/* Scenario Comparison */}
+          <ScenarioComparison propertyPrice={parseFloat(typedProperty.price)} />
+        </Grid>
+
+        {/* Sidebar - Actions */}
+        <Grid size={{ xs: 12, lg: 4 }}>
+          <PropertyActions property={typedProperty} />
+        </Grid>
+      </Grid>
     </Container>
   );
 }
