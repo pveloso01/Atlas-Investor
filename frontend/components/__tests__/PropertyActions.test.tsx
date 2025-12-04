@@ -127,7 +127,7 @@ describe('PropertyActions', () => {
     const contactButton = screen.getByText('Contact Seller/Broker');
     await user.click(contactButton);
     // Now opens a dialog instead of mailto link
-    expect(screen.getByText(/Contact Seller\/Broker for Property/i)).toBeInTheDocument();
+    expect(screen.getByText(/Contact About This Property/i)).toBeInTheDocument();
   });
 
   it('closes portfolio dialog when close icon is clicked', async () => {

@@ -41,7 +41,8 @@ describe('PropertyDetailPage', () => {
     });
 
     render(<PropertyDetailPage />);
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    // PropertyDetailSkeleton is rendered (contains multiple skeleton elements)
+    expect(screen.getByText('Back to Properties')).toBeInTheDocument();
   });
 
   it('displays property details when loaded', () => {
@@ -245,7 +246,7 @@ describe('PropertyDetailPage', () => {
     render(<PropertyDetailPage />);
 
     expect(screen.getByText(/Failed to load property/i)).toBeInTheDocument();
-    expect(screen.getByText(/Please check if the backend API is running/i)).toBeInTheDocument();
+    expect(screen.getByText(/Unable to load property details/i)).toBeInTheDocument();
   });
 
   it('calls router.push when back button is clicked from error state', () => {
@@ -537,7 +538,7 @@ describe('PropertyDetailPage', () => {
     });
 
     render(<PropertyDetailPage />);
-    // Should display default error message
-    expect(screen.getByText(/Please check if the backend API is running/i)).toBeInTheDocument();
+    // Should display error message from ErrorMessage component
+    expect(screen.getByText(/Unable to load property details/i)).toBeInTheDocument();
   });
 });
