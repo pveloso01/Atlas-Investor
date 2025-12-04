@@ -4,6 +4,8 @@ import "./globals.css";
 import StoreProvider from "@/lib/store/StoreProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import EmotionRegistry from "@/lib/emotion/registry";
+import NavBar from "@/components/Navigation/NavBar";
+import Footer from "@/components/Layout/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +25,9 @@ export default function RootLayout({
         <EmotionRegistry>
           <StoreProvider>
             <ThemeProvider>
+              <NavBar />
               {children}
+              <Footer />
             </ThemeProvider>
           </StoreProvider>
         </EmotionRegistry>
