@@ -8,7 +8,6 @@ import {
   Box,
   Container,
   CircularProgress,
-  Alert,
   Chip,
   Divider,
   Button,
@@ -24,8 +23,8 @@ import ZoningInfo from '@/components/PropertyDetails/ZoningInfo';
 import MarketComparison from '@/components/PropertyDetails/MarketComparison';
 import PropertyActions from '@/components/PropertyDetails/PropertyActions';
 import AnalysisPanel from '@/components/PropertyDetails/AnalysisPanel';
-import LoadingSpinner from '@/components/Shared/LoadingSpinner';
 import ErrorMessage from '@/components/Shared/ErrorMessage';
+import DisclaimerBanner from '@/components/Shared/DisclaimerBanner';
 import { PropertyDetailSkeleton } from '@/components/Shared/SkeletonLoader';
 import { colors } from '@/lib/theme/colors';
 
@@ -264,6 +263,9 @@ export default function PropertyDetailPage() {
             )}
             </>
           </Paper>
+
+          {/* Disclaimer Banner */}
+          <DisclaimerBanner storageKey="atlas-property-disclaimer" />
 
           {/* Investment Metrics */}
           <InvestmentMetrics />
