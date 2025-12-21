@@ -5,7 +5,7 @@
  * 308 Municipalities (concelhos)
  * 3,091 Civil Parishes (freguesias)
  * 
- * Generated from: docs/Territorial Organization of Portugal.pdf
+ * Static data file - this data does not change.
  */
 
 export type GeographicType = 'district' | 'municipality' | 'parish' | 'autonomous_region';
