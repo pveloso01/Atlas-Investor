@@ -392,10 +392,10 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                 
                 if subscription and subscription.tier.slug == 'basic':
                     user_portfolio_count = Portfolio.objects.filter(user=self.request.user).count()  # type: ignore[attr-defined]
-                    if user_portfolio_count >= 5:
+                    if user_portfolio_count >= 3:
                         from rest_framework.exceptions import PermissionDenied
                         raise PermissionDenied(
-                            "Portfolio limit reached. Basic tier allows up to 5 portfolios. Upgrade to Pro for unlimited portfolios."
+                            "Portfolio limit reached. Basic tier allows up to 3 portfolios. Upgrade to Pro for unlimited portfolios."
                         )
             except Exception:
                 # If feature doesn't exist yet, allow access
@@ -439,10 +439,10 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                 
                 if subscription and subscription.tier.slug == 'basic':
                     property_count = PortfolioProperty.objects.filter(portfolio=portfolio).count()  # type: ignore[attr-defined]
-                    if property_count >= 5:
+                    if property_count >= 10:
                         return Response(
                             {
-                                "error": "Portfolio property limit reached. Basic tier allows up to 5 properties per portfolio. Upgrade to Pro for unlimited properties.",
+                                "error": "Portfolio property limit reached. Basic tier allows up to 10 properties per portfolio. Upgrade to Pro for unlimited properties.",
                                 "upgrade_required": True,
                             },
                             status=status.HTTP_403_FORBIDDEN,
