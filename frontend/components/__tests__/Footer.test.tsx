@@ -20,7 +20,7 @@ describe('Footer', () => {
     expect(screen.getByText('Pricing')).toBeInTheDocument();
     expect(screen.getByText('Security')).toBeInTheDocument();
     expect(screen.getByText('FAQs')).toBeInTheDocument();
-    expect(screen.getByText('Support')).toBeInTheDocument();
+    expect(screen.getAllByText('Support').length).toBeGreaterThan(0);
   });
 
   it('renders company links', () => {
@@ -47,4 +47,3 @@ describe('Footer', () => {
     expect(screen.getByText(/Trusted by 1,000\+ investors/)).toBeInTheDocument();
   });
 });
-

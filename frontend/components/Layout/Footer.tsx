@@ -49,10 +49,13 @@ export default function Footer() {
               Atlas Investor
             </Typography>
             <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.7 }}>
-              Discover and analyze the best property deals in Portugal. All the tools you need
-              to make smarter real estate investment decisions in one platform.
+              Discover and analyze the best property deals in Portugal. All the tools you need to
+              make smarter real estate investment decisions in one platform.
             </Typography>
-            <Typography variant="caption" sx={{ color: colors.neutral.gray400, fontStyle: 'italic' }}>
+            <Typography
+              variant="caption"
+              sx={{ color: colors.neutral.gray400, fontStyle: 'italic' }}
+            >
               Data powered by Portuguese Government APIs, Idealista, and proprietary analysis
               algorithms.
             </Typography>
@@ -77,18 +80,12 @@ export default function Footer() {
               </ListItem>
               <ListItem disablePadding>
                 <Link href="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <ListItemText
-                    primary="Dashboard"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
+                  <ListItemText primary="Dashboard" primaryTypographyProps={{ variant: 'body2' }} />
                 </Link>
               </ListItem>
               <ListItem disablePadding>
                 <Link href="/insights" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <ListItemText
-                    primary="Insights"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
+                  <ListItemText primary="Insights" primaryTypographyProps={{ variant: 'body2' }} />
                 </Link>
               </ListItem>
             </List>
@@ -105,34 +102,22 @@ export default function Footer() {
             <List dense>
               <ListItem disablePadding>
                 <Link href="/pricing" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <ListItemText
-                    primary="Pricing"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
+                  <ListItemText primary="Pricing" primaryTypographyProps={{ variant: 'body2' }} />
                 </Link>
               </ListItem>
               <ListItem disablePadding>
                 <Link href="/security" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <ListItemText
-                    primary="Security"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
+                  <ListItemText primary="Security" primaryTypographyProps={{ variant: 'body2' }} />
                 </Link>
               </ListItem>
               <ListItem disablePadding>
                 <Link href="/faq" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <ListItemText
-                    primary="FAQs"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
+                  <ListItemText primary="FAQs" primaryTypographyProps={{ variant: 'body2' }} />
                 </Link>
               </ListItem>
               <ListItem disablePadding>
                 <Link href="/support" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <ListItemText
-                    primary="Support"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
+                  <ListItemText primary="Support" primaryTypographyProps={{ variant: 'body2' }} />
                 </Link>
               </ListItem>
             </List>
@@ -149,14 +134,14 @@ export default function Footer() {
             <List dense>
               <ListItem disablePadding>
                 <Link href="/about" style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <ListItemText
-                    primary="About"
-                    primaryTypographyProps={{ variant: 'body2' }}
-                  />
+                  <ListItemText primary="About" primaryTypographyProps={{ variant: 'body2' }} />
                 </Link>
               </ListItem>
               <ListItem disablePadding>
-                <Link href="/about/methodology" style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link
+                  href="/about/methodology"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
                   <ListItemText
                     primary="Methodology"
                     primaryTypographyProps={{ variant: 'body2' }}
@@ -249,23 +234,14 @@ export default function Footer() {
             © {new Date().getFullYear()} Atlas Investor. All rights reserved.
           </Typography>
           <Box sx={{ display: 'flex', gap: 3 }}>
-            <Link
-              href="/privacy"
-              style={{ textDecoration: 'none', color: colors.neutral.gray400 }}
-            >
+            <Link href="/privacy" style={{ textDecoration: 'none', color: colors.neutral.gray400 }}>
               <Typography variant="caption">Privacy Policy</Typography>
             </Link>
-            <Link
-              href="/terms"
-              style={{ textDecoration: 'none', color: colors.neutral.gray400 }}
-            >
+            <Link href="/terms" style={{ textDecoration: 'none', color: colors.neutral.gray400 }}>
               <Typography variant="caption">Terms of Service</Typography>
             </Link>
-            <Link
-              href="/contact"
-              style={{ textDecoration: 'none', color: colors.neutral.gray400 }}
-            >
-              <Typography variant="caption">Contact</Typography>
+            <Link href="/support" style={{ textDecoration: 'none', color: colors.neutral.gray400 }}>
+              <Typography variant="caption">Support</Typography>
             </Link>
           </Box>
         </Box>
@@ -280,4 +256,3 @@ export default function Footer() {
     </Box>
   );
 }
-

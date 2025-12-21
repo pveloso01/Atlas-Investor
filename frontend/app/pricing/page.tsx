@@ -625,7 +625,7 @@ export default function PricingPage() {
                             variant="outlined"
                             fullWidth
                             size="medium"
-                            onClick={() => router.push('/contact')}
+                            onClick={() => router.push('/support')}
                             sx={{
                               borderColor: tierColor,
                               color: tierColor,
@@ -788,7 +788,7 @@ export default function PricingPage() {
             <Button
               variant="outlined"
               size="large"
-              onClick={() => router.push('/contact')}
+              onClick={() => router.push('/support')}
               sx={{
                 borderColor: colors.primary.main,
                 color: colors.primary.main,

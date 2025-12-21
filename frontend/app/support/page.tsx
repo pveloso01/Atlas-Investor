@@ -18,19 +18,13 @@ import {
   InputLabel,
   FormHelperText,
 } from '@mui/material';
-import {
-  Email,
-  Phone,
-  LocationOn,
-  Send,
-  Schedule,
-} from '@mui/icons-material';
+import { Email, Phone, LocationOn, Send, Schedule } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { useSubmitSupportMessageMutation } from '@/lib/store/api/feedbackApi';
 import { useGetCurrentUserQuery } from '@/lib/store/api/authApi';
 import { colors } from '@/lib/theme/colors';
 
-interface ContactFormData {
+interface SupportFormData {
   name: string;
   email: string;
   subject: string;
@@ -64,7 +58,7 @@ const getSubjectLabel = (value: string): string => {
   return option ? option.label : value;
 };
 
-export default function ContactPage() {
+export default function SupportPage() {
   const router = useRouter();
   // Only fetch user if token exists to avoid 401 errors
   const hasAuthToken = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
@@ -72,8 +66,8 @@ export default function ContactPage() {
     // Skip the query if no auth token exists to avoid unnecessary 401 errors
     skip: !hasAuthToken,
   });
-  
-  const [formData, setFormData] = useState<ContactFormData>({
+
+  const [formData, setFormData] = useState<SupportFormData>({
     name: '',
     email: '',
     subject: '',
@@ -101,7 +95,8 @@ export default function ContactPage() {
   }, [user]);
 
   // Check if user is authenticated
-  const isAuthenticated = typeof window !== 'undefined' && !!localStorage.getItem('authToken') && !!user;
+  const isAuthenticated =
+    typeof window !== 'undefined' && !!localStorage.getItem('authToken') && !!user;
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -132,18 +127,22 @@ export default function ContactPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (field: keyof ContactFormData) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
-  };
+  const handleChange =
+    (field: keyof SupportFormData) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      // Clear error when user starts typing
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: undefined }));
+      }
+    };
 
   const handleSubjectChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, subject: value, customSubject: value !== 'other' ? '' : prev.customSubject }));
+    setFormData((prev) => ({
+      ...prev,
+      subject: value,
+      customSubject: value !== 'other' ? '' : prev.customSubject,
+    }));
     // Clear errors
     if (errors.subject) {
       setErrors((prev) => ({ ...prev, subject: undefined }));
@@ -167,13 +166,13 @@ export default function ContactPage() {
         message: 'Please sign in to send a message. Redirecting to login...',
         severity: 'warning',
       });
-      
+
       // Store form data in sessionStorage to restore after login
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('contactFormData', JSON.stringify(formData));
-        sessionStorage.setItem('redirectAfterLogin', '/contact');
+        sessionStorage.setItem('supportFormData', JSON.stringify(formData));
+        sessionStorage.setItem('redirectAfterLogin', '/support');
       }
-      
+
       // Redirect to login after a brief delay
       setTimeout(() => {
         router.push('/login');
@@ -182,9 +181,10 @@ export default function ContactPage() {
     }
 
     try {
-      const subjectText = formData.subject === 'other' 
-        ? formData.customSubject.trim() 
-        : getSubjectLabel(formData.subject);
+      const subjectText =
+        formData.subject === 'other'
+          ? formData.customSubject.trim()
+          : getSubjectLabel(formData.subject);
 
       await submitSupportMessage({
         email: formData.email.trim(),
@@ -204,28 +204,31 @@ export default function ContactPage() {
 
       // Clear stored form data if any
       if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('contactFormData');
+        sessionStorage.removeItem('supportFormData');
       }
 
       setSnackbar({
         open: true,
-        message: 'Thank you for contacting us! We will get back to you within 24 hours.',
+        message: 'Thank you for reaching out to support! We will get back to you within 24 hours.',
         severity: 'success',
       });
     } catch (error: unknown) {
       console.error('Failed to send message:', error);
-      
+
       // Handle 401 authentication error
-      if ((error as { status?: number | string })?.status === 401 || (error as { status?: number | string })?.status === 'PARSING_ERROR') {
+      if (
+        (error as { status?: number | string })?.status === 401 ||
+        (error as { status?: number | string })?.status === 'PARSING_ERROR'
+      ) {
         setSnackbar({
           open: true,
           message: 'Your session has expired. Please sign in again to send a message.',
           severity: 'warning',
         });
-        
+
         if (typeof window !== 'undefined') {
-          sessionStorage.setItem('contactFormData', JSON.stringify(formData));
-          sessionStorage.setItem('redirectAfterLogin', '/contact');
+          sessionStorage.setItem('supportFormData', JSON.stringify(formData));
+          sessionStorage.setItem('redirectAfterLogin', '/support');
           setTimeout(() => {
             router.push('/login');
           }, 2000);
@@ -247,12 +250,12 @@ export default function ContactPage() {
   // Restore form data after login
   React.useEffect(() => {
     if (typeof window !== 'undefined' && isAuthenticated) {
-      const storedFormData = sessionStorage.getItem('contactFormData');
+      const storedFormData = sessionStorage.getItem('supportFormData');
       if (storedFormData) {
         try {
           const parsed = JSON.parse(storedFormData);
           setFormData((prev) => ({ ...prev, ...parsed }));
-          sessionStorage.removeItem('contactFormData');
+          sessionStorage.removeItem('supportFormData');
         } catch {
           // Ignore parse errors
         }
@@ -277,15 +280,19 @@ export default function ContactPage() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Get In Touch
+            Support
           </Typography>
-          <Typography variant="h6" sx={{ color: colors.neutral.gray600, maxWidth: 700, mx: 'auto' }}>
-            Have a question or need help? We&apos;re here to assist you. Send us a message and we&apos;ll respond as soon as possible.
+          <Typography
+            variant="h6"
+            sx={{ color: colors.neutral.gray600, maxWidth: 700, mx: 'auto' }}
+          >
+            Have a question or need help? Our support team is here to assist you. Send us a message
+            and we&apos;ll respond as soon as possible.
           </Typography>
         </Box>
 
         <Grid container spacing={4}>
-          {/* Contact Form */}
+          {/* Support Form */}
           <Grid size={{ xs: 12, md: 8 }}>
             <Paper
               elevation={3}
@@ -295,7 +302,10 @@ export default function ContactPage() {
                 border: `1px solid ${colors.neutral.gray200}`,
               }}
             >
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: colors.neutral.gray900 }}>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 700, mb: 3, color: colors.neutral.gray900 }}
+              >
                 Send us a Message
               </Typography>
 
@@ -337,8 +347,8 @@ export default function ContactPage() {
                   </Grid>
 
                   <Grid size={{ xs: 12 }}>
-                    <FormControl 
-                      fullWidth 
+                    <FormControl
+                      fullWidth
                       error={!!errors.subject}
                       sx={{
                         backgroundColor: colors.neutral.white,
@@ -359,12 +369,8 @@ export default function ContactPage() {
                           </MenuItem>
                         ))}
                       </Select>
-                      {errors.subject && (
-                        <FormHelperText>{errors.subject}</FormHelperText>
-                      )}
-                      {!errors.subject && (
-                        <FormHelperText>What is this regarding?</FormHelperText>
-                      )}
+                      {errors.subject && <FormHelperText>{errors.subject}</FormHelperText>}
+                      {!errors.subject && <FormHelperText>What is this regarding?</FormHelperText>}
                     </FormControl>
                   </Grid>
 
@@ -427,10 +433,22 @@ export default function ContactPage() {
                         },
                       }}
                     >
-                      {isLoading ? 'Sending...' : isAuthenticated ? 'Send Message' : 'Sign In to Send'}
+                      {isLoading
+                        ? 'Sending...'
+                        : isAuthenticated
+                          ? 'Send Message'
+                          : 'Sign In to Send'}
                     </Button>
                     {!isAuthenticated && (
-                      <Typography variant="caption" sx={{ color: colors.neutral.gray600, mt: 1, display: 'block', textAlign: 'center' }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: colors.neutral.gray600,
+                          mt: 1,
+                          display: 'block',
+                          textAlign: 'center',
+                        }}
+                      >
                         You&apos;ll need to sign in to send your message
                       </Typography>
                     )}
@@ -440,10 +458,10 @@ export default function ContactPage() {
             </Paper>
           </Grid>
 
-          {/* Contact Information */}
+          {/* Support Information */}
           <Grid size={{ xs: 12, md: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {/* Contact Methods */}
+              {/* Support Methods */}
               <Paper
                 elevation={3}
                 sx={{
@@ -454,8 +472,11 @@ export default function ContactPage() {
                   color: colors.neutral.white,
                 }}
               >
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, color: colors.neutral.white }}>
-                  Contact Information
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 700, mb: 3, color: colors.neutral.white }}
+                >
+                  Support Information
                 </Typography>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -467,7 +488,7 @@ export default function ContactPage() {
                       </Typography>
                       <Typography
                         component="a"
-                        href="mailto:contact@atlasinvestor.com"
+                        href="mailto:support@atlasinvestor.com"
                         sx={{
                           color: colors.neutral.white,
                           textDecoration: 'none',
@@ -476,7 +497,7 @@ export default function ContactPage() {
                           },
                         }}
                       >
-                        contact@atlasinvestor.com
+                        support@atlasinvestor.com
                       </Typography>
                     </Box>
                   </Box>
@@ -540,7 +561,10 @@ export default function ContactPage() {
                     <Typography variant="body2" sx={{ color: colors.neutral.gray700 }}>
                       Monday - Friday
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: colors.neutral.gray900 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 600, color: colors.neutral.gray900 }}
+                    >
                       9:00 AM - 6:00 PM
                     </Typography>
                   </Box>
@@ -548,7 +572,10 @@ export default function ContactPage() {
                     <Typography variant="body2" sx={{ color: colors.neutral.gray700 }}>
                       Saturday
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: colors.neutral.gray900 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 600, color: colors.neutral.gray900 }}
+                    >
                       10:00 AM - 2:00 PM
                     </Typography>
                   </Box>
@@ -556,7 +583,10 @@ export default function ContactPage() {
                     <Typography variant="body2" sx={{ color: colors.neutral.gray700 }}>
                       Sunday
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: colors.neutral.gray900 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 600, color: colors.neutral.gray900 }}
+                    >
                       Closed
                     </Typography>
                   </Box>
@@ -579,8 +609,8 @@ export default function ContactPage() {
             }}
           >
             <Typography variant="body1" sx={{ color: colors.neutral.gray700 }}>
-              <strong>Response Time:</strong> We typically respond to all inquiries within 24 hours during business days. 
-              For urgent matters, please call us directly.
+              <strong>Response Time:</strong> We typically respond to all inquiries within 24 hours
+              during business days. For urgent matters, please call us directly.
             </Typography>
           </Paper>
         </Box>
@@ -593,15 +623,10 @@ export default function ContactPage() {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
       </Snackbar>
     </Box>
   );
 }
-

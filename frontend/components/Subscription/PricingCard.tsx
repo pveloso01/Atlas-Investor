@@ -25,7 +25,7 @@ export default function PricingCard({ tier, billingPeriod }: PricingCardProps) {
 
   const handleSubscribe = async () => {
     if (isEnterprise) {
-      router.push('/contact');
+      router.push('/support');
       return;
     }
 
@@ -83,12 +83,7 @@ export default function PricingCard({ tier, billingPeriod }: PricingCardProps) {
         ))}
       </Box>
       {isEnterprise ? (
-        <Button
-          variant="outlined"
-          fullWidth
-          onClick={handleSubscribe}
-          sx={{ mt: 'auto' }}
-        >
+        <Button variant="outlined" fullWidth onClick={handleSubscribe} sx={{ mt: 'auto' }}>
           Contact Sales
         </Button>
       ) : (
@@ -105,4 +100,3 @@ export default function PricingCard({ tier, billingPeriod }: PricingCardProps) {
     </Paper>
   );
 }
-

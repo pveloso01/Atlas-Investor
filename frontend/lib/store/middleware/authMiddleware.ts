@@ -31,7 +31,15 @@ export const authMiddleware: Middleware = () => (next) => (action) => {
         const currentPath = window.location.pathname;
 
         // Don't redirect from public pages - these should be accessible without auth
-        const publicPages = ['/pricing', '/login', '/register', '/', '/properties', '/about', '/contact'];
+        const publicPages = [
+          '/pricing',
+          '/login',
+          '/register',
+          '/',
+          '/properties',
+          '/about',
+          '/support',
+        ];
         const isPublicPage = publicPages.some(
           (page) => currentPath === page || currentPath.startsWith(page + '/')
         );
