@@ -7,27 +7,23 @@ import {
   Typography,
   Box,
   Paper,
-  Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Button,
   Chip,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Card,
-  CardContent,
   Stack,
   alpha,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import {
   Check as CheckIcon,
+  Close as CloseIcon,
   Star as StarIcon,
-  TrendingUp as TrendingUpIcon,
-  Analytics as AnalyticsIcon,
-  Speed as SpeedIcon,
-  Security as SecurityIcon,
-  Support as SupportIcon,
 } from '@mui/icons-material';
 import { useGetTiersQuery, useCreateCheckoutSessionMutation } from '@/lib/store/api/subscriptionApi';
 import { useSubscription } from '@/lib/hooks/useSubscription';
@@ -35,6 +31,8 @@ import { colors } from '@/lib/theme/colors';
 
 export default function PricingPage() {
   const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { data: tiers, isLoading } = useGetTiersQuery();
   const { subscription, tierSlug } = useSubscription();
   const [createCheckout, { isLoading: isCreatingCheckout }] = useCreateCheckoutSessionMutation();
@@ -55,71 +53,42 @@ export default function PricingPage() {
     }
   };
 
-  // Enhanced feature list with more valuable features
-  const featureCategories = [
-    {
-      category: 'Property Discovery',
-      features: [
-        { name: 'Property Searches', free: '5/month', basic: '50/month', pro: 'Unlimited', enterprise: 'Unlimited' },
-        { name: 'Advanced Filters', free: false, basic: true, pro: true, enterprise: true },
-        { name: 'Saved Searches', free: false, basic: '3', pro: 'Unlimited', enterprise: 'Unlimited' },
-        { name: 'Automated Deal Alerts', free: false, basic: false, pro: true, enterprise: true },
-        { name: 'Market Trend Analysis', free: false, basic: false, pro: true, enterprise: true },
-      ],
-    },
-    {
-      category: 'Analysis & Reports',
-      features: [
-        { name: 'ROI Calculator', free: 'Basic', basic: 'Advanced', pro: 'Advanced + Scenarios', enterprise: 'Advanced + Scenarios' },
-        { name: 'PDF Reports', free: 'View only', basic: '3/month', pro: 'Unlimited', enterprise: 'Unlimited + White-label' },
-        { name: 'Property Comparison', free: false, basic: '2 properties', pro: 'Unlimited', enterprise: 'Unlimited' },
-        { name: 'Bulk Property Analysis', free: false, basic: false, pro: 'Up to 50', enterprise: 'Unlimited' },
-        { name: 'Custom Report Templates', free: false, basic: false, pro: true, enterprise: true },
-        { name: 'Property Valuation Estimates', free: false, basic: false, pro: true, enterprise: true },
-        { name: 'Investment Recommendations', free: false, basic: false, pro: true, enterprise: true },
-      ],
-    },
-    {
-      category: 'Portfolio Management',
-      features: [
-        { name: 'Portfolio Tracking', free: '1 property', basic: '10 properties', pro: 'Unlimited', enterprise: 'Unlimited' },
-        { name: 'Portfolio Analytics', free: false, basic: 'Basic', pro: 'Advanced', enterprise: 'Advanced + AI Insights' },
-        { name: 'Performance Tracking', free: false, basic: true, pro: true, enterprise: true },
-        { name: 'Tax Optimization Insights', free: false, basic: false, pro: true, enterprise: true },
-        { name: 'Risk Assessment', free: false, basic: false, pro: true, enterprise: true },
-        { name: 'Portfolio Optimization', free: false, basic: false, pro: false, enterprise: true },
-      ],
-    },
-    {
-      category: 'Data & Export',
-      features: [
-        { name: 'Data Export (CSV/Excel)', free: false, basic: 'Limited', pro: 'Unlimited', enterprise: 'Unlimited' },
-        { name: 'API Access', free: false, basic: false, pro: 'Read-only', enterprise: 'Full Access' },
-        { name: 'Historical Data Access', free: false, basic: '3 months', pro: '2 years', enterprise: 'Unlimited' },
-        { name: 'Neighborhood Analytics', free: false, basic: false, pro: true, enterprise: true },
-        { name: 'Market Insights Dashboard', free: false, basic: false, pro: true, enterprise: true },
-      ],
-    },
-    {
-      category: 'Support & Features',
-      features: [
-        { name: 'Email Support', free: false, basic: 'Standard (48h)', pro: 'Priority (24h)', enterprise: 'Dedicated (4h)' },
-        { name: 'Phone Support', free: false, basic: false, pro: false, enterprise: true },
-        { name: 'Onboarding Assistance', free: false, basic: false, pro: true, enterprise: true },
-        { name: 'Custom Integrations', free: false, basic: false, pro: false, enterprise: true },
-        { name: 'SLA Guarantees', free: false, basic: false, pro: false, enterprise: true },
-        { name: 'Team Collaboration', free: false, basic: false, pro: false, enterprise: true },
-      ],
-    },
+  // Comprehensive feature list
+  const features = [
+    { category: 'Property Discovery', name: 'Property Searches', free: '5/month', basic: '50/month', pro: 'Unlimited', enterprise: 'Unlimited' },
+    { category: 'Property Discovery', name: 'Advanced Filters', free: false, basic: true, pro: true, enterprise: true },
+    { category: 'Property Discovery', name: 'Saved Searches', free: false, basic: '3', pro: 'Unlimited', enterprise: 'Unlimited' },
+    { category: 'Property Discovery', name: 'Automated Deal Alerts', free: false, basic: false, pro: true, enterprise: true },
+    { category: 'Property Discovery', name: 'Market Trend Analysis', free: false, basic: false, pro: true, enterprise: true },
+    
+    { category: 'Analysis & Reports', name: 'ROI Calculator', free: 'Basic', basic: 'Advanced', pro: 'Advanced + Scenarios', enterprise: 'Advanced + Scenarios' },
+    { category: 'Analysis & Reports', name: 'PDF Reports', free: 'View only', basic: '3/month', pro: 'Unlimited', enterprise: 'Unlimited + White-label' },
+    { category: 'Analysis & Reports', name: 'Property Comparison', free: false, basic: '2 properties', pro: 'Unlimited', enterprise: 'Unlimited' },
+    { category: 'Analysis & Reports', name: 'Bulk Property Analysis', free: false, basic: false, pro: 'Up to 50', enterprise: 'Unlimited' },
+    { category: 'Analysis & Reports', name: 'Custom Report Templates', free: false, basic: false, pro: true, enterprise: true },
+    { category: 'Analysis & Reports', name: 'Property Valuation Estimates', free: false, basic: false, pro: true, enterprise: true },
+    { category: 'Analysis & Reports', name: 'Investment Recommendations', free: false, basic: false, pro: true, enterprise: true },
+    
+    { category: 'Portfolio Management', name: 'Portfolio Tracking', free: '1 property', basic: '10 properties', pro: 'Unlimited', enterprise: 'Unlimited' },
+    { category: 'Portfolio Management', name: 'Portfolio Analytics', free: false, basic: 'Basic', pro: 'Advanced', enterprise: 'Advanced + AI Insights' },
+    { category: 'Portfolio Management', name: 'Performance Tracking', free: false, basic: true, pro: true, enterprise: true },
+    { category: 'Portfolio Management', name: 'Tax Optimization Insights', free: false, basic: false, pro: true, enterprise: true },
+    { category: 'Portfolio Management', name: 'Risk Assessment', free: false, basic: false, pro: true, enterprise: true },
+    { category: 'Portfolio Management', name: 'Portfolio Optimization', free: false, basic: false, pro: false, enterprise: true },
+    
+    { category: 'Data & Export', name: 'Data Export (CSV/Excel)', free: false, basic: 'Limited', pro: 'Unlimited', enterprise: 'Unlimited' },
+    { category: 'Data & Export', name: 'API Access', free: false, basic: false, pro: 'Read-only', enterprise: 'Full Access' },
+    { category: 'Data & Export', name: 'Historical Data Access', free: false, basic: '3 months', pro: '2 years', enterprise: 'Unlimited' },
+    { category: 'Data & Export', name: 'Neighborhood Analytics', free: false, basic: false, pro: true, enterprise: true },
+    { category: 'Data & Export', name: 'Market Insights Dashboard', free: false, basic: false, pro: true, enterprise: true },
+    
+    { category: 'Support & Features', name: 'Email Support', free: false, basic: 'Standard (48h)', pro: 'Priority (24h)', enterprise: 'Dedicated (4h)' },
+    { category: 'Support & Features', name: 'Phone Support', free: false, basic: false, pro: false, enterprise: true },
+    { category: 'Support & Features', name: 'Onboarding Assistance', free: false, basic: false, pro: true, enterprise: true },
+    { category: 'Support & Features', name: 'Custom Integrations', free: false, basic: false, pro: false, enterprise: true },
+    { category: 'Support & Features', name: 'SLA Guarantees', free: false, basic: false, pro: false, enterprise: true },
+    { category: 'Support & Features', name: 'Team Collaboration', free: false, basic: false, pro: false, enterprise: true },
   ];
-
-  if (isLoading) {
-    return (
-      <Container maxWidth="xl" sx={{ py: 8 }}>
-        <Typography>Loading pricing...</Typography>
-      </Container>
-    );
-  }
 
   const getTierColor = (slug: string) => {
     switch (slug) {
@@ -136,29 +105,40 @@ export default function PricingPage() {
     }
   };
 
-  const getTierGradient = (slug: string) => {
-    switch (slug) {
-      case 'free':
-        return `linear-gradient(135deg, ${colors.neutral.gray50} 0%, ${colors.neutral.gray100} 100%)`;
-      case 'basic':
-        return `linear-gradient(135deg, ${alpha(colors.primary.main, 0.1)} 0%, ${alpha(colors.primary.main, 0.05)} 100%)`;
-      case 'pro':
-        return `linear-gradient(135deg, ${alpha(colors.accent.main, 0.15)} 0%, ${alpha(colors.accent.main, 0.05)} 100%)`;
-      case 'enterprise':
-        return `linear-gradient(135deg, ${alpha(colors.warning.main, 0.15)} 0%, ${alpha(colors.warning.main, 0.05)} 100%)`;
-      default:
-        return 'transparent';
+  const renderFeatureValue = (value: string | boolean | false) => {
+    if (typeof value === 'boolean') {
+      return value ? (
+        <CheckIcon sx={{ color: colors.success.main, fontSize: 24 }} />
+      ) : (
+        <CloseIcon sx={{ color: colors.error.main, fontSize: 20, opacity: 0.3 }} />
+      );
     }
+    return (
+      <Typography variant="body2" sx={{ fontWeight: 500, color: colors.neutral.gray700 }}>
+        {value}
+      </Typography>
+    );
   };
+
+  if (isLoading) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 8 }}>
+        <Typography>Loading pricing...</Typography>
+      </Container>
+    );
+  }
+
+  // Sort tiers by display order
+  const sortedTiers = tiers ? [...tiers].sort((a, b) => a.display_order - b.display_order) : [];
 
   return (
     <Box sx={{ bgcolor: colors.neutral.gray50, minHeight: '100vh', py: 8 }}>
       <Container maxWidth="xl">
         {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 8 }}>
+        <Box sx={{ textAlign: 'center', mb: 6 }}>
           <Chip
             icon={<StarIcon />}
-            label="Choose the Right Plan"
+            label="Simple, Transparent Pricing"
             sx={{
               mb: 3,
               backgroundColor: alpha(colors.primary.main, 0.1),
@@ -180,9 +160,9 @@ export default function PricingPage() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Simple, Transparent Pricing
+            Choose Your Plan
           </Typography>
-          <Typography variant="h6" sx={{ color: colors.neutral.gray600, mb: 4, maxWidth: 600, mx: 'auto' }}>
+          <Typography variant="h6" sx={{ color: colors.neutral.gray600, mb: 4, maxWidth: 700, mx: 'auto' }}>
             Everything you need to make smarter real estate investment decisions. Start free, upgrade as you grow.
           </Typography>
 
@@ -247,368 +227,293 @@ export default function PricingPage() {
           </Paper>
         </Box>
 
-        {/* Pricing Cards */}
-        <Grid container spacing={3} sx={{ mb: 8 }}>
-          {tiers?.map((tier) => {
-            const price = billingPeriod === 'monthly' ? tier.price_monthly : tier.price_yearly;
-            const isCurrentTier = tierSlug === tier.slug;
-            const isEnterprise = tier.slug === 'enterprise';
-            const isPro = tier.slug === 'pro';
-            const tierColor = getTierColor(tier.slug);
-            const tierGradient = getTierGradient(tier.slug);
-
-            return (
-              <Grid size={{ xs: 12, md: 6, lg: 3 }} key={tier.id}>
-                <Card
-                  elevation={isPro ? 8 : 2}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative',
-                    border: isPro
-                      ? `3px solid ${tierColor}`
-                      : isCurrentTier
-                      ? `2px solid ${tierColor}`
-                      : `1px solid ${colors.neutral.gray200}`,
-                    borderRadius: 4,
-                    overflow: 'visible',
-                    background: tierGradient,
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: isPro ? 12 : 6,
-                    },
-                  }}
-                >
-                  {isPro && (
-                    <Chip
-                      icon={<StarIcon />}
-                      label="Most Popular"
-                      sx={{
-                        position: 'absolute',
-                        top: -12,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        backgroundColor: tierColor,
-                        color: 'white',
-                        fontWeight: 700,
-                        fontSize: '0.75rem',
-                        height: 28,
-                        zIndex: 1,
-                      }}
-                    />
-                  )}
-                  {isCurrentTier && !isPro && (
-                    <Chip
-                      label="Current Plan"
-                      sx={{
-                        position: 'absolute',
-                        top: 16,
-                        right: 16,
-                        backgroundColor: alpha(tierColor, 0.1),
-                        color: tierColor,
-                        fontWeight: 600,
-                      }}
-                    />
-                  )}
-
-                  <CardContent sx={{ p: 4, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                    {/* Tier Name */}
-                    <Box sx={{ mb: 3 }}>
-                      <Typography
-                        variant="h4"
-                        sx={{
-                          fontWeight: 800,
-                          mb: 1,
-                          color: tierColor,
-                        }}
-                      >
-                        {tier.name}
-                      </Typography>
-                      {tier.slug === 'free' && (
-                        <Typography variant="body2" sx={{ color: colors.neutral.gray600 }}>
-                          Perfect for getting started
-                        </Typography>
-                      )}
-                      {tier.slug === 'basic' && (
-                        <Typography variant="body2" sx={{ color: colors.neutral.gray600 }}>
-                          For individual investors
-                        </Typography>
-                      )}
-                      {tier.slug === 'pro' && (
-                        <Typography variant="body2" sx={{ color: colors.neutral.gray600 }}>
-                          For serious investors
-                        </Typography>
-                      )}
-                      {tier.slug === 'enterprise' && (
-                        <Typography variant="body2" sx={{ color: colors.neutral.gray600 }}>
-                          For teams and agencies
-                        </Typography>
-                      )}
-                    </Box>
-
-                    {/* Price */}
-                    <Box sx={{ mb: 4 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 1 }}>
-                        <Typography
-                          variant="h2"
-                          component="span"
-                          sx={{
-                            fontWeight: 900,
-                            color: tierColor,
-                            lineHeight: 1,
-                          }}
-                        >
-                          €{price.toFixed(0)}
-                        </Typography>
-                        <Typography
-                          variant="h6"
-                          component="span"
-                          sx={{
-                            color: colors.neutral.gray600,
-                            ml: 1,
-                            fontWeight: 500,
-                          }}
-                        >
-                          /{billingPeriod === 'monthly' ? 'mo' : 'yr'}
-                        </Typography>
-                      </Box>
-                      {billingPeriod === 'yearly' && price > 0 && (
-                        <Typography variant="body2" sx={{ color: colors.success.main, fontWeight: 600 }}>
-                          Save €{((tier.price_monthly * 12 - price) / 12).toFixed(0)}/month
-                        </Typography>
-                      )}
-                    </Box>
-
-                    {/* Key Features */}
-                    <List sx={{ flexGrow: 1, mb: 3, p: 0 }}>
-                      {tier.features_list?.slice(0, 6).map((feature, idx) => (
-                        <ListItem key={idx} sx={{ px: 0, py: 0.5 }}>
-                          <ListItemIcon sx={{ minWidth: 32 }}>
-                            <CheckIcon
-                              sx={{
-                                color: tierColor,
-                                fontSize: 20,
-                              }}
-                            />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={feature}
-                            primaryTypographyProps={{
-                              variant: 'body2',
-                              sx: { fontWeight: 500 },
-                            }}
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-
-                    {/* CTA Button */}
-                    {isEnterprise ? (
-                      <Button
-                        variant="outlined"
-                        fullWidth
-                        size="large"
-                        onClick={() => router.push('/contact')}
-                        sx={{
-                          mt: 'auto',
-                          borderColor: tierColor,
-                          color: tierColor,
-                          fontWeight: 700,
-                          py: 1.5,
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          '&:hover': {
-                            borderColor: tierColor,
-                            backgroundColor: alpha(tierColor, 0.1),
-                          },
-                        }}
-                      >
-                        Contact Sales
-                      </Button>
-                    ) : (
-                      <Button
-                        variant={isCurrentTier ? 'outlined' : 'contained'}
-                        fullWidth
-                        size="large"
-                        onClick={() => handleSubscribe(tier.slug)}
-                        disabled={isCurrentTier || isCreatingCheckout}
-                        sx={{
-                          mt: 'auto',
-                          backgroundColor: isCurrentTier ? 'transparent' : tierColor,
-                          color: isCurrentTier ? tierColor : 'white',
-                          borderColor: tierColor,
-                          fontWeight: 700,
-                          py: 1.5,
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          boxShadow: isCurrentTier ? 'none' : `0 4px 12px ${alpha(tierColor, 0.3)}`,
-                          '&:hover': {
-                            backgroundColor: isCurrentTier ? alpha(tierColor, 0.1) : tierColor,
-                            boxShadow: isCurrentTier ? 'none' : `0 6px 16px ${alpha(tierColor, 0.4)}`,
-                          },
-                          '&:disabled': {
-                            backgroundColor: colors.neutral.gray200,
-                            color: colors.neutral.gray500,
-                          },
-                        }}
-                      >
-                        {isCurrentTier ? 'Current Plan' : isCreatingCheckout ? 'Processing...' : 'Get Started'}
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-              </Grid>
-            );
-          })}
-        </Grid>
-
-        {/* Feature Comparison */}
-        <Box sx={{ mb: 8 }}>
-          <Typography
-            variant="h3"
-            component="h2"
-            sx={{
-              fontWeight: 700,
-              mb: 1,
-              textAlign: 'center',
-            }}
-          >
-            Compare Plans
-          </Typography>
-          <Typography variant="body1" sx={{ color: colors.neutral.gray600, mb: 6, textAlign: 'center' }}>
-            See what's included in each plan
-          </Typography>
-
-          {featureCategories.map((category, catIdx) => (
-            <Box key={catIdx} sx={{ mb: 6 }}>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 700,
-                  mb: 3,
-                  color: colors.primary.main,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                }}
-              >
-                {category.category === 'Property Discovery' && <TrendingUpIcon />}
-                {category.category === 'Analysis & Reports' && <AnalyticsIcon />}
-                {category.category === 'Portfolio Management' && <SpeedIcon />}
-                {category.category === 'Data & Export' && <SecurityIcon />}
-                {category.category === 'Support & Features' && <SupportIcon />}
-                {category.category}
-              </Typography>
-
-              <Grid container spacing={2}>
-                {category.features.map((feature, featIdx) => (
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }} key={featIdx}>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 2.5,
-                        border: `1px solid ${colors.neutral.gray200}`,
-                        borderRadius: 2,
-                        height: '100%',
-                        backgroundColor: 'white',
-                      }}
-                    >
-                      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>
-                        {feature.name}
-                      </Typography>
-                      <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', gap: 1 }}>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: colors.neutral.gray500, display: 'block' }}>
-                            Free
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {typeof feature.free === 'boolean'
-                              ? feature.free
-                                ? '✓'
-                                : '✗'
-                              : feature.free}
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: colors.neutral.gray500, display: 'block' }}>
-                            Basic
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {typeof feature.basic === 'boolean'
-                              ? feature.basic
-                                ? '✓'
-                                : '✗'
-                              : feature.basic}
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: colors.neutral.gray500, display: 'block' }}>
-                            Pro
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {typeof feature.pro === 'boolean'
-                              ? feature.pro
-                                ? '✓'
-                                : '✗'
-                              : feature.pro}
-                          </Typography>
-                        </Box>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: colors.neutral.gray500, display: 'block' }}>
-                            Enterprise
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                            {typeof feature.enterprise === 'boolean'
-                              ? feature.enterprise
-                                ? '✓'
-                                : '✗'
-                              : feature.enterprise}
-                          </Typography>
-                        </Box>
-                      </Stack>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          ))}
-        </Box>
-
-        {/* FAQ or Additional Info */}
-        <Paper
-          elevation={0}
+        {/* Pricing Comparison Table */}
+        <TableContainer
+          component={Paper}
+          elevation={3}
           sx={{
-            p: 6,
-            backgroundColor: alpha(colors.primary.main, 0.05),
             borderRadius: 4,
-            textAlign: 'center',
+            overflow: 'hidden',
+            border: `1px solid ${colors.neutral.gray200}`,
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-            Still have questions?
-          </Typography>
-          <Typography variant="body1" sx={{ color: colors.neutral.gray600, mb: 3 }}>
-            Our team is here to help you choose the right plan for your needs.
-          </Typography>
-          <Button
-            variant="outlined"
-            size="large"
-            onClick={() => router.push('/contact')}
+          <Table sx={{ minWidth: 800 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  sx={{
+                    backgroundColor: colors.neutral.gray100,
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    py: 3,
+                    borderRight: `1px solid ${colors.neutral.gray200}`,
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 10,
+                    minWidth: 250,
+                  }}
+                >
+                  Features
+                </TableCell>
+                {sortedTiers.map((tier) => {
+                  const price = billingPeriod === 'monthly' ? tier.price_monthly : tier.price_yearly;
+                  const isPro = tier.slug === 'pro';
+                  const isCurrentTier = tierSlug === tier.slug;
+                  const tierColor = getTierColor(tier.slug);
+
+                  return (
+                    <TableCell
+                      key={tier.id}
+                      align="center"
+                      sx={{
+                        backgroundColor: isPro
+                          ? alpha(tierColor, 0.1)
+                          : colors.neutral.gray50,
+                        borderRight: tier.slug !== 'enterprise' ? `1px solid ${colors.neutral.gray200}` : 'none',
+                        py: 3,
+                        position: 'relative',
+                        minWidth: 180,
+                      }}
+                    >
+                      {isPro && (
+                        <Chip
+                          icon={<StarIcon />}
+                          label="Most Popular"
+                          size="small"
+                          sx={{
+                            position: 'absolute',
+                            top: 8,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            backgroundColor: tierColor,
+                            color: 'white',
+                            fontWeight: 700,
+                            fontSize: '0.7rem',
+                            height: 24,
+                          }}
+                        />
+                      )}
+                      <Box sx={{ mt: isPro ? 4 : 0 }}>
+                        <Typography
+                          variant="h5"
+                          sx={{
+                            fontWeight: 800,
+                            mb: 1,
+                            color: tierColor,
+                          }}
+                        >
+                          {tier.name}
+                        </Typography>
+                        <Box sx={{ mb: 2 }}>
+                          <Typography
+                            variant="h3"
+                            component="span"
+                            sx={{
+                              fontWeight: 900,
+                              color: tierColor,
+                              lineHeight: 1,
+                            }}
+                          >
+                            €{price.toFixed(0)}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            component="span"
+                            sx={{
+                              color: colors.neutral.gray600,
+                              ml: 0.5,
+                            }}
+                          >
+                            /{billingPeriod === 'monthly' ? 'mo' : 'yr'}
+                          </Typography>
+                        </Box>
+                        {billingPeriod === 'yearly' && price > 0 && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: colors.success.main,
+                              fontWeight: 600,
+                              display: 'block',
+                              mb: 2,
+                            }}
+                          >
+                            Save €{((tier.price_monthly * 12 - price) / 12).toFixed(0)}/month
+                          </Typography>
+                        )}
+                        {tier.slug === 'enterprise' ? (
+                          <Button
+                            variant="outlined"
+                            fullWidth
+                            size="medium"
+                            onClick={() => router.push('/contact')}
+                            sx={{
+                              borderColor: tierColor,
+                              color: tierColor,
+                              fontWeight: 700,
+                              textTransform: 'none',
+                              borderRadius: 2,
+                              mt: 1,
+                            }}
+                          >
+                            Contact Sales
+                          </Button>
+                        ) : (
+                          <Button
+                            variant={isCurrentTier ? 'outlined' : 'contained'}
+                            fullWidth
+                            size="medium"
+                            onClick={() => handleSubscribe(tier.slug)}
+                            disabled={isCurrentTier || isCreatingCheckout}
+                            sx={{
+                              backgroundColor: isCurrentTier ? 'transparent' : tierColor,
+                              color: isCurrentTier ? tierColor : 'white',
+                              borderColor: tierColor,
+                              fontWeight: 700,
+                              textTransform: 'none',
+                              borderRadius: 2,
+                              mt: 1,
+                              boxShadow: isCurrentTier ? 'none' : `0 4px 12px ${alpha(tierColor, 0.3)}`,
+                              '&:hover': {
+                                backgroundColor: isCurrentTier ? alpha(tierColor, 0.1) : tierColor,
+                                boxShadow: isCurrentTier ? 'none' : `0 6px 16px ${alpha(tierColor, 0.4)}`,
+                              },
+                              '&:disabled': {
+                                backgroundColor: colors.neutral.gray200,
+                                color: colors.neutral.gray500,
+                                borderColor: colors.neutral.gray300,
+                              },
+                            }}
+                          >
+                            {isCurrentTier ? 'Current Plan' : isCreatingCheckout ? 'Processing...' : 'Get Started'}
+                          </Button>
+                        )}
+                      </Box>
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {features.map((feature, idx) => {
+                const prevCategory = idx > 0 ? features[idx - 1].category : null;
+                const showCategory = prevCategory !== feature.category;
+
+                return (
+                  <React.Fragment key={idx}>
+                    {showCategory && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={5}
+                          sx={{
+                            backgroundColor: alpha(colors.primary.main, 0.05),
+                            fontWeight: 700,
+                            fontSize: '0.95rem',
+                            color: colors.primary.main,
+                            py: 2,
+                            borderTop: idx > 0 ? `2px solid ${colors.neutral.gray200}` : 'none',
+                          }}
+                        >
+                          {feature.category}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    <TableRow
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: alpha(colors.primary.main, 0.02),
+                        },
+                        '&:last-child td': {
+                          borderBottom: 'none',
+                        },
+                      }}
+                    >
+                      <TableCell
+                        sx={{
+                          fontWeight: 500,
+                          borderRight: `1px solid ${colors.neutral.gray200}`,
+                          position: 'sticky',
+                          left: 0,
+                          backgroundColor: 'white',
+                          zIndex: 5,
+                          minWidth: 250,
+                        }}
+                      >
+                        {feature.name}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{
+                          borderRight: `1px solid ${colors.neutral.gray200}`,
+                          py: 2.5,
+                        }}
+                      >
+                        {renderFeatureValue(feature.free)}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{
+                          borderRight: `1px solid ${colors.neutral.gray200}`,
+                          py: 2.5,
+                        }}
+                      >
+                        {renderFeatureValue(feature.basic)}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{
+                          borderRight: `1px solid ${colors.neutral.gray200}`,
+                          py: 2.5,
+                          backgroundColor: alpha(getTierColor('pro'), 0.03),
+                        }}
+                      >
+                        {renderFeatureValue(feature.pro)}
+                      </TableCell>
+                      <TableCell align="center" sx={{ py: 2.5 }}>
+                        {renderFeatureValue(feature.enterprise)}
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Footer CTA */}
+        <Box sx={{ textAlign: 'center', mt: 6 }}>
+          <Paper
+            elevation={0}
             sx={{
-              borderColor: colors.primary.main,
-              color: colors.primary.main,
-              fontWeight: 600,
-              px: 4,
-              py: 1.5,
-              borderRadius: 2,
-              textTransform: 'none',
+              p: 4,
+              backgroundColor: alpha(colors.primary.main, 0.05),
+              borderRadius: 4,
+              display: 'inline-block',
             }}
           >
-            Contact Us
-          </Button>
-        </Paper>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+              Still have questions?
+            </Typography>
+            <Typography variant="body2" sx={{ color: colors.neutral.gray600, mb: 3 }}>
+              Our team is here to help you choose the right plan for your needs.
+            </Typography>
+            <Button
+              variant="outlined"
+              size="large"
+              onClick={() => router.push('/contact')}
+              sx={{
+                borderColor: colors.primary.main,
+                color: colors.primary.main,
+                fontWeight: 600,
+                px: 4,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+              }}
+            >
+              Contact Us
+            </Button>
+          </Paper>
+        </Box>
       </Container>
     </Box>
   );
