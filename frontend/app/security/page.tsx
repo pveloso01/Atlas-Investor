@@ -1,12 +1,14 @@
 'use client';
 
 import React from 'react';
-import { Container, Typography, Box, Paper, Grid, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import Link from 'next/link';
+import { Container, Typography, Box, Paper, Grid, List, ListItem, ListItemIcon, ListItemText, Alert } from '@mui/material';
 import {
   Security as SecurityIcon,
   VerifiedUser as VerifiedUserIcon,
   Lock as LockIcon,
   Shield as ShieldIcon,
+  Warning as WarningIcon,
 } from '@mui/icons-material';
 import { colors } from '@/lib/theme/colors';
 
@@ -121,6 +123,70 @@ export default function SecurityPage() {
                 />
               </ListItem>
             </List>
+          </Paper>
+        </Grid>
+
+        {/* Legal Disclaimer Section */}
+        <Grid size={12} sx={{ mt: 4 }}>
+          <Paper
+            sx={{
+              p: 4,
+              border: `1px solid ${colors.warning.main}`,
+              borderRadius: 2,
+              backgroundColor: colors.warning.light,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+              <WarningIcon sx={{ color: colors.warning.dark, fontSize: 32 }} />
+              <Typography variant="h5" sx={{ fontWeight: 600, color: colors.warning.dark }}>
+                Legal Disclaimer
+              </Typography>
+            </Box>
+            <Alert severity="warning" sx={{ mb: 3, backgroundColor: colors.warning.light }}>
+              <Typography variant="body1" sx={{ color: colors.neutral.gray800, lineHeight: 1.8, mb: 2 }}>
+                <strong>Important:</strong> While we take security and data protection seriously, please be aware of
+                the following legal limitations:
+              </Typography>
+              <Box component="ul" sx={{ pl: 3, mb: 2 }}>
+                <li>
+                  <Typography variant="body1" sx={{ color: colors.neutral.gray800, lineHeight: 1.8 }}>
+                    The Atlas Investor platform provides insights and analysis tools for informational purposes only.
+                    We do not provide financial, investment, legal, or tax advice.
+                  </Typography>
+                </li>
+                <li>
+                  <Typography variant="body1" sx={{ color: colors.neutral.gray800, lineHeight: 1.8 }}>
+                    We make no guarantees regarding the accuracy, completeness, or reliability of any data, information,
+                    or analysis provided through the platform.
+                  </Typography>
+                </li>
+                <li>
+                  <Typography variant="body1" sx={{ color: colors.neutral.gray800, lineHeight: 1.8 }}>
+                    All investment decisions are made at your own risk. You bear all responsibility for any investment
+                    decisions and their outcomes.
+                  </Typography>
+                </li>
+                <li>
+                  <Typography variant="body1" sx={{ color: colors.neutral.gray800, lineHeight: 1.8 }}>
+                    Atlas Investor is not legally bound to any losses that may occur while using this platform.
+                  </Typography>
+                </li>
+                <li>
+                  <Typography variant="body1" sx={{ color: colors.neutral.gray800, lineHeight: 1.8 }}>
+                    You must conduct your own independent research, verification, and due diligence before making any
+                    investment decisions. We recommend consulting with qualified financial, legal, and tax advisors.
+                  </Typography>
+                </li>
+              </Box>
+              <Typography variant="body1" sx={{ color: colors.neutral.gray800, lineHeight: 1.8, mt: 2 }}>
+                For complete details on our liability limitations, warranties, and user responsibilities, please
+                review our{' '}
+                <Box component={Link} href="/terms" sx={{ color: colors.primary.main, fontWeight: 600, textDecoration: 'underline', display: 'inline' }}>
+                  Terms of Service
+                </Box>
+                .
+              </Typography>
+            </Alert>
           </Paper>
         </Grid>
       </Grid>
