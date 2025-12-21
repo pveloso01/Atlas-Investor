@@ -8,9 +8,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from .utils.cache_decorators import cache_api_response
+from .filters import PropertyFilterSet
 from .models import (
+    AutonomousRegion,
     ContactRequest,
+    District,
     Feedback,
+    Municipality,
+    Parish,
     Portfolio,
     PortfolioProperty,
     Property,
@@ -19,6 +24,17 @@ from .models import (
     SupportMessage,
 )
 from .serializers.property_serializers import PropertySerializer, RegionSerializer
+from .serializers.geography_serializers import (
+    DistrictSerializer,
+    DistrictDetailSerializer,
+    MunicipalitySerializer,
+    MunicipalityDetailSerializer,
+    ParishSerializer,
+    AutonomousRegionSerializer,
+    AutonomousRegionDetailSerializer,
+    GeographicLocationSerializer,
+    GeographicValidationResponseSerializer,
+)
 from .serializers.feedback_serializers import (
     FeedbackSerializer,
     SupportMessageSerializer,
@@ -61,7 +77,9 @@ def health_check(request):
 class PropertyViewSet(viewsets.ModelViewSet):
     """ViewSet for Property model."""
 
-    queryset = Property.objects.select_related("region").all()  # type: ignore[attr-defined]
+    queryset = Property.objects.select_related(
+        "region", "district", "municipality", "parish"
+    ).all()  # type: ignore[attr-defined]
     serializer_class = PropertySerializer
     permission_classes = [CustomIsAuthenticatedOrReadOnly]
     pagination_class = StandardResultsSetPagination
@@ -70,9 +88,9 @@ class PropertyViewSet(viewsets.ModelViewSet):
         filters.SearchFilter,
         filters.OrderingFilter,
     ]
-    filterset_fields = ["property_type", "region"]
+    filterset_class = PropertyFilterSet
     search_fields = ["address"]
-    ordering_fields = ["price", "size_sqm", "created_at"]
+    ordering_fields = ["price", "size_sqm", "created_at", "bedrooms", "bathrooms", "year_built"]
     ordering = ["-created_at"]
     
     def list(self, request, *args, **kwargs):
@@ -306,7 +324,14 @@ class ContactRequestViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Limit contact requests to current user (staff can see all)."""
         user = self.request.user
-        base_queryset = ContactRequest.objects.select_related("property", "property__region")  # type: ignore[attr-defined]
+        base_queryset = ContactRequest.objects.select_related(  # type: ignore[attr-defined]
+            "property",
+            "property__region",
+            "property__district",
+            "property__municipality",
+            "property__parish",
+            "user"
+        )
         if user.is_staff:
             return base_queryset
         if user.is_authenticated:
@@ -376,9 +401,19 @@ class PortfolioViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Limit portfolios to current user with optimized queries."""
-        return Portfolio.objects.filter(  # type: ignore[attr-defined]
+        from django.db.models import Count, Sum
+        
+        return Portfolio.objects.select_related("user").filter(  # type: ignore[attr-defined]
             user=self.request.user
-        ).prefetch_related("properties__property__region")
+        ).prefetch_related(
+            "properties__property__region",
+            "properties__property__district",
+            "properties__property__municipality",
+            "properties__property__parish"
+        ).annotate(
+            property_count_annotation=Count("properties"),
+            total_value_annotation=Sum("properties__property__price")
+        )
 
     def perform_create(self, serializer):
         """Create portfolio and handle default portfolio creation."""
@@ -389,6 +424,7 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                 subscription = self.request.user.get_active_subscription()
                 
                 if subscription and subscription.tier.slug == 'basic':
+                    # Use single count query instead of two separate queries
                     user_portfolio_count = Portfolio.objects.filter(user=self.request.user).count()  # type: ignore[attr-defined]
                     if user_portfolio_count >= 3:
                         from rest_framework.exceptions import PermissionDenied
@@ -402,15 +438,26 @@ class PortfolioViewSet(viewsets.ModelViewSet):
         portfolio = serializer.save()
         
         # If this is the user's first portfolio, make it default
-        user_portfolio_count = Portfolio.objects.filter(user=self.request.user).count()  # type: ignore[attr-defined]
-        if user_portfolio_count == 1:
+        # Reuse the count from above if available, otherwise query once
+        # Since we just created one, the count is now user_portfolio_count + 1
+        # But to be safe, we'll check if any other portfolios exist
+        other_portfolios_exist = Portfolio.objects.filter(  # type: ignore[attr-defined]
+            user=self.request.user
+        ).exclude(id=portfolio.id).exists()
+        
+        if not other_portfolios_exist:
             portfolio.is_default = True
             portfolio.save()
 
     @action(detail=False, methods=["get"])
     def default(self, request):
         """Get user's default portfolio, creating one if none exists."""
-        portfolio = Portfolio.objects.filter(  # type: ignore[attr-defined]
+        portfolio = Portfolio.objects.select_related("user").prefetch_related(  # type: ignore[attr-defined]
+            "properties__property__region",
+            "properties__property__district",
+            "properties__property__municipality",
+            "properties__property__parish"
+        ).filter(
             user=request.user, is_default=True
         ).first()
         
@@ -421,6 +468,13 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                 name="My Portfolio",
                 is_default=True,
             )
+            # Reload with prefetch_related for serializer
+            portfolio = Portfolio.objects.select_related("user").prefetch_related(  # type: ignore[attr-defined]
+                "properties__property__region",
+                "properties__property__district",
+                "properties__property__municipality",
+                "properties__property__parish"
+            ).get(id=portfolio.id)
         
         serializer = PortfolioDetailSerializer(portfolio)
         return Response(serializer.data)
@@ -436,7 +490,12 @@ class PortfolioViewSet(viewsets.ModelViewSet):
                 subscription = request.user.get_active_subscription()
                 
                 if subscription and subscription.tier.slug == 'basic':
-                    property_count = PortfolioProperty.objects.filter(portfolio=portfolio).count()  # type: ignore[attr-defined]
+                    # Use exists() check first, then count only if needed, or use annotation
+                    # Since portfolio is already loaded, we can check if properties are prefetched
+                    if hasattr(portfolio, 'properties'):
+                        property_count = portfolio.properties.count()  # type: ignore[attr-defined]
+                    else:
+                        property_count = PortfolioProperty.objects.filter(portfolio=portfolio).count()  # type: ignore[attr-defined]
                     if property_count >= 10:
                         return Response(
                             {
@@ -456,9 +515,14 @@ class PortfolioViewSet(viewsets.ModelViewSet):
         notes = serializer.validated_data.get("notes", "")
         target_price = serializer.validated_data.get("target_price")
 
-        property_obj = Property.objects.get(pk=property_id)  # type: ignore[attr-defined]
+        # Use select_related to avoid N+1 queries
+        property_obj = Property.objects.select_related(  # type: ignore[attr-defined]
+            "region", "district", "municipality", "parish"
+        ).get(pk=property_id)
 
-        portfolio_property, created = PortfolioProperty.objects.get_or_create(  # type: ignore[attr-defined]
+        portfolio_property, created = PortfolioProperty.objects.select_related(  # type: ignore[attr-defined]
+            "property", "property__region", "property__district", "property__municipality", "property__parish"
+        ).get_or_create(
             portfolio=portfolio,
             property=property_obj,
             defaults={"notes": notes, "target_price": target_price},
@@ -486,7 +550,9 @@ class PortfolioViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            portfolio_property = PortfolioProperty.objects.get(  # type: ignore[attr-defined]
+            portfolio_property = PortfolioProperty.objects.select_related(  # type: ignore[attr-defined]
+                "property", "property__region", "property__district", "property__municipality", "property__parish"
+            ).get(
                 portfolio=portfolio,
                 property_id=property_id,
             )
@@ -507,7 +573,9 @@ class PortfolioViewSet(viewsets.ModelViewSet):
         portfolio = self.get_object()
 
         try:
-            portfolio_property = PortfolioProperty.objects.get(  # type: ignore[attr-defined]
+            portfolio_property = PortfolioProperty.objects.select_related(  # type: ignore[attr-defined]
+                "property", "property__region", "property__district", "property__municipality", "property__parish"
+            ).get(
                 portfolio=portfolio,
                 property_id=property_id,
             )
@@ -539,7 +607,12 @@ class SavedPropertyViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Limit saved properties to current user with optimized queries."""
         return SavedProperty.objects.select_related(  # type: ignore[attr-defined]
-            "property", "property__region"
+            "property",
+            "property__region",
+            "property__district",
+            "property__municipality",
+            "property__parish",
+            "user"
         ).filter(user=self.request.user)
 
     def get_serializer_class(self):
@@ -551,3 +624,184 @@ class SavedPropertyViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Set user on create."""
         serializer.save(user=self.request.user)
+
+
+# Geographic ViewSets
+@method_decorator(cache_page(60 * 60 * 24), name="list")  # Cache for 24 hours (static data)
+@method_decorator(cache_page(60 * 60 * 24), name="retrieve")  # Cache for 24 hours
+class DistrictViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for District model (read-only) with caching."""
+
+    queryset = District.objects.prefetch_related("municipalities").all()  # type: ignore[attr-defined]
+    permission_classes = [AllowAny]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["name", "code"]
+    ordering = ["code"]
+
+    def get_serializer_class(self):
+        """Use detail serializer for retrieve action."""
+        if self.action == "retrieve":
+            return DistrictDetailSerializer
+        return DistrictSerializer
+
+
+@method_decorator(cache_page(60 * 60 * 24), name="list")  # Cache for 24 hours
+@method_decorator(cache_page(60 * 60 * 24), name="retrieve")  # Cache for 24 hours
+class MunicipalityViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for Municipality model (read-only) with caching."""
+
+    queryset = Municipality.objects.select_related("district", "autonomous_region").prefetch_related("parishes").all()  # type: ignore[attr-defined]
+    permission_classes = [AllowAny]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["district", "autonomous_region"]
+    search_fields = ["name", "code"]
+    ordering = ["name"]
+
+    def get_serializer_class(self):
+        """Use detail serializer for retrieve action."""
+        if self.action == "retrieve":
+            return MunicipalityDetailSerializer
+        return MunicipalitySerializer
+
+
+@method_decorator(cache_page(60 * 60 * 24), name="list")  # Cache for 24 hours
+@method_decorator(cache_page(60 * 60 * 24), name="retrieve")  # Cache for 24 hours
+class ParishViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for Parish model (read-only) with caching."""
+
+    queryset = Parish.objects.select_related("municipality", "municipality__district", "municipality__autonomous_region").all()  # type: ignore[attr-defined]
+    permission_classes = [AllowAny]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["municipality"]
+    search_fields = ["name", "code"]
+    ordering = ["name"]
+
+
+@method_decorator(cache_page(60 * 60 * 24), name="list")  # Cache for 24 hours
+@method_decorator(cache_page(60 * 60 * 24), name="retrieve")  # Cache for 24 hours
+class AutonomousRegionViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for AutonomousRegion model (read-only) with caching."""
+
+    queryset = AutonomousRegion.objects.prefetch_related("municipalities").all()  # type: ignore[attr-defined]
+    permission_classes = [AllowAny]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["name", "code"]
+    ordering = ["code"]
+
+    def get_serializer_class(self):
+        """Use detail serializer for retrieve action."""
+        if self.action == "retrieve":
+            return AutonomousRegionDetailSerializer
+        return AutonomousRegionSerializer
+
+
+@api_view(["POST"])
+def validate_geographic_ids(request):
+    """
+    Validate geographic location IDs (districts, municipalities, parishes, autonomous regions).
+    
+    Accepts a list of IDs and returns validation status for each.
+    
+    Request body:
+    {
+        "ids": ["dist-01", "mun-aveiro-01", "par-aveiro-01-01", "ar-01"]
+    }
+    
+    Response:
+    {
+        "valid_ids": ["dist-01", "mun-aveiro-01"],
+        "invalid_ids": ["invalid-id"],
+        "details": [
+            {
+                "id": "dist-01",
+                "code": "dist-01",
+                "name": "Aveiro",
+                "type": "district",
+                "full_path": "Aveiro",
+                "valid": true
+            },
+            ...
+        ]
+    }
+    """
+    ids = request.data.get("ids", [])
+    
+    if not isinstance(ids, list):
+        return Response(
+            {"error": "ids must be a list"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    
+    # Filter out non-string IDs
+    string_ids = [str(location_id) for location_id in ids if isinstance(location_id, str)]
+    non_string_ids = [str(location_id) for location_id in ids if not isinstance(location_id, str)]
+    
+    # Bulk queries - fetch all matching records in 4 queries instead of N queries
+    districts = {d.code: d for d in District.objects.filter(code__in=string_ids)}  # type: ignore[attr-defined]
+    municipalities = {m.code: m for m in Municipality.objects.filter(code__in=string_ids)}  # type: ignore[attr-defined]
+    parishes = {p.code: p for p in Parish.objects.filter(code__in=string_ids)}  # type: ignore[attr-defined]
+    regions = {r.code: r for r in AutonomousRegion.objects.filter(code__in=string_ids)}  # type: ignore[attr-defined]
+    
+    # Build lookup map for O(1) access
+    location_map = {}
+    location_map.update({code: ("district", loc) for code, loc in districts.items()})
+    location_map.update({code: ("municipality", loc) for code, loc in municipalities.items()})
+    location_map.update({code: ("parish", loc) for code, loc in parishes.items()})
+    location_map.update({code: ("autonomous_region", loc) for code, loc in regions.items()})
+    
+    valid_ids = []
+    invalid_ids = []
+    details = []
+    
+    # Process non-string IDs first
+    for location_id in non_string_ids:
+        invalid_ids.append(location_id)
+        details.append({
+            "id": location_id,
+            "code": "",
+            "name": "",
+            "type": "unknown",
+            "full_path": "",
+            "valid": False,
+            "error": "ID must be a string",
+        })
+    
+    # Process string IDs using lookup map
+    for location_id in string_ids:
+        if location_id in location_map:
+            loc_type, location = location_map[location_id]
+            valid_ids.append(location_id)
+            details.append({
+                "id": location_id,
+                "code": location.code,
+                "name": location.name,
+                "type": loc_type,
+                "full_path": location.full_path,
+                "valid": True,
+            })
+        else:
+            invalid_ids.append(location_id)
+            details.append({
+                "id": location_id,
+                "code": "",
+                "name": "",
+                "type": "unknown",
+                "full_path": "",
+                "valid": False,
+                "error": "Location not found",
+            })
+    
+    response_data = {
+        "valid_ids": valid_ids,
+        "invalid_ids": invalid_ids,
+        "details": details,
+    }
+    
+    serializer = GeographicValidationResponseSerializer(data=response_data)
+    serializer.is_valid()  # This will always be valid as we constructed it
+    
+    return Response(serializer.validated_data, status=status.HTTP_200_OK)

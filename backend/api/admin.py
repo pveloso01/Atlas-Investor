@@ -1,6 +1,14 @@
 from django.contrib import admin
 from django.db.models import Count
-from .models import Property, Region, SavedProperty
+from .models import (
+    AutonomousRegion,
+    District,
+    Municipality,
+    Parish,
+    Property,
+    Region,
+    SavedProperty,
+)
 
 
 @admin.register(Region)
@@ -60,6 +68,8 @@ class PropertyAdmin(admin.ModelAdmin):
     list_filter = [
         "property_type",
         "region",
+        "district",
+        "municipality",
         "listing_status",
         "condition",
         "energy_rating",
@@ -72,7 +82,7 @@ class PropertyAdmin(admin.ModelAdmin):
     search_fields = ["address", "external_id", "description"]
     ordering = ["-created_at"]
     readonly_fields = ["created_at", "updated_at"]
-    raw_id_fields = ["region"]  # Use raw_id for better performance with many regions
+    raw_id_fields = ["region", "district", "municipality", "parish"]  # Use raw_id for better performance
 
     fieldsets = (
         (
@@ -86,6 +96,13 @@ class PropertyAdmin(admin.ModelAdmin):
                     "property_type",
                     "region",
                 )
+            },
+        ),
+        (
+            "Geographic Location",
+            {
+                "fields": ("district", "municipality", "parish"),
+                "classes": ("collapse",),
             },
         ),
         ("Pricing & Size", {"fields": ("price", "size_sqm")}),
@@ -200,3 +217,175 @@ class SavedPropertyAdmin(admin.ModelAdmin):
 
     has_notes.short_description = "Has Notes"  # type: ignore[attr-defined]
     has_notes.boolean = True  # type: ignore[attr-defined]
+
+
+@admin.register(District)
+class DistrictAdmin(admin.ModelAdmin):
+    """Admin configuration for District model."""
+
+    list_display = ["name", "code", "municipality_count", "property_count", "created_at"]
+    list_filter = ["created_at", "updated_at"]
+    search_fields = ["name", "code"]
+    ordering = ["code"]
+    readonly_fields = ["created_at", "updated_at"]
+
+    def get_queryset(self, request):
+        """Annotate queryset with counts."""
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            municipality_count_annotation=Count("municipalities"),
+            property_count_annotation=Count("properties"),
+        )
+
+    def municipality_count(self, obj):
+        """Display count of municipalities in this district."""
+        if hasattr(obj, "municipality_count_annotation"):
+            return obj.municipality_count_annotation
+        return obj.municipalities.count()  # type: ignore[attr-defined]
+
+    municipality_count.short_description = "Municipalities"  # type: ignore[attr-defined]
+    municipality_count.admin_order_field = "municipality_count_annotation"  # type: ignore[attr-defined]
+
+    def property_count(self, obj):
+        """Display count of properties in this district."""
+        if hasattr(obj, "property_count_annotation"):
+            return obj.property_count_annotation
+        return obj.properties.count()  # type: ignore[attr-defined]
+
+    property_count.short_description = "Properties"  # type: ignore[attr-defined]
+    property_count.admin_order_field = "property_count_annotation"  # type: ignore[attr-defined]
+
+
+@admin.register(AutonomousRegion)
+class AutonomousRegionAdmin(admin.ModelAdmin):
+    """Admin configuration for AutonomousRegion model."""
+
+    list_display = ["name", "code", "municipality_count", "property_count", "created_at"]
+    list_filter = ["created_at", "updated_at"]
+    search_fields = ["name", "code"]
+    ordering = ["code"]
+    readonly_fields = ["created_at", "updated_at"]
+
+    def get_queryset(self, request):
+        """Annotate queryset with counts."""
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            municipality_count_annotation=Count("municipalities"),
+            property_count_annotation=Count("municipalities__properties"),
+        )
+
+    def municipality_count(self, obj):
+        """Display count of municipalities in this region."""
+        if hasattr(obj, "municipality_count_annotation"):
+            return obj.municipality_count_annotation
+        return obj.municipalities.count()  # type: ignore[attr-defined]
+
+    municipality_count.short_description = "Municipalities"  # type: ignore[attr-defined]
+    municipality_count.admin_order_field = "municipality_count_annotation"  # type: ignore[attr-defined]
+
+    def property_count(self, obj):
+        """Display count of properties in this region."""
+        if hasattr(obj, "property_count_annotation"):
+            return obj.property_count_annotation
+        # Use aggregation to avoid N+1 queries
+        from django.db.models import Count
+        return obj.municipalities.aggregate(  # type: ignore[attr-defined]
+            total=Count("properties")
+        )["total"] or 0
+
+    property_count.short_description = "Properties"  # type: ignore[attr-defined]
+    property_count.admin_order_field = "property_count_annotation"  # type: ignore[attr-defined]
+
+
+@admin.register(Municipality)
+class MunicipalityAdmin(admin.ModelAdmin):
+    """Admin configuration for Municipality model."""
+
+    list_display = [
+        "name",
+        "code",
+        "district",
+        "autonomous_region",
+        "parish_count",
+        "property_count",
+        "created_at",
+    ]
+    list_filter = ["district", "autonomous_region", "created_at", "updated_at"]
+    search_fields = ["name", "code", "full_path"]
+    ordering = ["name"]
+    readonly_fields = ["created_at", "updated_at"]
+    raw_id_fields = ["district", "autonomous_region"]
+
+    def get_queryset(self, request):
+        """Annotate queryset with counts."""
+        queryset = super().get_queryset(request)
+        return queryset.select_related("district", "autonomous_region").annotate(
+            parish_count_annotation=Count("parishes"),
+            property_count_annotation=Count("properties"),
+        )
+
+    def parish_count(self, obj):
+        """Display count of parishes in this municipality."""
+        if hasattr(obj, "parish_count_annotation"):
+            return obj.parish_count_annotation
+        return obj.parishes.count()  # type: ignore[attr-defined]
+
+    parish_count.short_description = "Parishes"  # type: ignore[attr-defined]
+    parish_count.admin_order_field = "parish_count_annotation"  # type: ignore[attr-defined]
+
+    def property_count(self, obj):
+        """Display count of properties in this municipality."""
+        if hasattr(obj, "property_count_annotation"):
+            return obj.property_count_annotation
+        return obj.properties.count()  # type: ignore[attr-defined]
+
+    property_count.short_description = "Properties"  # type: ignore[attr-defined]
+    property_count.admin_order_field = "property_count_annotation"  # type: ignore[attr-defined]
+
+
+@admin.register(Parish)
+class ParishAdmin(admin.ModelAdmin):
+    """Admin configuration for Parish model."""
+
+    list_display = [
+        "name",
+        "code",
+        "municipality",
+        "district_or_region",
+        "property_count",
+        "created_at",
+    ]
+    list_filter = ["municipality", "municipality__district", "municipality__autonomous_region", "created_at", "updated_at"]
+    search_fields = ["name", "code", "full_path"]
+    ordering = ["name"]
+    readonly_fields = ["created_at", "updated_at"]
+    raw_id_fields = ["municipality"]
+
+    def get_queryset(self, request):
+        """Annotate queryset with counts."""
+        queryset = super().get_queryset(request)
+        return queryset.select_related(
+            "municipality",
+            "municipality__district",
+            "municipality__autonomous_region",
+        ).annotate(property_count_annotation=Count("properties"))
+
+    def district_or_region(self, obj):
+        """Display district or autonomous region."""
+        if obj.municipality.district:  # type: ignore[attr-defined]
+            return obj.municipality.district.name  # type: ignore[attr-defined]
+        if obj.municipality.autonomous_region:  # type: ignore[attr-defined]
+            return obj.municipality.autonomous_region.name  # type: ignore[attr-defined]
+        return "-"
+
+    district_or_region.short_description = "District/Region"  # type: ignore[attr-defined]
+    district_or_region.admin_order_field = "municipality__district__name"  # type: ignore[attr-defined]
+
+    def property_count(self, obj):
+        """Display count of properties in this parish."""
+        if hasattr(obj, "property_count_annotation"):
+            return obj.property_count_annotation
+        return obj.properties.count()  # type: ignore[attr-defined]
+
+    property_count.short_description = "Properties"  # type: ignore[attr-defined]
+    property_count.admin_order_field = "property_count_annotation"  # type: ignore[attr-defined]
