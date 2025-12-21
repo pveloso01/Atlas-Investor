@@ -65,7 +65,6 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_filters",
     "corsheaders",
-    "djoser",
     "users",
     "api",
 ]
@@ -236,25 +235,6 @@ SIMPLE_JWT = {
 # Email Settings (Console backend for development)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "noreply@atlasinvestor.com"
-
-# Djoser Settings
-DJOSER = {
-    "LOGIN_FIELD": "email",
-    "USER_CREATE_PASSWORD_RETYPE": True,
-    "SEND_ACTIVATION_EMAIL": True,
-    "SEND_CONFIRMATION_EMAIL": True,
-    "PASSWORD_RESET_CONFIRM_URL": "password-reset/confirm/{uid}/{token}",
-    "ACTIVATION_URL": "activate/{uid}/{token}",
-    "SERIALIZERS": {
-        "user_create": "users.serializers.UserCreateSerializer",
-        "user": "users.serializers.UserSerializer",
-        "current_user": "users.serializers.UserSerializer",
-    },
-    "PERMISSIONS": {
-        "user": ["rest_framework.permissions.IsAuthenticated"],
-        "user_list": ["rest_framework.permissions.IsAuthenticated"],
-    },
-}
 
 # Redis Cache Configuration
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")

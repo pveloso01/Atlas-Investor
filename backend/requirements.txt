@@ -17,7 +17,6 @@ django-extensions==4.1
 django-filter==25.2
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
-djoser==2.3.3
 idna==3.11
 kombu==5.5.4
 oauthlib==3.3.1
