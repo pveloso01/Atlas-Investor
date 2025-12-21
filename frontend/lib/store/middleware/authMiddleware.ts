@@ -18,7 +18,7 @@ import type { MiddlewareAPI } from '@reduxjs/toolkit';
  * - Redirects to the login page (client-side only)
  * - Preserves the current URL to redirect back after login
  */
-export const authMiddleware: Middleware = (_api: MiddlewareAPI) => (next) => (action) => {
+export const authMiddleware: Middleware = () => (next) => (action) => {
   // Check if this is a rejected action with a value (API error)
   if (isRejectedWithValue(action)) {
     const payload = action.payload as { status?: number | string } | undefined;
@@ -28,18 +28,33 @@ export const authMiddleware: Middleware = (_api: MiddlewareAPI) => (next) => (ac
     if (status === 401 || status === 'PARSING_ERROR') {
       // Only run on client side
       if (typeof window !== 'undefined') {
-        // Clear the auth token
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('refreshToken');
-
-        // Store the current URL to redirect back after login
         const currentPath = window.location.pathname;
-        if (currentPath !== '/login' && currentPath !== '/register') {
-          sessionStorage.setItem('redirectAfterLogin', currentPath);
-        }
 
-        // Redirect to login page
-        window.location.href = '/login';
+        // Don't redirect from public pages - these should be accessible without auth
+        const publicPages = ['/pricing', '/login', '/register', '/', '/properties'];
+        const isPublicPage = publicPages.some(
+          (page) => currentPath === page || currentPath.startsWith(page + '/')
+        );
+
+        // Only redirect if we're not on a public page
+        if (!isPublicPage) {
+          // Clear the auth token
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('refreshToken');
+
+          // Store the current URL to redirect back after login
+          if (currentPath !== '/login' && currentPath !== '/register') {
+            sessionStorage.setItem('redirectAfterLogin', currentPath);
+          }
+
+          // Redirect to login page
+          window.location.href = '/login';
+        }
+        // For public pages, just clear invalid tokens but don't redirect
+        else if (currentPath === '/login' || currentPath === '/register') {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('refreshToken');
+        }
       }
     }
 

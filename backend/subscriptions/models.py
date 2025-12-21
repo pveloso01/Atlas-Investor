@@ -49,7 +49,7 @@ class Feature(models.Model):
     required_tier = models.ForeignKey(
         SubscriptionTier,
         on_delete=models.CASCADE,
-        related_name='features'
+        related_name='feature_set'
     )
     is_usage_based = models.BooleanField(default=False)
     usage_limit = models.IntegerField(null=True, blank=True, help_text="Usage limit per period")

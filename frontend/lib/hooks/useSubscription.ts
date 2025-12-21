@@ -2,10 +2,13 @@ import { useGetCurrentSubscriptionQuery } from '@/lib/store/api/subscriptionApi'
 import type { Subscription } from '@/lib/store/api/subscriptionApi';
 
 export function useSubscription() {
-  const { data, isLoading, error, refetch } = useGetCurrentSubscriptionQuery();
+  // Skip the query if no auth token exists (user not logged in)
+  const hasAuthToken = typeof window !== 'undefined' && !!localStorage.getItem('authToken');
+  const { data, isLoading, error, refetch } = useGetCurrentSubscriptionQuery(undefined, {
+    skip: !hasAuthToken,
+  });
 
-  const subscription: Subscription | null = 
-    data && 'id' in data ? data : null;
+  const subscription: Subscription | null = data && 'id' in data ? data : null;
 
   const hasActiveSubscription = subscription?.is_active ?? false;
   const isTrialing = subscription?.is_trialing ?? false;
@@ -27,4 +30,3 @@ export function useSubscription() {
     refetch,
   };
 }
-

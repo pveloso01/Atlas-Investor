@@ -15,38 +15,32 @@ import {
   TableRow,
   Button,
   Chip,
-  Stack,
   alpha,
-  useTheme,
-  useMediaQuery,
 } from '@mui/material';
+import { Check as CheckIcon, Close as CloseIcon, Star as StarIcon } from '@mui/icons-material';
 import {
-  Check as CheckIcon,
-  Close as CloseIcon,
-  Star as StarIcon,
-} from '@mui/icons-material';
-import { useGetTiersQuery, useCreateCheckoutSessionMutation } from '@/lib/store/api/subscriptionApi';
+  useGetTiersQuery,
+  useCreateCheckoutSessionMutation,
+} from '@/lib/store/api/subscriptionApi';
 import { useSubscription } from '@/lib/hooks/useSubscription';
 import { colors } from '@/lib/theme/colors';
 
 export default function PricingPage() {
   const router = useRouter();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { data: tiers, isLoading } = useGetTiersQuery();
-  const { subscription, tierSlug } = useSubscription();
+  const { tierSlug } = useSubscription();
   const [createCheckout, { isLoading: isCreatingCheckout }] = useCreateCheckoutSessionMutation();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
 
-  const handleSubscribe = async (tierSlug: string) => {
+  const handleSubscribe = async (tierSlugParam: string) => {
     try {
       const result = await createCheckout({
-        tier_slug: tierSlug,
+        tier_slug: tierSlugParam,
         billing_period: billingPeriod,
       }).unwrap();
-      
+
       if (result.checkout_url) {
-        window.location.href = result.checkout_url;
+        window.location.assign(result.checkout_url);
       }
     } catch (error) {
       console.error('Failed to create checkout session:', error);
@@ -55,39 +49,242 @@ export default function PricingPage() {
 
   // Comprehensive feature list
   const features = [
-    { category: 'Property Discovery', name: 'Property Searches', free: '5/month', basic: '50/month', pro: 'Unlimited', enterprise: 'Unlimited' },
-    { category: 'Property Discovery', name: 'Advanced Filters', free: false, basic: true, pro: true, enterprise: true },
-    { category: 'Property Discovery', name: 'Saved Searches', free: false, basic: '3', pro: 'Unlimited', enterprise: 'Unlimited' },
-    { category: 'Property Discovery', name: 'Automated Deal Alerts', free: false, basic: false, pro: true, enterprise: true },
-    { category: 'Property Discovery', name: 'Market Trend Analysis', free: false, basic: false, pro: true, enterprise: true },
-    
-    { category: 'Analysis & Reports', name: 'ROI Calculator', free: 'Basic', basic: 'Advanced', pro: 'Advanced + Scenarios', enterprise: 'Advanced + Scenarios' },
-    { category: 'Analysis & Reports', name: 'PDF Reports', free: 'View only', basic: '3/month', pro: 'Unlimited', enterprise: 'Unlimited + White-label' },
-    { category: 'Analysis & Reports', name: 'Property Comparison', free: false, basic: '2 properties', pro: 'Unlimited', enterprise: 'Unlimited' },
-    { category: 'Analysis & Reports', name: 'Bulk Property Analysis', free: false, basic: false, pro: 'Up to 50', enterprise: 'Unlimited' },
-    { category: 'Analysis & Reports', name: 'Custom Report Templates', free: false, basic: false, pro: true, enterprise: true },
-    { category: 'Analysis & Reports', name: 'Property Valuation Estimates', free: false, basic: false, pro: true, enterprise: true },
-    { category: 'Analysis & Reports', name: 'Investment Recommendations', free: false, basic: false, pro: true, enterprise: true },
-    
-    { category: 'Portfolio Management', name: 'Portfolio Tracking', free: '1 property', basic: '10 properties', pro: 'Unlimited', enterprise: 'Unlimited' },
-    { category: 'Portfolio Management', name: 'Portfolio Analytics', free: false, basic: 'Basic', pro: 'Advanced', enterprise: 'Advanced + AI Insights' },
-    { category: 'Portfolio Management', name: 'Performance Tracking', free: false, basic: true, pro: true, enterprise: true },
-    { category: 'Portfolio Management', name: 'Tax Optimization Insights', free: false, basic: false, pro: true, enterprise: true },
-    { category: 'Portfolio Management', name: 'Risk Assessment', free: false, basic: false, pro: true, enterprise: true },
-    { category: 'Portfolio Management', name: 'Portfolio Optimization', free: false, basic: false, pro: false, enterprise: true },
-    
-    { category: 'Data & Export', name: 'Data Export (CSV/Excel)', free: false, basic: 'Limited', pro: 'Unlimited', enterprise: 'Unlimited' },
-    { category: 'Data & Export', name: 'API Access', free: false, basic: false, pro: 'Read-only', enterprise: 'Full Access' },
-    { category: 'Data & Export', name: 'Historical Data Access', free: false, basic: '3 months', pro: '2 years', enterprise: 'Unlimited' },
-    { category: 'Data & Export', name: 'Neighborhood Analytics', free: false, basic: false, pro: true, enterprise: true },
-    { category: 'Data & Export', name: 'Market Insights Dashboard', free: false, basic: false, pro: true, enterprise: true },
-    
-    { category: 'Support & Features', name: 'Email Support', free: false, basic: 'Standard (48h)', pro: 'Priority (24h)', enterprise: 'Dedicated (4h)' },
-    { category: 'Support & Features', name: 'Phone Support', free: false, basic: false, pro: false, enterprise: true },
-    { category: 'Support & Features', name: 'Onboarding Assistance', free: false, basic: false, pro: true, enterprise: true },
-    { category: 'Support & Features', name: 'Custom Integrations', free: false, basic: false, pro: false, enterprise: true },
-    { category: 'Support & Features', name: 'SLA Guarantees', free: false, basic: false, pro: false, enterprise: true },
-    { category: 'Support & Features', name: 'Team Collaboration', free: false, basic: false, pro: false, enterprise: true },
+    {
+      category: 'Property Discovery',
+      name: 'Property Searches',
+      free: '5/month',
+      basic: '50/month',
+      pro: 'Unlimited',
+      enterprise: 'Unlimited',
+    },
+    {
+      category: 'Property Discovery',
+      name: 'Advanced Filters',
+      free: false,
+      basic: true,
+      pro: true,
+      enterprise: true,
+    },
+    {
+      category: 'Property Discovery',
+      name: 'Saved Searches',
+      free: false,
+      basic: '3',
+      pro: 'Unlimited',
+      enterprise: 'Unlimited',
+    },
+    {
+      category: 'Property Discovery',
+      name: 'Automated Deal Alerts',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+    {
+      category: 'Property Discovery',
+      name: 'Market Trend Analysis',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+
+    {
+      category: 'Analysis & Reports',
+      name: 'ROI Calculator',
+      free: 'Basic',
+      basic: 'Advanced',
+      pro: 'Advanced + Scenarios',
+      enterprise: 'Advanced + Scenarios',
+    },
+    {
+      category: 'Analysis & Reports',
+      name: 'PDF Reports',
+      free: 'View only',
+      basic: '3/month',
+      pro: 'Unlimited',
+      enterprise: 'Unlimited + White-label',
+    },
+    {
+      category: 'Analysis & Reports',
+      name: 'Property Comparison',
+      free: false,
+      basic: '2 properties',
+      pro: 'Unlimited',
+      enterprise: 'Unlimited',
+    },
+    {
+      category: 'Analysis & Reports',
+      name: 'Bulk Property Analysis',
+      free: false,
+      basic: false,
+      pro: 'Up to 50',
+      enterprise: 'Unlimited',
+    },
+    {
+      category: 'Analysis & Reports',
+      name: 'Custom Report Templates',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+    {
+      category: 'Analysis & Reports',
+      name: 'Property Valuation Estimates',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+    {
+      category: 'Analysis & Reports',
+      name: 'Investment Recommendations',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+
+    {
+      category: 'Portfolio Management',
+      name: 'Portfolio Tracking',
+      free: '1 property',
+      basic: '10 properties',
+      pro: 'Unlimited',
+      enterprise: 'Unlimited',
+    },
+    {
+      category: 'Portfolio Management',
+      name: 'Portfolio Analytics',
+      free: false,
+      basic: 'Basic',
+      pro: 'Advanced',
+      enterprise: 'Advanced + AI Insights',
+    },
+    {
+      category: 'Portfolio Management',
+      name: 'Performance Tracking',
+      free: false,
+      basic: true,
+      pro: true,
+      enterprise: true,
+    },
+    {
+      category: 'Portfolio Management',
+      name: 'Tax Optimization Insights',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+    {
+      category: 'Portfolio Management',
+      name: 'Risk Assessment',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+    {
+      category: 'Portfolio Management',
+      name: 'Portfolio Optimization',
+      free: false,
+      basic: false,
+      pro: false,
+      enterprise: true,
+    },
+
+    {
+      category: 'Data & Export',
+      name: 'Data Export (CSV/Excel)',
+      free: false,
+      basic: 'Limited',
+      pro: 'Unlimited',
+      enterprise: 'Unlimited',
+    },
+    {
+      category: 'Data & Export',
+      name: 'API Access',
+      free: false,
+      basic: false,
+      pro: 'Read-only',
+      enterprise: 'Full Access',
+    },
+    {
+      category: 'Data & Export',
+      name: 'Historical Data Access',
+      free: false,
+      basic: '3 months',
+      pro: '2 years',
+      enterprise: 'Unlimited',
+    },
+    {
+      category: 'Data & Export',
+      name: 'Neighborhood Analytics',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+    {
+      category: 'Data & Export',
+      name: 'Market Insights Dashboard',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+
+    {
+      category: 'Support & Features',
+      name: 'Email Support',
+      free: false,
+      basic: 'Standard (48h)',
+      pro: 'Priority (24h)',
+      enterprise: 'Dedicated (4h)',
+    },
+    {
+      category: 'Support & Features',
+      name: 'Phone Support',
+      free: false,
+      basic: false,
+      pro: false,
+      enterprise: true,
+    },
+    {
+      category: 'Support & Features',
+      name: 'Onboarding Assistance',
+      free: false,
+      basic: false,
+      pro: true,
+      enterprise: true,
+    },
+    {
+      category: 'Support & Features',
+      name: 'Custom Integrations',
+      free: false,
+      basic: false,
+      pro: false,
+      enterprise: true,
+    },
+    {
+      category: 'Support & Features',
+      name: 'SLA Guarantees',
+      free: false,
+      basic: false,
+      pro: false,
+      enterprise: true,
+    },
+    {
+      category: 'Support & Features',
+      name: 'Team Collaboration',
+      free: false,
+      basic: false,
+      pro: false,
+      enterprise: true,
+    },
   ];
 
   const getTierColor = (slug: string) => {
@@ -162,8 +359,12 @@ export default function PricingPage() {
           >
             Choose Your Plan
           </Typography>
-          <Typography variant="h6" sx={{ color: colors.neutral.gray600, mb: 4, maxWidth: 700, mx: 'auto' }}>
-            Everything you need to make smarter real estate investment decisions. Start free, upgrade as you grow.
+          <Typography
+            variant="h6"
+            sx={{ color: colors.neutral.gray600, mb: 4, maxWidth: 700, mx: 'auto' }}
+          >
+            Everything you need to make smarter real estate investment decisions. Start free,
+            upgrade as you grow.
           </Typography>
 
           {/* Billing Period Toggle */}
@@ -258,108 +459,167 @@ export default function PricingPage() {
             }}
           >
             <Table sx={{ minWidth: 800 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell
-                  sx={{
-                    backgroundColor: colors.neutral.gray100,
-                    fontWeight: 700,
-                    fontSize: '1rem',
-                    py: 3,
-                    borderRight: `1px solid ${colors.neutral.gray200}`,
-                    position: 'sticky',
-                    left: 0,
-                    zIndex: 10,
-                    minWidth: 250,
-                  }}
-                >
-                  Features
-                </TableCell>
-                {sortedTiers.map((tier) => {
-                  const price = billingPeriod === 'monthly' ? tier.price_monthly : tier.price_yearly;
-                  const isPro = tier.slug === 'pro';
-                  const isCurrentTier = tierSlug === tier.slug;
-                  const tierColor = getTierColor(tier.slug);
+              <TableHead>
+                <TableRow>
+                  <TableCell
+                    sx={{
+                      backgroundColor: colors.neutral.gray100,
+                      fontWeight: 700,
+                      fontSize: '1rem',
+                      py: 3,
+                      borderRight: `1px solid ${colors.neutral.gray200}`,
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 10,
+                      width: 'auto',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Features
+                  </TableCell>
+                  {sortedTiers.map((tier) => {
+                    const priceStr =
+                      billingPeriod === 'monthly' ? tier.price_monthly : tier.price_yearly;
+                    const price = typeof priceStr === 'string' ? parseFloat(priceStr) : priceStr;
+                    const isPro = tier.slug === 'pro';
+                    const isCurrentTier = tierSlug === tier.slug;
+                    const tierColor = getTierColor(tier.slug);
 
-                  return (
-                    <TableCell
-                      key={tier.id}
-                      align="center"
-                      sx={{
-                        backgroundColor: isPro
-                          ? alpha(tierColor, 0.1)
-                          : colors.neutral.gray50,
-                        borderRight: tier.slug !== 'enterprise' ? `1px solid ${colors.neutral.gray200}` : 'none',
-                        py: 3,
-                        position: 'relative',
-                        minWidth: 180,
-                      }}
-                    >
-                      {isPro && (
-                        <Chip
-                          icon={<StarIcon />}
-                          label="Most Popular"
-                          size="small"
+                    // Calculate savings for yearly plan
+                    const monthlyPrice =
+                      typeof tier.price_monthly === 'string'
+                        ? parseFloat(tier.price_monthly)
+                        : tier.price_monthly;
+                    const yearlyPrice =
+                      typeof tier.price_yearly === 'string'
+                        ? parseFloat(tier.price_yearly)
+                        : tier.price_yearly;
+                    const monthlySavings =
+                      billingPeriod === 'yearly' && price > 0
+                        ? (monthlyPrice * 12 - yearlyPrice) / 12
+                        : 0;
+                    const showSavings = billingPeriod === 'yearly' && monthlySavings > 0;
+
+                    return (
+                      <TableCell
+                        key={tier.id}
+                        align="center"
+                        sx={{
+                          backgroundColor: isPro ? alpha(tierColor, 0.1) : colors.neutral.gray50,
+                          borderRight:
+                            tier.slug !== 'enterprise'
+                              ? `1px solid ${colors.neutral.gray200}`
+                              : 'none',
+                          py: 3,
+                          position: 'relative',
+                          width: '25%',
+                          minWidth: 200,
+                          maxWidth: 200,
+                          verticalAlign: 'top',
+                        }}
+                      >
+                        {/* Badge area - fixed height for all tiers */}
+                        <Box
                           sx={{
-                            position: 'absolute',
-                            top: 8,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            backgroundColor: tierColor,
-                            color: 'white',
-                            fontWeight: 700,
-                            fontSize: '0.7rem',
-                            height: 24,
+                            height: 40,
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            justifyContent: 'center',
+                            mb: 1,
                           }}
-                        />
-                      )}
-                      <Box sx={{ mt: isPro ? 4 : 0 }}>
+                        >
+                          {isPro && (
+                            <Chip
+                              icon={<StarIcon />}
+                              label="Most Popular"
+                              size="small"
+                              sx={{
+                                backgroundColor: tierColor,
+                                color: 'white',
+                                fontWeight: 700,
+                                fontSize: '0.7rem',
+                                height: 24,
+                              }}
+                            />
+                          )}
+                        </Box>
+
+                        {/* Tier name - fixed spacing */}
                         <Typography
                           variant="h5"
                           sx={{
                             fontWeight: 800,
                             mb: 1,
                             color: tierColor,
+                            minHeight: 32,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                           }}
                         >
                           {tier.name}
                         </Typography>
-                        <Box sx={{ mb: 2 }}>
-                          <Typography
-                            variant="h3"
-                            component="span"
+
+                        {/* Price with inline savings - fixed height container to keep buttons aligned */}
+                        <Box
+                          sx={{
+                            mb: 1.5,
+                            height: 72,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'flex-start',
+                          }}
+                        >
+                          <Box>
+                            <Typography
+                              variant="h3"
+                              component="span"
+                              sx={{
+                                fontWeight: 900,
+                                color: tierColor,
+                                lineHeight: 1,
+                              }}
+                            >
+                              {price === 0 && tier.slug === 'enterprise'
+                                ? 'Contact Us'
+                                : `€${price.toFixed(0)}`}
+                            </Typography>
+                            {!(price === 0 && tier.slug === 'enterprise') && (
+                              <Typography
+                                variant="body1"
+                                component="span"
+                                sx={{
+                                  color: colors.neutral.gray600,
+                                  ml: 0.5,
+                                }}
+                              >
+                                /{billingPeriod === 'monthly' ? 'mo' : 'yr'}
+                              </Typography>
+                            )}
+                          </Box>
+                          <Box
                             sx={{
-                              fontWeight: 900,
-                              color: tierColor,
-                              lineHeight: 1,
+                              height: 24,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                             }}
                           >
-                            €{price.toFixed(0)}
-                          </Typography>
-                          <Typography
-                            variant="body1"
-                            component="span"
-                            sx={{
-                              color: colors.neutral.gray600,
-                              ml: 0.5,
-                            }}
-                          >
-                            /{billingPeriod === 'monthly' ? 'mo' : 'yr'}
-                          </Typography>
+                            {showSavings && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: colors.success.main,
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Save €{monthlySavings.toFixed(0)}/month
+                              </Typography>
+                            )}
+                          </Box>
                         </Box>
-                        {billingPeriod === 'yearly' && price > 0 && (
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              color: colors.success.main,
-                              fontWeight: 600,
-                              display: 'block',
-                              mb: 2,
-                            }}
-                          >
-                            Save €{((tier.price_monthly * 12 - price) / 12).toFixed(0)}/month
-                          </Typography>
-                        )}
+
+                        {/* Button - fixed spacing from bottom */}
                         {tier.slug === 'enterprise' ? (
                           <Button
                             variant="outlined"
@@ -372,7 +632,7 @@ export default function PricingPage() {
                               fontWeight: 700,
                               textTransform: 'none',
                               borderRadius: 2,
-                              mt: 1,
+                              py: 1.5,
                             }}
                           >
                             Contact Sales
@@ -391,11 +651,15 @@ export default function PricingPage() {
                               fontWeight: 700,
                               textTransform: 'none',
                               borderRadius: 2,
-                              mt: 1,
-                              boxShadow: isCurrentTier ? 'none' : `0 4px 12px ${alpha(tierColor, 0.3)}`,
+                              py: 1.5,
+                              boxShadow: isCurrentTier
+                                ? 'none'
+                                : `0 4px 12px ${alpha(tierColor, 0.3)}`,
                               '&:hover': {
                                 backgroundColor: isCurrentTier ? alpha(tierColor, 0.1) : tierColor,
-                                boxShadow: isCurrentTier ? 'none' : `0 6px 16px ${alpha(tierColor, 0.4)}`,
+                                boxShadow: isCurrentTier
+                                  ? 'none'
+                                  : `0 6px 16px ${alpha(tierColor, 0.4)}`,
                               },
                               '&:disabled': {
                                 backgroundColor: colors.neutral.gray200,
@@ -404,100 +668,104 @@ export default function PricingPage() {
                               },
                             }}
                           >
-                            {isCurrentTier ? 'Current Plan' : isCreatingCheckout ? 'Processing...' : 'Get Started'}
+                            {isCurrentTier
+                              ? 'Current Plan'
+                              : isCreatingCheckout
+                                ? 'Processing...'
+                                : 'Get Started'}
                           </Button>
                         )}
-                      </Box>
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {features.map((feature, idx) => {
-                const prevCategory = idx > 0 ? features[idx - 1].category : null;
-                const showCategory = prevCategory !== feature.category;
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {features.map((feature, idx) => {
+                  const prevCategory = idx > 0 ? features[idx - 1].category : null;
+                  const showCategory = prevCategory !== feature.category;
 
-                return (
-                  <React.Fragment key={idx}>
-                    {showCategory && (
-                      <TableRow>
+                  return (
+                    <React.Fragment key={idx}>
+                      {showCategory && (
+                        <TableRow>
+                          <TableCell
+                            colSpan={5}
+                            sx={{
+                              backgroundColor: alpha(colors.primary.main, 0.05),
+                              fontWeight: 700,
+                              fontSize: '0.95rem',
+                              color: colors.primary.main,
+                              py: 2,
+                              borderTop: idx > 0 ? `2px solid ${colors.neutral.gray200}` : 'none',
+                            }}
+                          >
+                            {feature.category}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      <TableRow
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: alpha(colors.primary.main, 0.02),
+                          },
+                          '&:last-child td': {
+                            borderBottom: 'none',
+                          },
+                        }}
+                      >
                         <TableCell
-                          colSpan={5}
                           sx={{
-                            backgroundColor: alpha(colors.primary.main, 0.05),
-                            fontWeight: 700,
-                            fontSize: '0.95rem',
-                            color: colors.primary.main,
-                            py: 2,
-                            borderTop: idx > 0 ? `2px solid ${colors.neutral.gray200}` : 'none',
+                            fontWeight: 500,
+                            borderRight: `1px solid ${colors.neutral.gray200}`,
+                            position: 'sticky',
+                            left: 0,
+                            backgroundColor: 'white',
+                            zIndex: 5,
+                            width: 'auto',
+                            whiteSpace: 'nowrap',
                           }}
                         >
-                          {feature.category}
+                          {feature.name}
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            borderRight: `1px solid ${colors.neutral.gray200}`,
+                            py: 2.5,
+                          }}
+                        >
+                          {renderFeatureValue(feature.free)}
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            borderRight: `1px solid ${colors.neutral.gray200}`,
+                            py: 2.5,
+                          }}
+                        >
+                          {renderFeatureValue(feature.basic)}
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            borderRight: `1px solid ${colors.neutral.gray200}`,
+                            py: 2.5,
+                            backgroundColor: alpha(getTierColor('pro'), 0.03),
+                          }}
+                        >
+                          {renderFeatureValue(feature.pro)}
+                        </TableCell>
+                        <TableCell align="center" sx={{ py: 2.5 }}>
+                          {renderFeatureValue(feature.enterprise)}
                         </TableCell>
                       </TableRow>
-                    )}
-                    <TableRow
-                      sx={{
-                        '&:hover': {
-                          backgroundColor: alpha(colors.primary.main, 0.02),
-                        },
-                        '&:last-child td': {
-                          borderBottom: 'none',
-                        },
-                      }}
-                    >
-                      <TableCell
-                        sx={{
-                          fontWeight: 500,
-                          borderRight: `1px solid ${colors.neutral.gray200}`,
-                          position: 'sticky',
-                          left: 0,
-                          backgroundColor: 'white',
-                          zIndex: 5,
-                          minWidth: 250,
-                        }}
-                      >
-                        {feature.name}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        sx={{
-                          borderRight: `1px solid ${colors.neutral.gray200}`,
-                          py: 2.5,
-                        }}
-                      >
-                        {renderFeatureValue(feature.free)}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        sx={{
-                          borderRight: `1px solid ${colors.neutral.gray200}`,
-                          py: 2.5,
-                        }}
-                      >
-                        {renderFeatureValue(feature.basic)}
-                      </TableCell>
-                      <TableCell
-                        align="center"
-                        sx={{
-                          borderRight: `1px solid ${colors.neutral.gray200}`,
-                          py: 2.5,
-                          backgroundColor: alpha(getTierColor('pro'), 0.03),
-                        }}
-                      >
-                        {renderFeatureValue(feature.pro)}
-                      </TableCell>
-                      <TableCell align="center" sx={{ py: 2.5 }}>
-                        {renderFeatureValue(feature.enterprise)}
-                      </TableCell>
-                    </TableRow>
-                  </React.Fragment>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                    </React.Fragment>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Box>
 
         {/* Footer CTA */}
