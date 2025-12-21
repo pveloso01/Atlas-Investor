@@ -37,7 +37,7 @@ def send_activation_email(user, token, uid):
     }
     
     try:
-        html_message = render_to_string("emails/activation.html", context)
+        html_message = render_to_string("users/emails/activation.html", context)
         plain_message = f"Please activate your account by clicking this link: {activation_url}"
     except Exception:
         # Fallback if template doesn't exist yet
@@ -73,7 +73,7 @@ def send_password_reset_email(user, token, uid):
     }
     
     try:
-        html_message = render_to_string("emails/password_reset.html", context)
+        html_message = render_to_string("users/emails/password_reset.html", context)
         plain_message = f"Please reset your password by clicking this link: {reset_url}"
     except Exception:
         # Fallback if template doesn't exist yet
@@ -103,7 +103,7 @@ def send_welcome_email(user):
     }
     
     try:
-        html_message = render_to_string("emails/welcome.html", context)
+        html_message = render_to_string("users/emails/welcome.html", context)
         plain_message = "Welcome to Atlas Investor! Your account has been activated."
     except Exception:
         # Fallback if template doesn't exist yet

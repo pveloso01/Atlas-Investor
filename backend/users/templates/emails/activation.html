@@ -1,0 +1,17 @@
+{% extends "users/emails/base.html" %}
+
+{% block title %}Activate Your Account - Atlas Investor{% endblock %}
+
+{% block content %}
+<h2>Welcome to Atlas Investor!</h2>
+<p>Hello {{ user.first_name|default:user.email }},</p>
+<p>Thank you for registering with Atlas Investor. To complete your registration and activate your account, please click the button below:</p>
+<p style="text-align: center;">
+    <a href="{{ activation_url }}" class="button">Activate Account</a>
+</p>
+<p>Or copy and paste this link into your browser:</p>
+<p style="word-break: break-all; color: #1976d2;">{{ activation_url }}</p>
+<p>This activation link will expire in 24 hours.</p>
+<p>If you did not create an account with Atlas Investor, please ignore this email.</p>
+{% endblock %}
+
