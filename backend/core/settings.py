@@ -233,9 +233,17 @@ SIMPLE_JWT = {
 }
 
 # Email Settings (Console backend for development)
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "noreply@atlasinvestor.com"
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@atlasinvestor.com")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
+# Production email settings (set via environment variables)
+EMAIL_HOST = os.getenv("EMAIL_HOST", None)
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587")) if os.getenv("EMAIL_PORT") else 587
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", None)
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", None)
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() in ("true", "1", "yes", "on")
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False").lower() in ("true", "1", "yes", "on")
 
 # Redis Cache Configuration
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
