@@ -5,8 +5,10 @@ import { Fab, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextFie
 import { Feedback as FeedbackIcon, Close as CloseIcon, Send as SendIcon } from '@mui/icons-material';
 import { colors } from '@/lib/theme/colors';
 import { useSubmitFeedbackMutation } from '@/lib/store/api/feedbackApi';
+import { useFooterPosition } from '@/hooks/useFooterPosition';
 
 export default function FeedbackButton() {
+  const bottomOffset = useFooterPosition();
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState<number | null>(null);
   const [feedback, setFeedback] = useState('');
@@ -58,10 +60,11 @@ export default function FeedbackButton() {
         onClick={handleOpen}
         sx={{
           position: 'fixed',
-          bottom: 100,
+          bottom: bottomOffset + 76, // Stack above SupportWidget (56px FAB + 20px gap)
           right: 24,
           zIndex: 1000,
           backgroundColor: colors.accent.main,
+          transition: 'bottom 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             backgroundColor: colors.accent.dark,
           },

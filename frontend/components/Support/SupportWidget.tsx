@@ -5,8 +5,10 @@ import { Fab, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextFie
 import { Help as HelpIcon, Close as CloseIcon, Send as SendIcon } from '@mui/icons-material';
 import { colors } from '@/lib/theme/colors';
 import { useSubmitSupportMessageMutation } from '@/lib/store/api/feedbackApi';
+import { useFooterPosition } from '@/hooks/useFooterPosition';
 
 export default function SupportWidget() {
+  const bottomOffset = useFooterPosition();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -59,10 +61,11 @@ export default function SupportWidget() {
         onClick={handleOpen}
         sx={{
           position: 'fixed',
-          bottom: 24,
+          bottom: bottomOffset,
           right: 24,
           zIndex: 1000,
           backgroundColor: colors.primary.main,
+          transition: 'bottom 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
             backgroundColor: colors.primary.dark,
           },
