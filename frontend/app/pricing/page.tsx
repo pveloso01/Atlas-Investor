@@ -297,7 +297,7 @@ export default function PricingPage() {
                         height: 28,
                         zIndex: 1,
                       }}
-                    )}
+                    />
                   )}
                   {isCurrentTier && !isPro && (
                     <Chip
