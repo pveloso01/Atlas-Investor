@@ -219,8 +219,3 @@ export default function NavBar() {
     </>
   );
 }
-
-
-
-
-

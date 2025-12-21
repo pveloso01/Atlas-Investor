@@ -35,13 +35,7 @@ export default function AdvancedModeToggle({
       }}
     >
       <FormControlLabel
-        control={
-          <Switch
-            checked={enabled}
-            onChange={handleToggle}
-            color="primary"
-          />
-        }
+        control={<Switch checked={enabled} onChange={handleToggle} color="primary" />}
         label={
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
@@ -63,8 +57,3 @@ export default function AdvancedModeToggle({
     </Box>
   );
 }
-
-
-
-
-

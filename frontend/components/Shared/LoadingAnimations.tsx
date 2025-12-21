@@ -67,7 +67,13 @@ export default function LoadingAnimations({
             >
               <CircularProgress
                 size={24}
-                variant={index < currentMilestone ? 'determinate' : index === currentMilestone ? 'indeterminate' : 'determinate'}
+                variant={
+                  index < currentMilestone
+                    ? 'determinate'
+                    : index === currentMilestone
+                      ? 'indeterminate'
+                      : 'determinate'
+                }
                 value={index < currentMilestone ? 100 : 0}
                 sx={{
                   color: index < currentMilestone ? colors.success.main : colors.primary.main,
@@ -76,7 +82,8 @@ export default function LoadingAnimations({
               <Typography
                 variant="body2"
                 sx={{
-                  color: index <= currentMilestone ? colors.neutral.gray900 : colors.neutral.gray500,
+                  color:
+                    index <= currentMilestone ? colors.neutral.gray900 : colors.neutral.gray500,
                   fontWeight: index === currentMilestone ? 600 : 400,
                 }}
               >
@@ -119,8 +126,3 @@ export default function LoadingAnimations({
     </Box>
   );
 }
-
-
-
-
-

@@ -47,7 +47,7 @@ export default function ErrorMessage({
 }: ErrorMessageProps) {
   const getErrorMessage = (): string => {
     if (message) return message;
-    
+
     if (error) {
       if (error instanceof Error) {
         return error.message;
@@ -57,7 +57,7 @@ export default function ErrorMessage({
       }
       return 'An unknown error occurred';
     }
-    
+
     return 'An unexpected error occurred';
   };
 
@@ -76,7 +76,7 @@ export default function ErrorMessage({
         {title && <AlertTitle>{title}</AlertTitle>}
         <Box>
           <Typography variant="body2">{getErrorMessage()}</Typography>
-          {process.env.NODE_ENV === 'development' && error && error instanceof Error && error.stack && (
+          {process.env.NODE_ENV === 'development' && error instanceof Error && error.stack ? (
             <Box
               sx={{
                 mt: 1,
@@ -101,14 +101,9 @@ export default function ErrorMessage({
                 {error.stack}
               </Typography>
             </Box>
-          )}
+          ) : null}
           {onRetry && (
-            <Button
-              size="small"
-              startIcon={<Refresh />}
-              onClick={onRetry}
-              sx={{ mt: 1 }}
-            >
+            <Button size="small" startIcon={<Refresh />} onClick={onRetry} sx={{ mt: 1 }}>
               Retry
             </Button>
           )}
@@ -169,7 +164,7 @@ export default function ErrorMessage({
           >
             {getErrorMessage()}
           </Typography>
-          {process.env.NODE_ENV === 'development' && error && error instanceof Error && (
+          {process.env.NODE_ENV === 'development' && error instanceof Error ? (
             <Box
               sx={{
                 mt: 1,
@@ -197,7 +192,7 @@ export default function ErrorMessage({
                 {error.stack || error.toString()}
               </Typography>
             </Box>
-          )}
+          ) : null}
           <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
             {onRetry && (
               <Button
@@ -255,4 +250,3 @@ export function InlineError({ message }: { message: string }) {
     </Typography>
   );
 }
-

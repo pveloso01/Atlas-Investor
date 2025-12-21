@@ -21,7 +21,8 @@ import type { MiddlewareAPI } from '@reduxjs/toolkit';
 export const authMiddleware: Middleware = (_api: MiddlewareAPI) => (next) => (action) => {
   // Check if this is a rejected action with a value (API error)
   if (isRejectedWithValue(action)) {
-    const status = action.payload?.status;
+    const payload = action.payload as { status?: number | string } | undefined;
+    const status = payload?.status;
 
     // Handle 401 Unauthorized
     if (status === 401 || status === 'PARSING_ERROR') {
@@ -51,4 +52,3 @@ export const authMiddleware: Middleware = (_api: MiddlewareAPI) => (next) => (ac
 
   return next(action);
 };
-

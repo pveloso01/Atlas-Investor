@@ -56,15 +56,17 @@ const mockProperty: Property = {
   size_sqm: '100',
   property_type: 'apartment',
   bedrooms: 2,
-  bathrooms: 1,
+  bathrooms: '1',
   region: {
     id: 1,
     name: 'Lisboa',
     code: 'LIS',
-    avg_price_per_sqm: '5000',
-    avg_rent: '1200',
-    avg_yield: '5.0',
+    avg_price_per_sqm: 5000,
+    avg_rent: 1200,
+    avg_yield: 5.0,
   },
+  created_at: '2024-01-01T00:00:00Z',
+  updated_at: '2024-01-01T00:00:00Z',
 };
 
 describe('AnalysisPanel', () => {
@@ -127,36 +129,39 @@ describe('AnalysisPanel', () => {
   it('allows changing monthly rent input', async () => {
     const user = userEvent.setup();
     render(<AnalysisPanel property={mockProperty} />);
-    
+
     const rentInput = screen.getByLabelText(/Expected Monthly Rent/i);
     await user.clear(rentInput);
     await user.type(rentInput, '1500');
-    
+
     expect(rentInput).toHaveValue(1500);
   });
 
   it('allows changing interest rate input', async () => {
     const user = userEvent.setup();
     render(<AnalysisPanel property={mockProperty} />);
-    
+
     const interestInput = screen.getByLabelText(/Interest Rate/i);
     await user.clear(interestInput);
     await user.type(interestInput, '5.5');
-    
+
     expect(interestInput).toHaveValue(5.5);
   });
 
   it('calls analyzeProperty on mount', async () => {
     render(<AnalysisPanel property={mockProperty} />);
-    
-    await waitFor(() => {
-      expect(mockAnalyzeProperty).toHaveBeenCalled();
-    }, { timeout: 1000 });
+
+    await waitFor(
+      () => {
+        expect(mockAnalyzeProperty).toHaveBeenCalled();
+      },
+      { timeout: 1000 }
+    );
   });
 
   it('uses regional average rent as default if available', () => {
     render(<AnalysisPanel property={mockProperty} />);
-    
+
     const rentInput = screen.getByLabelText(/Expected Monthly Rent/i);
     // Regional avg_rent is 1200
     expect(rentInput).toHaveValue(1200);
@@ -188,10 +193,7 @@ describe('AnalysisPanel - Loading State', () => {
         reducer: (state = {}) => state,
         middleware: () => (next: (action: unknown) => unknown) => (action: unknown) => next(action),
       },
-      useAnalyzePropertyMutation: () => [
-        jest.fn(),
-        { data: null, isLoading: true, error: null },
-      ],
+      useAnalyzePropertyMutation: () => [jest.fn(), { data: null, isLoading: true, error: null }],
     }));
 
     // This test verifies the loading state is handled
@@ -233,4 +235,3 @@ describe('AnalysisPanel - Investment Rating', () => {
     expect(screen.getByText('Good')).toBeInTheDocument();
   });
 });
-

@@ -17,24 +17,24 @@ export function PropertyCardSkeleton() {
     >
       {/* Image skeleton */}
       <Skeleton variant="rectangular" height={200} animation="wave" />
-      
+
       <CardContent sx={{ flexGrow: 1 }}>
         {/* Title skeleton */}
         <Skeleton variant="text" width="80%" height={28} animation="wave" sx={{ mb: 1 }} />
-        
+
         {/* Location skeleton */}
         <Skeleton variant="text" width="60%" height={20} animation="wave" sx={{ mb: 2 }} />
-        
+
         {/* Features skeleton */}
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
           <Skeleton variant="rounded" width={60} height={24} animation="wave" />
           <Skeleton variant="rounded" width={60} height={24} animation="wave" />
           <Skeleton variant="rounded" width={60} height={24} animation="wave" />
         </Box>
-        
+
         {/* Price skeleton */}
         <Skeleton variant="text" width="40%" height={32} animation="wave" sx={{ mb: 1 }} />
-        
+
         {/* Button skeleton */}
         <Skeleton variant="rounded" height={36} animation="wave" />
       </CardContent>
@@ -49,7 +49,7 @@ export function PropertyGridSkeleton({ count = 6 }: { count?: number }) {
   return (
     <Grid container spacing={3}>
       {Array.from({ length: count }).map((_, index) => (
-        <Grid item xs={12} sm={6} md={4} key={index}>
+        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
           <PropertyCardSkeleton />
         </Grid>
       ))}
@@ -66,32 +66,37 @@ export function PropertyDetailSkeleton() {
       {/* Header */}
       <Skeleton variant="text" width="60%" height={40} animation="wave" sx={{ mb: 2 }} />
       <Skeleton variant="text" width="40%" height={24} animation="wave" sx={{ mb: 3 }} />
-      
+
       <Grid container spacing={4}>
         {/* Main content */}
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           {/* Image gallery skeleton */}
-          <Skeleton variant="rectangular" height={400} animation="wave" sx={{ mb: 3, borderRadius: 2 }} />
-          
+          <Skeleton
+            variant="rectangular"
+            height={400}
+            animation="wave"
+            sx={{ mb: 3, borderRadius: 2 }}
+          />
+
           {/* Description skeleton */}
           <Skeleton variant="text" width="30%" height={32} animation="wave" sx={{ mb: 2 }} />
           <Skeleton variant="text" width="100%" animation="wave" />
           <Skeleton variant="text" width="100%" animation="wave" />
           <Skeleton variant="text" width="80%" animation="wave" sx={{ mb: 3 }} />
-          
+
           {/* Features skeleton */}
           <Skeleton variant="text" width="25%" height={32} animation="wave" sx={{ mb: 2 }} />
           <Grid container spacing={2}>
             {Array.from({ length: 6 }).map((_, i) => (
-              <Grid item xs={6} sm={4} key={i}>
+              <Grid size={{ xs: 6, sm: 4 }} key={i}>
                 <Skeleton variant="rounded" height={60} animation="wave" />
               </Grid>
             ))}
           </Grid>
         </Grid>
-        
+
         {/* Sidebar */}
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           <Skeleton variant="rectangular" height={500} animation="wave" sx={{ borderRadius: 2 }} />
         </Grid>
       </Grid>
@@ -148,4 +153,3 @@ export function StatsCardSkeleton() {
     </Card>
   );
 }
-

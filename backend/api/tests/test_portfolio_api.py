@@ -367,3 +367,4 @@ class TestPortfolioAPI(TestCase):
         self.assertFalse(portfolio1.is_default)
         self.assertTrue(portfolio2.is_default)
 
+

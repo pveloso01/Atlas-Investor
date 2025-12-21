@@ -182,4 +182,3 @@ describe('ActivateAccountPage - Generic Error', () => {
     expect(screen.getByText(/Account activation failed/i)).toBeInTheDocument();
   });
 });
-

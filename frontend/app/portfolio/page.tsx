@@ -68,7 +68,11 @@ export default function PortfolioPage() {
   const [propertyTargetPrice, setPropertyTargetPrice] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [menuPortfolio, setMenuPortfolio] = useState<Portfolio | null>(null);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
     open: false,
     message: '',
     severity: 'success',
@@ -89,7 +93,7 @@ export default function PortfolioPage() {
   // Select first portfolio by default
   React.useEffect(() => {
     if (portfolios && portfolios.length > 0 && !selectedPortfolioId) {
-      const defaultPortfolio = portfolios.find(p => p.is_default) || portfolios[0];
+      const defaultPortfolio = portfolios.find((p) => p.is_default) || portfolios[0];
       setSelectedPortfolioId(defaultPortfolio.id);
     }
   }, [portfolios, selectedPortfolioId]);
@@ -248,7 +252,7 @@ export default function PortfolioPage() {
 
       <Grid container spacing={3}>
         {/* Portfolio List Sidebar */}
-        <Grid item xs={12} md={3}>
+        <Grid size={{ xs: 12, md: 3 }}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
               Portfolios ({portfolios?.length || 0})
@@ -262,14 +266,26 @@ export default function PortfolioPage() {
                   sx={{
                     mb: 1,
                     cursor: 'pointer',
-                    border: selectedPortfolioId === portfolio.id ? `2px solid ${colors.primary.main}` : '1px solid transparent',
-                    backgroundColor: selectedPortfolioId === portfolio.id ? colors.primary.main + '10' : 'transparent',
+                    border:
+                      selectedPortfolioId === portfolio.id
+                        ? `2px solid ${colors.primary.main}`
+                        : '1px solid transparent',
+                    backgroundColor:
+                      selectedPortfolioId === portfolio.id
+                        ? colors.primary.main + '10'
+                        : 'transparent',
                     '&:hover': { backgroundColor: colors.neutral.gray100 },
                   }}
                   onClick={() => setSelectedPortfolioId(portfolio.id)}
                 >
                   <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                      }}
+                    >
                       <Box sx={{ flex: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Typography variant="body1" sx={{ fontWeight: 600 }}>
@@ -280,7 +296,8 @@ export default function PortfolioPage() {
                           )}
                         </Box>
                         <Typography variant="caption" sx={{ color: colors.neutral.gray600 }}>
-                          {portfolio.property_count} properties • {formatPrice(portfolio.total_value)}
+                          {portfolio.property_count} properties •{' '}
+                          {formatPrice(portfolio.total_value)}
                         </Typography>
                       </Box>
                       <IconButton
@@ -301,7 +318,7 @@ export default function PortfolioPage() {
         </Grid>
 
         {/* Portfolio Details */}
-        <Grid item xs={12} md={9}>
+        <Grid size={{ xs: 12, md: 9 }}>
           {isLoadingPortfolio ? (
             <Box sx={{ textAlign: 'center', py: 8 }}>
               <CircularProgress />
@@ -309,7 +326,14 @@ export default function PortfolioPage() {
           ) : selectedPortfolio ? (
             <Paper sx={{ p: 3 }}>
               {/* Portfolio Header */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  mb: 3,
+                }}
+              >
                 <Box>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
@@ -329,7 +353,7 @@ export default function PortfolioPage() {
 
               {/* Portfolio Stats */}
               <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={6} md={3}>
+                <Grid size={{ xs: 6, md: 3 }}>
                   <Box sx={{ p: 2, backgroundColor: colors.neutral.gray50, borderRadius: 2 }}>
                     <Typography variant="caption" sx={{ color: colors.neutral.gray600 }}>
                       Properties
@@ -339,7 +363,7 @@ export default function PortfolioPage() {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={6} md={3}>
+                <Grid size={{ xs: 6, md: 3 }}>
                   <Box sx={{ p: 2, backgroundColor: colors.neutral.gray50, borderRadius: 2 }}>
                     <Typography variant="caption" sx={{ color: colors.neutral.gray600 }}>
                       Total Value
@@ -349,13 +373,15 @@ export default function PortfolioPage() {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={6} md={3}>
+                <Grid size={{ xs: 6, md: 3 }}>
                   <Box sx={{ p: 2, backgroundColor: colors.neutral.gray50, borderRadius: 2 }}>
                     <Typography variant="caption" sx={{ color: colors.neutral.gray600 }}>
                       Average Price
                     </Typography>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                      {selectedPortfolio.average_price ? formatPrice(selectedPortfolio.average_price) : 'N/A'}
+                      {selectedPortfolio.average_price
+                        ? formatPrice(selectedPortfolio.average_price)
+                        : 'N/A'}
                     </Typography>
                   </Box>
                 </Grid>
@@ -378,11 +404,11 @@ export default function PortfolioPage() {
               ) : (
                 <Grid container spacing={2}>
                   {selectedPortfolio.properties?.map((property) => (
-                    <Grid item xs={12} key={property.id}>
+                    <Grid size={{ xs: 12 }} key={property.id}>
                       <Card variant="outlined">
                         <CardContent>
                           <Grid container spacing={2} alignItems="center">
-                            <Grid item xs={12} md={5}>
+                            <Grid size={{ xs: 12, md: 5 }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <HomeIcon sx={{ color: colors.primary.main }} />
                                 <Box>
@@ -393,36 +419,49 @@ export default function PortfolioPage() {
                                       cursor: 'pointer',
                                       '&:hover': { color: colors.primary.main },
                                     }}
-                                    onClick={() => router.push(`/properties/${property.property_id}`)}
+                                    onClick={() =>
+                                      router.push(`/properties/${property.property_id}`)
+                                    }
                                   >
                                     {property.property_address}
                                   </Typography>
-                                  <Typography variant="caption" sx={{ color: colors.neutral.gray600 }}>
-                                    {property.property_type} • {property.size_sqm} m² • {property.bedrooms || 0} bed
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ color: colors.neutral.gray600 }}
+                                  >
+                                    {property.property_type} • {property.size_sqm} m² •{' '}
+                                    {property.bedrooms || 0} bed
                                     {property.region_name && ` • ${property.region_name}`}
                                   </Typography>
                                 </Box>
                               </Box>
                             </Grid>
-                            <Grid item xs={6} md={2}>
+                            <Grid size={{ xs: 6, md: 2 }}>
                               <Typography variant="caption" sx={{ color: colors.neutral.gray600 }}>
                                 Current Price
                               </Typography>
-                              <Typography variant="body1" sx={{ fontWeight: 600, color: colors.primary.main }}>
+                              <Typography
+                                variant="body1"
+                                sx={{ fontWeight: 600, color: colors.primary.main }}
+                              >
                                 {formatPrice(property.property_price)}
                               </Typography>
                             </Grid>
-                            <Grid item xs={6} md={2}>
+                            <Grid size={{ xs: 6, md: 2 }}>
                               <Typography variant="caption" sx={{ color: colors.neutral.gray600 }}>
                                 Target Price
                               </Typography>
                               <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                                {property.target_price ? formatPrice(property.target_price) : 'Not set'}
+                                {property.target_price
+                                  ? formatPrice(property.target_price)
+                                  : 'Not set'}
                               </Typography>
                               {property.price_difference && (
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                   {property.price_difference.is_below_target ? (
-                                    <TrendingDown sx={{ fontSize: 14, color: colors.success.main }} />
+                                    <TrendingDown
+                                      sx={{ fontSize: 14, color: colors.success.main }}
+                                    />
                                   ) : (
                                     <TrendingUp sx={{ fontSize: 14, color: colors.error.main }} />
                                   )}
@@ -440,12 +479,14 @@ export default function PortfolioPage() {
                                 </Box>
                               )}
                             </Grid>
-                            <Grid item xs={12} md={3}>
+                            <Grid size={{ xs: 12, md: 3 }}>
                               <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
                                 <Tooltip title="View property">
                                   <IconButton
                                     size="small"
-                                    onClick={() => router.push(`/properties/${property.property_id}`)}
+                                    onClick={() =>
+                                      router.push(`/properties/${property.property_id}`)
+                                    }
                                   >
                                     <OpenInNew fontSize="small" />
                                   </IconButton>
@@ -470,8 +511,11 @@ export default function PortfolioPage() {
                               </Box>
                             </Grid>
                             {property.notes && (
-                              <Grid item xs={12}>
-                                <Typography variant="body2" sx={{ color: colors.neutral.gray600, fontStyle: 'italic' }}>
+                              <Grid size={{ xs: 12 }}>
+                                <Typography
+                                  variant="body2"
+                                  sx={{ color: colors.neutral.gray600, fontStyle: 'italic' }}
+                                >
                                   Notes: {property.notes}
                                 </Typography>
                               </Grid>
@@ -497,28 +541,41 @@ export default function PortfolioPage() {
       {/* Portfolio Menu */}
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem onClick={openEditDialog}>
-          <ListItemIcon><EditIcon fontSize="small" /></ListItemIcon>
+          <ListItemIcon>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
           <ListItemText>Edit</ListItemText>
         </MenuItem>
         {!menuPortfolio?.is_default && (
-          <MenuItem onClick={() => {
-            if (menuPortfolio) {
-              updatePortfolio({ id: menuPortfolio.id, is_default: true });
-            }
-            handleMenuClose();
-          }}>
-            <ListItemIcon><StarBorder fontSize="small" /></ListItemIcon>
+          <MenuItem
+            onClick={() => {
+              if (menuPortfolio) {
+                updatePortfolio({ id: menuPortfolio.id, is_default: true });
+              }
+              handleMenuClose();
+            }}
+          >
+            <ListItemIcon>
+              <StarBorder fontSize="small" />
+            </ListItemIcon>
             <ListItemText>Set as Default</ListItemText>
           </MenuItem>
         )}
         <MenuItem onClick={openDeleteDialog} sx={{ color: colors.error.main }}>
-          <ListItemIcon><DeleteIcon fontSize="small" sx={{ color: colors.error.main }} /></ListItemIcon>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" sx={{ color: colors.error.main }} />
+          </ListItemIcon>
           <ListItemText>Delete</ListItemText>
         </MenuItem>
       </Menu>
 
       {/* Create Portfolio Dialog */}
-      <Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Create New Portfolio</DialogTitle>
         <DialogContent>
           <TextField
@@ -550,7 +607,12 @@ export default function PortfolioPage() {
       </Dialog>
 
       {/* Edit Portfolio Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Edit Portfolio</DialogTitle>
         <DialogContent>
           <TextField
@@ -586,7 +648,8 @@ export default function PortfolioPage() {
         <DialogTitle>Delete Portfolio</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete &quot;{menuPortfolio?.name}&quot;? This will remove all properties from this portfolio.
+            Are you sure you want to delete &quot;{menuPortfolio?.name}&quot;? This will remove all
+            properties from this portfolio.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -603,7 +666,12 @@ export default function PortfolioPage() {
       </Dialog>
 
       {/* Edit Property Dialog */}
-      <Dialog open={editPropertyDialogOpen} onClose={() => setEditPropertyDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={editPropertyDialogOpen}
+        onClose={() => setEditPropertyDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Edit Property in Portfolio</DialogTitle>
         <DialogContent>
           <TextField
@@ -652,4 +720,3 @@ export default function PortfolioPage() {
     </Container>
   );
 }
-
