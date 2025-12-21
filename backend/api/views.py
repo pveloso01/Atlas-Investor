@@ -271,9 +271,7 @@ class SupportMessageViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def get_permissions(self):
-        """Allow anyone to create support messages, but restrict other actions."""
-        if self.action == "create":
-            return [AllowAny()]
+        """Require authentication for all actions including creating support messages."""
         return [IsAuthenticated()]
 
     def get_queryset(self):
