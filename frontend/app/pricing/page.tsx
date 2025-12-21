@@ -228,16 +228,36 @@ export default function PricingPage() {
         </Box>
 
         {/* Pricing Comparison Table */}
-        <TableContainer
-          component={Paper}
-          elevation={3}
+        <Box
           sx={{
-            borderRadius: 4,
-            overflow: 'hidden',
-            border: `1px solid ${colors.neutral.gray200}`,
+            overflowX: 'auto',
+            '&::-webkit-scrollbar': {
+              height: 8,
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: colors.neutral.gray100,
+              borderRadius: 4,
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: colors.neutral.gray400,
+              borderRadius: 4,
+              '&:hover': {
+                backgroundColor: colors.neutral.gray500,
+              },
+            },
           }}
         >
-          <Table sx={{ minWidth: 800 }}>
+          <TableContainer
+            component={Paper}
+            elevation={3}
+            sx={{
+              borderRadius: 4,
+              overflow: 'hidden',
+              border: `1px solid ${colors.neutral.gray200}`,
+              minWidth: 800,
+            }}
+          >
+            <Table sx={{ minWidth: 800 }}>
             <TableHead>
               <TableRow>
                 <TableCell
@@ -478,6 +498,7 @@ export default function PricingPage() {
             </TableBody>
           </Table>
         </TableContainer>
+        </Box>
 
         {/* Footer CTA */}
         <Box sx={{ textAlign: 'center', mt: 6 }}>
