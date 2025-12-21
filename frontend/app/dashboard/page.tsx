@@ -11,6 +11,7 @@ import InsightsCarousel from '@/components/Dashboard/InsightsCarousel';
 import LoadingSpinner from '@/components/Shared/LoadingSpinner';
 import ErrorMessage from '@/components/Shared/ErrorMessage';
 import { ListItemSkeleton } from '@/components/Shared/SkeletonLoader';
+import DisclaimerBanner from '@/components/Shared/DisclaimerBanner';
 import { Property } from '@/types/property';
 import { useRouter } from 'next/navigation';
 import { colors } from '@/lib/theme/colors';
@@ -96,6 +97,9 @@ export default function DashboardPage() {
       >
         Deal Finder Dashboard
       </Typography>
+
+      {/* Disclaimer Banner */}
+      <DisclaimerBanner storageKey="atlas-dashboard-disclaimer" />
 
       {/* Summary Cards */}
       <SummaryCards
