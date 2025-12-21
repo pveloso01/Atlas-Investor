@@ -7,6 +7,7 @@ import { authApi } from './api/authApi';
 import { analysisApi } from './api/analysisApi';
 import { contactApi } from './api/contactApi';
 import { portfolioApi } from './api/portfolioApi';
+import { subscriptionApi } from './api/subscriptionApi';
 import { authMiddleware } from './middleware/authMiddleware';
 
 export const makeStore = () => {
@@ -18,6 +19,7 @@ export const makeStore = () => {
       [analysisApi.reducerPath]: analysisApi.reducer,
       [contactApi.reducerPath]: contactApi.reducer,
       [portfolioApi.reducerPath]: portfolioApi.reducer,
+      [subscriptionApi.reducerPath]: subscriptionApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
@@ -27,6 +29,7 @@ export const makeStore = () => {
         .concat(analysisApi.middleware)
         .concat(contactApi.middleware)
         .concat(portfolioApi.middleware)
+        .concat(subscriptionApi.middleware)
         .concat(authMiddleware), // Add auth middleware last to catch all API errors
   });
 };
