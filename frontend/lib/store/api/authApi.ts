@@ -10,7 +10,7 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  re_password: string;
+  password_retype: string;
   first_name?: string;
   last_name?: string;
 }

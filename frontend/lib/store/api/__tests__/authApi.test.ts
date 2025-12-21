@@ -176,7 +176,7 @@ describe('authApi', () => {
       const data: import('../authApi').RegisterData = {
         email: 'test@example.com',
         password: 'password',
-        re_password: 'password',
+        password_retype: 'password',
       };
       expect(data.email).toBe('test@example.com');
     });

@@ -23,7 +23,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    re_password: '',
+    password_retype: '',
     first_name: '',
     last_name: '',
   });
@@ -39,7 +39,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
 
-    if (formData.password !== formData.re_password) {
+    if (formData.password !== formData.password_retype) {
       setError('Passwords do not match');
       return;
     }
@@ -170,9 +170,9 @@ export default function RegisterPage() {
           <TextField
             fullWidth
             label="Confirm Password"
-            name="re_password"
+            name="password_retype"
             type="password"
-            value={formData.re_password}
+            value={formData.password_retype}
             onChange={handleChange}
             required
             sx={{ mb: 3 }}

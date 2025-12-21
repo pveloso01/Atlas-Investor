@@ -120,10 +120,10 @@ describe('Authentication Flow Integration Tests', () => {
         username: 'newuser',
         email: 'newuser@example.com',
         password: 'SecurePass123!',
-        re_password: 'SecurePass123!',
+        password_retype: 'SecurePass123!',
       };
 
-      expect(registrationData.password).toBe(registrationData.re_password);
+      expect(registrationData.password).toBe(registrationData.password_retype);
       expect(registrationData.email).toContain('@');
     });
   });

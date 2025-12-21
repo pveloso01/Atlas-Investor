@@ -41,7 +41,7 @@ export default function CTASection() {
           </Typography>
           <Button
             component={Link}
-            href="/signup"
+            href="/register"
             variant="contained"
             size="large"
             endIcon={<ArrowForward />}

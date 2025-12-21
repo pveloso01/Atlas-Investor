@@ -75,9 +75,9 @@ describe('Home Page', () => {
     expect(getStartedButton).toBeInTheDocument();
   });
 
-  it('Get Started button links to /signup', () => {
+  it('Get Started button links to /register', () => {
     render(<Home />, { wrapper: Wrapper });
     const getStartedButton = screen.getByText('Get Started Free').closest('a');
-    expect(getStartedButton).toHaveAttribute('href', '/signup');
+    expect(getStartedButton).toHaveAttribute('href', '/register');
   });
 });

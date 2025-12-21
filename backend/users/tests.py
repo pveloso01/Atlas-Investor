@@ -210,8 +210,8 @@ class UserCreateSerializerTest(TestCase):
         serializer = UserCreateSerializer(data=data)
         self.assertTrue(serializer.is_valid())
 
-        # password_retype should be removed in create method, not validated_data
-        # The create method pops it, so check that create works correctly
+        # password_retype should be removed in validate method, not validated_data
+        # The validate method pops it, so check that create works correctly
         user = serializer.save()
         self.assertIsNotNone(user)
         self.assertEqual(user.email, "newuser@example.com")  # type: ignore[attr-defined]  # noqa: E501

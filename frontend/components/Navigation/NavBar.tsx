@@ -80,7 +80,7 @@ export default function NavBar() {
           <Button
             fullWidth
             variant="contained"
-            href="/signup"
+            href="/register"
             component={Link}
             sx={{
               backgroundColor: colors.accent.main,
@@ -168,7 +168,7 @@ export default function NavBar() {
                 </Button>
                 <Button
                   variant="contained"
-                  href="/signup"
+                  href="/register"
                   component={Link}
                   sx={{
                     backgroundColor: colors.accent.main,

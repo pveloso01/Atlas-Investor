@@ -31,7 +31,7 @@ class TestUserRegistrationFlow(TestCase):
             "username": "newuser",
             "email": "newuser@example.com",
             "password": "SecurePass123!",
-            "re_password": "SecurePass123!",
+            "password_retype": "SecurePass123!",
         }
         
         response = self.client.post("/api/auth/users/", registration_data, format="json")

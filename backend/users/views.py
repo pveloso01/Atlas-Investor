@@ -7,8 +7,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils import timezone
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.core.exceptions import ValidationError
 from rest_framework import status, generics, permissions
+from rest_framework.serializers import ValidationError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -32,9 +32,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         
         # Check if account is locked
         if hasattr(self.user, "is_locked") and self.user.is_locked():
-            return Response(
-                {"error": "Account is temporarily locked. Please try again later."},
-                status=status.HTTP_423_LOCKED,
+            raise ValidationError(
+                {"error": "Account is temporarily locked. Please try again later."}
             )
         
         # Reset failed login attempts on successful login

@@ -84,7 +84,7 @@ export default function HeroSection() {
           {/* CTA Button */}
           <Button
             component={Link}
-            href="/signup"
+            href="/register"
             variant="contained"
             size="large"
             endIcon={<ArrowForward />}
