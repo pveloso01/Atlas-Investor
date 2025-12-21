@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "users",
     "api",
+    "subscriptions",
 ]
 
 # Only add PostGIS if GDAL is available
