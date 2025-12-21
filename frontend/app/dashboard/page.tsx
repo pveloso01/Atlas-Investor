@@ -12,6 +12,7 @@ import LoadingSpinner from '@/components/Shared/LoadingSpinner';
 import ErrorMessage from '@/components/Shared/ErrorMessage';
 import { ListItemSkeleton } from '@/components/Shared/SkeletonLoader';
 import DisclaimerBanner from '@/components/Shared/DisclaimerBanner';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
 import { Property } from '@/types/property';
 import { useRouter } from 'next/navigation';
 import { colors } from '@/lib/theme/colors';
@@ -89,7 +90,8 @@ export default function DashboardPage() {
   const averageROI = 12.5; // Placeholder - would come from API
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <ProtectedRoute>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
       <Typography
         variant="h4"
         component="h1"
@@ -256,7 +258,8 @@ export default function DashboardPage() {
           </Paper>
         </Box>
       </Box>
-    </Container>
+      </Container>
+    </ProtectedRoute>
   );
 }
 

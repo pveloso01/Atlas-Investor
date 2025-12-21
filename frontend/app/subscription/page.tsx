@@ -21,6 +21,7 @@ import {
   useResumeSubscriptionMutation,
   useGetSubscriptionHistoryQuery,
 } from '@/lib/store/api/subscriptionApi';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
 import { colors } from '@/lib/theme/colors';
 
 export default function SubscriptionPage() {
@@ -60,17 +61,20 @@ export default function SubscriptionPage() {
 
   if (isLoading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <CircularProgress />
-        </Box>
-      </Container>
+      <ProtectedRoute>
+        <Container maxWidth="lg" sx={{ py: 8 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <CircularProgress />
+          </Box>
+        </Container>
+      </ProtectedRoute>
     );
   }
 
   if (!subscription) {
     return (
-      <Container maxWidth="lg" sx={{ py: 8 }}>
+      <ProtectedRoute>
+        <Container maxWidth="lg" sx={{ py: 8 }}>
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
             No Active Subscription
@@ -86,12 +90,14 @@ export default function SubscriptionPage() {
             View Plans
           </Button>
         </Paper>
-      </Container>
+        </Container>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 8 }}>
+    <ProtectedRoute>
+      <Container maxWidth="lg" sx={{ py: 8 }}>
       <Typography variant="h3" component="h1" sx={{ fontWeight: 700, mb: 2 }}>
         Subscription Management
       </Typography>
@@ -189,7 +195,8 @@ export default function SubscriptionPage() {
           </Box>
         </Paper>
       )}
-    </Container>
+      </Container>
+    </ProtectedRoute>
   );
 }
 

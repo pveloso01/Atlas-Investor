@@ -41,6 +41,7 @@ import {
   StarBorder,
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
 import { colors } from '@/lib/theme/colors';
 import {
   useGetPortfoliosQuery,
@@ -226,7 +227,8 @@ export default function PortfolioPage() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <ProtectedRoute>
+      <Container maxWidth="xl" sx={{ py: 4 }}>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box>
@@ -717,6 +719,7 @@ export default function PortfolioPage() {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+      </Container>
+    </ProtectedRoute>
   );
 }

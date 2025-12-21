@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Container, Typography, Box, CircularProgress } from '@mui/material';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -17,12 +18,14 @@ export default function CheckoutPage() {
   }, [router]);
 
   return (
-    <Container maxWidth="lg" sx={{ py: 8 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <CircularProgress sx={{ mb: 2 }} />
-        <Typography>Redirecting to checkout...</Typography>
-      </Box>
-    </Container>
+    <ProtectedRoute>
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <CircularProgress sx={{ mb: 2 }} />
+          <Typography>Redirecting to checkout...</Typography>
+        </Box>
+      </Container>
+    </ProtectedRoute>
   );
 }
 

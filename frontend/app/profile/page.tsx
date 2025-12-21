@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { Person, Bookmark, Assessment, Settings, Logout } from '@mui/icons-material';
 import { useGetCurrentUserQuery, useLogoutMutation } from '@/lib/store/api/authApi';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
 import { colors } from '@/lib/theme/colors';
 
 export default function ProfilePage() {
@@ -37,27 +38,22 @@ export default function ProfilePage() {
 
   if (error || !user) {
     return (
-      <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
-        <Typography variant="h5" gutterBottom>
-          Please sign in to view your profile
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => router.push('/login')}
-          sx={{
-            mt: 2,
-            backgroundColor: colors.primary.main,
-            '&:hover': { backgroundColor: colors.primary.dark },
-          }}
-        >
-          Sign In
-        </Button>
-      </Container>
+      <ProtectedRoute>
+        <Container maxWidth="md" sx={{ py: 8, textAlign: 'center' }}>
+          <Typography variant="h5" gutterBottom>
+            Failed to load profile
+          </Typography>
+          <Typography variant="body1" sx={{ color: colors.neutral.gray600, mt: 1 }}>
+            Please try refreshing the page.
+          </Typography>
+        </Container>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <ProtectedRoute>
+      <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper sx={{ p: 4, mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 4 }}>
           <Avatar
@@ -156,7 +152,8 @@ export default function ProfilePage() {
           </Grid>
         </Grid>
       </Paper>
-    </Container>
+      </Container>
+    </ProtectedRoute>
   );
 }
 

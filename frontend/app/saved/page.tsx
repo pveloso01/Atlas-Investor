@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import { Delete, OpenInNew, Euro, SquareFoot, Compare } from '@mui/icons-material';
 import { useGetCurrentUserQuery } from '@/lib/store/api/authApi';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
 import { colors } from '@/lib/theme/colors';
 import PropertyComparisonTable from '@/components/Comparison/PropertyComparisonTable';
 
@@ -82,41 +83,23 @@ export default function SavedPropertiesPage() {
     .filter((saved) => selectedForComparison.includes(saved.property.id))
     .map((saved) => saved.property);
 
-  if (userLoading) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
-        <CircularProgress />
-      </Container>
-    );
-  }
-
-  if (!user) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
-        <Typography variant="h5" gutterBottom>
-          Please sign in to view your saved properties
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => router.push('/login')}
-          sx={{
-            mt: 2,
-            backgroundColor: colors.primary.main,
-            '&:hover': { backgroundColor: colors.primary.dark },
-          }}
-        >
-          Sign In
-        </Button>
-      </Container>
-    );
-  }
-
   const formatPrice = (price: string) => {
     return `€${parseInt(price).toLocaleString('pt-PT')}`;
   };
 
+  if (userLoading) {
+    return (
+      <ProtectedRoute>
+        <Container maxWidth="lg" sx={{ py: 8, textAlign: 'center' }}>
+          <CircularProgress />
+        </Container>
+      </ProtectedRoute>
+    );
+  }
+
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <ProtectedRoute>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" sx={{ fontWeight: 700, mb: 1 }}>
           My Saved Properties
@@ -285,7 +268,8 @@ export default function SavedPropertiesPage() {
           </Button>
         </Paper>
       )}
-    </Container>
+      </Container>
+    </ProtectedRoute>
   );
 }
 

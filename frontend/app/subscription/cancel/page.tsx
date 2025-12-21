@@ -11,6 +11,7 @@ import {
   Alert,
 } from '@mui/material';
 import { useSubscription } from '@/lib/hooks/useSubscription';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
 import { colors } from '@/lib/theme/colors';
 
 export default function SubscriptionCancelPage() {
@@ -19,21 +20,24 @@ export default function SubscriptionCancelPage() {
 
   if (!subscription) {
     return (
-      <Container maxWidth="md" sx={{ py: 8 }}>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
-            No Active Subscription
-          </Typography>
-          <Button variant="contained" onClick={() => router.push('/pricing')}>
-            View Plans
-          </Button>
-        </Paper>
-      </Container>
+      <ProtectedRoute>
+        <Container maxWidth="md" sx={{ py: 8 }}>
+          <Paper sx={{ p: 4, textAlign: 'center' }}>
+            <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+              No Active Subscription
+            </Typography>
+            <Button variant="contained" onClick={() => router.push('/pricing')}>
+              View Plans
+            </Button>
+          </Paper>
+        </Container>
+      </ProtectedRoute>
     );
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 8 }}>
+    <ProtectedRoute>
+      <Container maxWidth="md" sx={{ py: 8 }}>
       <Paper sx={{ p: 6, border: `1px solid ${colors.neutral.gray200}`, borderRadius: 2 }}>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 2 }}>
           Cancel Subscription
@@ -67,7 +71,8 @@ export default function SubscriptionCancelPage() {
           </>
         )}
       </Paper>
-    </Container>
+      </Container>
+    </ProtectedRoute>
   );
 }
 

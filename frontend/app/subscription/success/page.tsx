@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { CheckCircle as CheckCircleIcon } from '@mui/icons-material';
 import { useSubscription } from '@/lib/hooks/useSubscription';
+import ProtectedRoute from '@/components/Auth/ProtectedRoute';
 import { colors } from '@/lib/theme/colors';
 
 export default function SubscriptionSuccessPage() {
@@ -28,7 +29,8 @@ export default function SubscriptionSuccessPage() {
   }, [sessionId, refetch]);
 
   return (
-    <Container maxWidth="md" sx={{ py: 8 }}>
+    <ProtectedRoute>
+      <Container maxWidth="md" sx={{ py: 8 }}>
       <Paper sx={{ p: 6, textAlign: 'center', border: `1px solid ${colors.neutral.gray200}`, borderRadius: 2 }}>
         <CheckCircleIcon sx={{ fontSize: 64, color: colors.success.main, mb: 2 }} />
         <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 2 }}>
@@ -56,7 +58,8 @@ export default function SubscriptionSuccessPage() {
           </Button>
         </Box>
       </Paper>
-    </Container>
+      </Container>
+    </ProtectedRoute>
   );
 }
 
