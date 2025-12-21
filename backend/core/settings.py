@@ -235,6 +235,7 @@ SIMPLE_JWT = {
 # Email Settings (Console backend for development)
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "noreply@atlasinvestor.com"
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 # Redis Cache Configuration
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
