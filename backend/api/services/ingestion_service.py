@@ -146,7 +146,11 @@ class PropertyIngestionService:
         external_id = normalized.get("external_id")
         existing = None
         if external_id:
-            existing = Property.objects.filter(external_id=external_id).first()
+            # Use select_for_update in transaction to prevent race conditions
+            # and select_related to avoid N+1 queries if region is accessed
+            existing = Property.objects.select_related("region", "district", "municipality", "parish").filter(
+                external_id=external_id
+            ).select_for_update().first()
 
         # Prepare property fields
         property_fields = {

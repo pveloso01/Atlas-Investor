@@ -242,7 +242,11 @@ class ReportGenerationService:
     ) -> dict[str, Any]:
         """Prepare context data for portfolio report template."""
         portfolio_properties = portfolio.portfolioproperty_set.select_related(
-            "property", "property__region"
+            "property",
+            "property__region",
+            "property__district",
+            "property__municipality",
+            "property__parish"
         ).all()
 
         total_value = Decimal("0")
