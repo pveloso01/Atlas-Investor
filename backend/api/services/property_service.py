@@ -60,14 +60,20 @@ class PropertyService:
     @staticmethod
     def get_properties_by_region(region: Region) -> QuerySet[Property]:
         """Get all properties for a given region."""
-        return Property.objects.filter(region=region)  # type: ignore[attr-defined]
+        return Property.objects.select_related(
+            "region", "district", "municipality", "parish"
+        ).filter(
+            region=region
+        )  # type: ignore[attr-defined]
 
     @staticmethod
     def get_properties_in_price_range(
         min_price: Optional[Decimal] = None, max_price: Optional[Decimal] = None
     ) -> QuerySet[Property]:
         """Get properties within a price range."""
-        queryset = Property.objects.all()  # type: ignore[attr-defined]
+        queryset = Property.objects.select_related(
+            "region", "district", "municipality", "parish"
+        ).all()  # type: ignore[attr-defined]
 
         if min_price is not None:
             queryset = queryset.filter(price__gte=min_price)

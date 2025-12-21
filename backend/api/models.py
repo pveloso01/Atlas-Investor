@@ -127,6 +127,33 @@ class Property(models.Model):
 
     # Relationships
     region = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Geographic relationships (optional - for future address parsing)
+    # Using string references since these models are defined later in the file
+    district = models.ForeignKey(
+        'District',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="District where property is located",
+        related_name="properties",
+    )
+    municipality = models.ForeignKey(
+        'Municipality',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Municipality where property is located",
+        related_name="properties",
+    )
+    parish = models.ForeignKey(
+        'Parish',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="Parish where property is located",
+        related_name="properties",
+    )
 
     # Images (stored as JSON array of URLs)
     images = models.JSONField(default=list, blank=True, help_text="Array of image URLs")
@@ -147,6 +174,13 @@ class Property(models.Model):
             models.Index(fields=["region", "property_type"]),
             models.Index(fields=["listing_status", "created_at"]),
             models.Index(fields=["bedrooms", "bathrooms"]),
+            models.Index(fields=["district"]),
+            models.Index(fields=["municipality"]),
+            models.Index(fields=["parish"]),
+            # Composite indexes for common filter combinations
+            models.Index(fields=["district", "municipality", "parish"]),
+            models.Index(fields=["property_type", "condition", "energy_rating"]),
+            models.Index(fields=["external_id"]),  # For ingestion lookups
         ]
 
     def __str__(self) -> str:
@@ -373,3 +407,120 @@ class PortfolioProperty(models.Model):
 
     def __str__(self) -> str:
         return f"{self.property.address} in {self.portfolio.name}"
+
+
+# Geographic Models for Portugal's Administrative Hierarchy
+class District(models.Model):
+    """Mainland Portugal district (distrito)."""
+
+    code = models.CharField(max_length=10, unique=True, help_text="District code (e.g., '01' for Aveiro)")
+    name = models.CharField(max_length=100, unique=True)
+    full_path = models.CharField(max_length=200, help_text="Full path for display (e.g., 'Aveiro')")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["code"]
+        indexes = [
+            models.Index(fields=["code"]),
+            models.Index(fields=["name"]),
+        ]
+
+    def __str__(self) -> str:
+        return str(self.name)
+
+
+class AutonomousRegion(models.Model):
+    """Autonomous region (Azores or Madeira)."""
+
+    code = models.CharField(max_length=10, unique=True, help_text="Region code (e.g., 'AR01' for Açores)")
+    name = models.CharField(max_length=100, unique=True)
+    full_path = models.CharField(max_length=200, help_text="Full path for display (e.g., 'Açores')")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["code"]
+        indexes = [
+            models.Index(fields=["code"]),
+            models.Index(fields=["name"]),
+        ]
+
+    def __str__(self) -> str:
+        return str(self.name)
+
+
+class Municipality(models.Model):
+    """Municipality (concelho) - belongs to a district or autonomous region."""
+
+    code = models.CharField(max_length=50, unique=True, help_text="Municipality code (e.g., 'mun-aveiro-01')")
+    name = models.CharField(max_length=200)
+    district = models.ForeignKey(
+        District,
+        on_delete=models.CASCADE,
+        related_name="municipalities",
+        null=True,
+        blank=True,
+        help_text="District if mainland Portugal",
+    )
+    autonomous_region = models.ForeignKey(
+        AutonomousRegion,
+        on_delete=models.CASCADE,
+        related_name="municipalities",
+        null=True,
+        blank=True,
+        help_text="Autonomous region if Azores or Madeira",
+    )
+    full_path = models.CharField(max_length=400, help_text="Full path (e.g., 'Aveiro > Águeda')")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name_plural = "Municipalities"
+        indexes = [
+            models.Index(fields=["code"]),
+            models.Index(fields=["name"]),
+            models.Index(fields=["district"]),
+            models.Index(fields=["autonomous_region"]),
+        ]
+
+    def __str__(self) -> str:
+        return str(self.name)
+
+    def clean(self):
+        """Ensure municipality belongs to either district or autonomous region, not both."""
+        from django.core.exceptions import ValidationError
+
+        if not self.district and not self.autonomous_region:
+            raise ValidationError("Municipality must belong to either a district or an autonomous region.")
+        if self.district and self.autonomous_region:
+            raise ValidationError("Municipality cannot belong to both a district and an autonomous region.")
+
+
+class Parish(models.Model):
+    """Civil parish (freguesia) - belongs to a municipality."""
+
+    code = models.CharField(max_length=50, unique=True, help_text="Parish code (e.g., 'par-aveiro-01-01')")
+    name = models.CharField(max_length=200)
+    municipality = models.ForeignKey(
+        Municipality,
+        on_delete=models.CASCADE,
+        related_name="parishes",
+        help_text="Municipality this parish belongs to",
+    )
+    full_path = models.CharField(max_length=500, help_text="Full path (e.g., 'Aveiro > Águeda > Aguada de Cima')")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name_plural = "Parishes"
+        indexes = [
+            models.Index(fields=["code"]),
+            models.Index(fields=["name"]),
+            models.Index(fields=["municipality"]),
+        ]
+
+    def __str__(self) -> str:
+        return str(self.name)

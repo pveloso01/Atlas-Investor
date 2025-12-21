@@ -28,7 +28,9 @@ class PortfolioPropertyDetailSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     bedrooms = serializers.IntegerField(source="property.bedrooms", read_only=True)
-    region_name = serializers.CharField(source="property.region.name", read_only=True, allow_null=True)
+    region_name = serializers.CharField(
+        source="property.region.name", read_only=True, allow_null=True
+    )
     price_difference = serializers.SerializerMethodField()
 
     class Meta:
@@ -86,10 +88,20 @@ class PortfolioDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["id", "property_count", "total_value", "average_price", "created_at", "updated_at"]
+        read_only_fields = [
+            "id",
+            "property_count",
+            "total_value",
+            "average_price",
+            "created_at",
+            "updated_at",
+        ]
 
     def get_property_count(self, obj) -> int:
         """Get count of properties in portfolio."""
+        # Use annotation if available, otherwise fall back to count()
+        if hasattr(obj, "property_count_annotation"):
+            return obj.property_count_annotation
         return obj.properties.count()
 
     def get_total_value(self, obj) -> float:
@@ -134,6 +146,9 @@ class PortfolioListSerializer(serializers.ModelSerializer):
 
     def get_property_count(self, obj) -> int:
         """Get count of properties in portfolio."""
+        # Use annotation if available, otherwise fall back to count()
+        if hasattr(obj, "property_count_annotation"):
+            return obj.property_count_annotation
         return obj.properties.count()
 
     def get_total_value(self, obj) -> float:
@@ -158,20 +173,24 @@ class PortfolioCreateUpdateSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if request and request.user.is_authenticated:
             validated_data["user"] = request.user
-            
+
             # If this is marked as default, unset other defaults
             if validated_data.get("is_default"):
-                Portfolio.objects.filter(user=request.user, is_default=True).update(is_default=False)
+                Portfolio.objects.filter(user=request.user, is_default=True).update(
+                    is_default=False
+                )
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
         """Update portfolio and handle default flag."""
         request = self.context.get("request")
-        
+
         # If setting as default, unset other defaults
         if validated_data.get("is_default") and request:
-            Portfolio.objects.filter(user=request.user, is_default=True).exclude(pk=instance.pk).update(is_default=False)
-        
+            Portfolio.objects.filter(user=request.user, is_default=True).exclude(
+                pk=instance.pk
+            ).update(is_default=False)
+
         return super().update(instance, validated_data)
 
 
@@ -208,4 +227,3 @@ class RemovePropertyFromPortfolioSerializer(serializers.Serializer):
         except Property.DoesNotExist:
             raise serializers.ValidationError("Property not found.")
         return value
-
