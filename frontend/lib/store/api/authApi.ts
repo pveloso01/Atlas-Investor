@@ -43,6 +43,10 @@ export interface ActivationRequest {
   token: string;
 }
 
+export interface ResendActivationRequest {
+  email: string;
+}
+
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
@@ -60,7 +64,7 @@ export const authApi = createApi({
     // Login
     login: builder.mutation<TokenResponse, LoginCredentials>({
       query: (credentials) => ({
-        url: '/auth/jwt/create/',
+        url: '/api/auth/login/',
         method: 'POST',
         body: credentials,
       }),
@@ -78,9 +82,9 @@ export const authApi = createApi({
     }),
 
     // Register
-    register: builder.mutation<User, RegisterData>({
+    register: builder.mutation<{ email: string; message: string }, RegisterData>({
       query: (userData) => ({
-        url: '/auth/users/',
+        url: '/api/auth/register/',
         method: 'POST',
         body: userData,
       }),
@@ -88,7 +92,7 @@ export const authApi = createApi({
 
     // Get current user
     getCurrentUser: builder.query<User, void>({
-      query: () => '/auth/users/me/',
+      query: () => '/api/auth/me/',
       providesTags: ['User'],
     }),
 
@@ -105,27 +109,27 @@ export const authApi = createApi({
     }),
 
     // Activate account
-    activateAccount: builder.mutation<void, ActivationRequest>({
+    activateAccount: builder.mutation<{ message: string }, ActivationRequest>({
       query: (data) => ({
-        url: '/auth/users/activation/',
+        url: '/api/auth/activate/',
         method: 'POST',
         body: data,
       }),
     }),
 
     // Request password reset
-    requestPasswordReset: builder.mutation<void, PasswordResetRequest>({
+    requestPasswordReset: builder.mutation<{ message: string }, PasswordResetRequest>({
       query: (data) => ({
-        url: '/auth/users/reset_password/',
+        url: '/api/auth/password-reset/',
         method: 'POST',
         body: data,
       }),
     }),
 
     // Confirm password reset
-    confirmPasswordReset: builder.mutation<void, PasswordResetConfirm>({
+    confirmPasswordReset: builder.mutation<{ message: string }, PasswordResetConfirm>({
       query: (data) => ({
-        url: '/auth/users/reset_password_confirm/',
+        url: '/api/auth/password-reset/confirm/',
         method: 'POST',
         body: data,
       }),
@@ -134,7 +138,7 @@ export const authApi = createApi({
     // Refresh token
     refreshToken: builder.mutation<TokenResponse, { refresh: string }>({
       query: (data) => ({
-        url: '/auth/jwt/refresh/',
+        url: '/api/auth/refresh/',
         method: 'POST',
         body: data,
       }),
@@ -149,6 +153,15 @@ export const authApi = createApi({
         }
       },
     }),
+
+    // Resend activation email
+    resendActivation: builder.mutation<{ message: string }, ResendActivationRequest>({
+      query: (data) => ({
+        url: '/api/auth/resend-activation/',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -161,5 +174,6 @@ export const {
   useRequestPasswordResetMutation,
   useConfirmPasswordResetMutation,
   useRefreshTokenMutation,
+  useResendActivationMutation,
 } = authApi;
 

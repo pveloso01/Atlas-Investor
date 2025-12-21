@@ -74,6 +74,27 @@ class PropertyViewSet(viewsets.ModelViewSet):
     search_fields = ["address"]
     ordering_fields = ["price", "size_sqm", "created_at"]
     ordering = ["-created_at"]
+    
+    def list(self, request, *args, **kwargs):
+        """List properties with usage tracking for authenticated users."""
+        # Track property search usage for authenticated users
+        if request.user.is_authenticated:
+            try:
+                from subscriptions.utils import increment_usage, is_within_limit
+                if not is_within_limit(request.user, 'property_search'):
+                    return Response(
+                        {
+                            "error": "Property search limit reached. Please upgrade your subscription.",
+                            "upgrade_required": True,
+                        },
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+                increment_usage(request.user, 'property_search')
+            except Exception:
+                # If feature doesn't exist yet, allow access
+                pass
+        
+        return super().list(request, *args, **kwargs)
 
     @action(detail=True, methods=["get"])
     def compare_to_region(self, request, pk=None):
@@ -96,6 +117,35 @@ class PropertyViewSet(viewsets.ModelViewSet):
         from django.http import HttpResponse
 
         from .services.pdf_service import get_pdf_service
+
+        # Check feature access and usage limits
+        if request.user.is_authenticated:
+            try:
+                from subscriptions.utils import check_feature_access, is_within_limit, increment_usage
+                
+                if not check_feature_access(request.user, 'pdf_reports'):
+                    return Response(
+                        {
+                            "error": "PDF report generation requires a paid subscription.",
+                            "upgrade_required": True,
+                        },
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+                
+                if not is_within_limit(request.user, 'pdf_reports'):
+                    return Response(
+                        {
+                            "error": "PDF report generation limit reached. Please upgrade your subscription.",
+                            "upgrade_required": True,
+                        },
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
+                
+                # Track usage
+                increment_usage(request.user, 'pdf_reports')
+            except Exception:
+                # If feature doesn't exist yet, allow access
+                pass
 
         property_obj = self.get_object()
         pdf_service = get_pdf_service()
@@ -334,6 +384,23 @@ class PortfolioViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Create portfolio and handle default portfolio creation."""
+        # Check portfolio size limit for Basic tier
+        if self.request.user.is_authenticated:
+            try:
+                from subscriptions.utils import check_feature_access
+                subscription = self.request.user.get_active_subscription()
+                
+                if subscription and subscription.tier.slug == 'basic':
+                    user_portfolio_count = Portfolio.objects.filter(user=self.request.user).count()  # type: ignore[attr-defined]
+                    if user_portfolio_count >= 5:
+                        from rest_framework.exceptions import PermissionDenied
+                        raise PermissionDenied(
+                            "Portfolio limit reached. Basic tier allows up to 5 portfolios. Upgrade to Pro for unlimited portfolios."
+                        )
+            except Exception:
+                # If feature doesn't exist yet, allow access
+                pass
+        
         portfolio = serializer.save()
         
         # If this is the user's first portfolio, make it default
@@ -364,6 +431,26 @@ class PortfolioViewSet(viewsets.ModelViewSet):
     def add_property(self, request, pk=None):
         """Add a property to the portfolio."""
         portfolio = self.get_object()
+        
+        # Check portfolio property limit for Basic tier
+        if request.user.is_authenticated:
+            try:
+                subscription = request.user.get_active_subscription()
+                
+                if subscription and subscription.tier.slug == 'basic':
+                    property_count = PortfolioProperty.objects.filter(portfolio=portfolio).count()  # type: ignore[attr-defined]
+                    if property_count >= 5:
+                        return Response(
+                            {
+                                "error": "Portfolio property limit reached. Basic tier allows up to 5 properties per portfolio. Upgrade to Pro for unlimited properties.",
+                                "upgrade_required": True,
+                            },
+                            status=status.HTTP_403_FORBIDDEN,
+                        )
+            except Exception:
+                # If feature doesn't exist yet, allow access
+                pass
+        
         serializer = AddPropertyToPortfolioSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
